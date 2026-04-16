@@ -1,4 +1,4 @@
-const CACHE = 'srn-calculateur-trail-v1';
+const CACHE = 'srn-calculateur-trail-v2';
 const FILES = [
   '/calculateur-trail/',
   '/calculateur-trail/index.html',
