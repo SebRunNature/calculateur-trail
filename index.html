@@ -117,6 +117,15 @@ tr.is-half td{background:#dcfce7;font-weight:700;}
 }
 /* PDF géré via window.open() */
 </style>
+  <link rel="manifest" href="/calculateur-trail/manifest.json">
+<meta name="theme-color" content="#7c2d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calculateur Trail">
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('/calculateur-trail/sw.js');
+}
+</script>
 </head>
 <body>
 <div class="cw-header">
