@@ -1,0 +1,18 @@
+{
+  "name": "Calculateur Temps de Passage Trail",
+  "short_name": "Calculateur Trail",
+  "description": "Calculateur de temps de passage trail et course à pied — Seb Run Nature",
+  "start_url": "/calculateur-trail/",
+  "display": "standalone",
+  "background_color": "#7c2d12",
+  "theme_color": "#7c2d12",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/calculateur-trail/icon_calculateur.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
