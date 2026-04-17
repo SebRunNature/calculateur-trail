@@ -1,32 +1,4 @@
 <!DOCTYPE html>
-<script type='application/ld+json'>
-{
-  "@context": "https://schema.org",
-  "@type": "WebApplication",
-  "name": "Calculateur de temps de passage Trail",
-  "description": "Calcule tes temps de passage km par km avec plan de ravitaillement glucides et eau. Export PDF portrait ou paysage. Gratuit, hors ligne, sans inscription.",
-  "url": "https://www.seb-run-nature.com/p/calculateur-temps-de-passage-trail.html",
-  "applicationCategory": "SportsApplication",
-  "operatingSystem": "All",
-  "offers": {
-    "@type": "Offer",
-    "price": "0",
-    "priceCurrency": "EUR"
-  },
-  "author": {
-    "@type": "Person",
-    "name": "Sébastien",
-    "url": "https://www.seb-run-nature.com"
-  },
-  "publisher": {
-    "@type": "Organization",
-    "name": "Seb Run Nature",
-    "url": "https://www.seb-run-nature.com"
-  },
-  "inLanguage": "fr-LU",
-  "keywords": "calculateur temps de passage trail, splits trail gratuit, plan ravitaillement trail, temps de passage course à pied Luxembourg"
-}
-</script>
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
@@ -103,6 +75,20 @@ tr.is-half td{background:#dcfce7;font-weight:700;}
 .pdf-hint{font-size:.72rem;color:#9ca3af;margin-top:8px;line-height:1.6;}
 .cw-footer{text-align:center;font-size:.75rem;color:#9ca3af;margin-top:20px;line-height:1.8;}
 .cw-footer a{color:#2d9e72;font-weight:700;text-decoration:none;}
+.weather-pills{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.weather-pill{padding:7px 16px;border:1.5px solid #d1d5db;border-radius:20px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#374151;font-family:Arial,Helvetica,sans-serif;transition:all .18s;}
+.weather-pill.cold.on{background:#dbeafe;color:#1e40af;border-color:#3b82f6;}
+.weather-pill.moderate.on{background:#dcfce7;color:#166534;border-color:#2d9e72;}
+.weather-pill.hot.on{background:#fee2e2;color:#991b1b;border-color:#ef4444;}
+.alert-box{border-radius:10px;padding:10px 14px;margin-top:12px;font-size:.82rem;font-weight:700;line-height:1.6;display:none;}
+.alert-danger{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;}
+.alert-warn{background:#fef9c3;border:1px solid #fde047;color:#854d0e;}
+.nutrition-summary{background:#f0fdf4;border:1px solid #d8ece4;border-radius:10px;padding:12px 16px;margin-top:12px;display:none;}
+.ns-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#2d9e72;margin-bottom:8px;}
+.ns-grid{display:flex;gap:12px;flex-wrap:wrap;}
+.ns-item{text-align:center;flex:1;min-width:70px;}
+.ns-val{font-size:1rem;font-weight:800;color:#1e7a56;}
+.ns-lbl{font-size:.62rem;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
 @media(max-width:600px){
   .cw-grid{grid-template-columns:1fr;}
   .res-cards{grid-template-columns:1fr 1fr;}
@@ -117,26 +103,11 @@ tr.is-half td{background:#dcfce7;font-weight:700;}
 }
 /* PDF géré via window.open() */
 </style>
-  <link rel="manifest" href="/calculateur-trail/manifest.json">
-<meta name="theme-color" content="#7c2d12">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Calculateur Trail">
-<script>
-if('serviceWorker' in navigator){
-  navigator.serviceWorker.register('/calculateur-trail/sw.js');
-}
-</script>
-  <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-V3787TTF1Y"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-V3787TTF1Y');
-</script>
 </head>
 <body>
-<div class="cw-header">  
+<div class="cw">
+
+<div class="cw-header">
   <h1>Calculateur de temps de passage</h1>
   <p>Trail &amp; Course à pied · Splits km par km · Plan ravitaillement · Export PDF</p>
 </div>
@@ -186,6 +157,15 @@ if('serviceWorker' in navigator){
         <option value="neg">Départ conservateur (accélération finale)</option>
         <option value="pos">Départ rapide (gestion en fin de course)</option>
       </select>
+    </div>
+    <div class="cw-field" style="grid-column:1/-1;">
+      <span class="cw-label">Conditions météo le jour de la course</span>
+      <div class="weather-pills">
+        <button class="weather-pill cold" onclick="setWeather('cold',this)">❄️ Froid (&lt;10°C)</button>
+        <button class="weather-pill moderate on" onclick="setWeather('moderate',this)">🌤️ Tempéré (10-20°C)</button>
+        <button class="weather-pill hot" onclick="setWeather('hot',this)">☀️ Chaud (&gt;20°C)</button>
+      </div>
+      <div style="font-size:.7rem;color:#9ca3af;margin-top:5px;">Ajuste les besoins en eau et sodium selon la température</div>
     </div>
   </div>
   <div id="distBanner" class="dist-banner">
@@ -256,6 +236,17 @@ if('serviceWorker' in navigator){
       <div class="tot-card"><div class="tot-val" id="totEau">—</div><div class="tot-lbl">Eau totale</div></div>
       <div class="tot-card"><div class="tot-val" id="totSod">—</div><div class="tot-lbl">Sodium total</div></div>
     </div>
+    <div id="alertBox" class="alert-box"></div>
+    <div id="nutritionSummary" class="nutrition-summary">
+      <div class="ns-title">Résumé nutrition course</div>
+      <div class="ns-grid">
+        <div class="ns-item"><div class="ns-val" id="nsEau">—</div><div class="ns-lbl">Eau totale</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsGluc">—</div><div class="ns-lbl">Glucides totaux</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsSod">—</div><div class="ns-lbl">Sodium total</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsEauH">—</div><div class="ns-lbl">Eau / heure</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsGlucH">—</div><div class="ns-lbl">Glucides / heure</div></div>
+      </div>
+    </div>
     <div class="disclaimer">
       <strong>Temps de passage :</strong> Ces estimations sont basées sur ton chrono objectif. Ta forme du jour, la météo, le terrain ou les conditions de course peuvent influencer ton allure réelle.
       <span id="disclaimerRavito" style="display:none;"><br><br><strong>Ravitaillement :</strong> Les quantités indiquées sont indicatives et basées sur des recommandations générales. Consulte un nutritionniste du sport pour un plan personnalisé.</span>
@@ -286,107 +277,6 @@ if('serviceWorker' in navigator){
   </div>
 
 </div>
-  
-  <!--DEBUT DU TEXTE-->
-  <div style='font-family:Arial,Helvetica,sans-serif;max-width:860px;margin:0 auto;padding:0 15px 60px;color:#1f2937;line-height:1.75;'>
-
-<hr style='border:none;border-top:2px solid #e6f7f1;margin:40px 0;'/>
-
-<!-- TITRE -->
-<h2 style='font-size:1.55rem;font-weight:800;color:#111827;margin:0 0 16px;padding-bottom:8px;border-bottom:2px solid #e6f7f1;'>
-  Tu as un objectif chrono — maintenant construis ta stratégie
-</h2>
-
-<p style='font-size:.97rem;color:#374151;margin-bottom:16px;text-align:justify;'>
-Viser un temps c&apos;est bien. Savoir comment y arriver kilomètre par kilomètre, c&apos;est ce qui fait la différence le jour J. Ce calculateur est là pour ça — pas de théorie, juste ton chrono, ta distance, et un tableau de bord concret pour ne pas partir comme une fusée et finir à ramper.
-</p>
-
-<!-- COMMENT CA MARCHE -->
-<h2 style='font-size:1.3rem;font-weight:800;color:#111827;margin:32px 0 14px;'>
-  Comment ça marche en 30 secondes
-</h2>
-
-<p style='font-size:.97rem;color:#374151;margin-bottom:16px;text-align:justify;'>
-Tu rentres ta distance, ton chrono objectif et ton heure de départ. Le calculateur découpe ta course en points de passage avec l&apos;allure exacte à tenir, l&apos;heure réelle à chaque kilomètre, et ton plan de ravitaillement si ton effort dépasse une heure. Tu génères ton tableau, tu l&apos;imprimes en PDF — portrait ou paysage — et tu pars confiant.
-</p>
-
-<div style='background:#f0fdf4;border-left:5px solid #2d9e72;border-radius:0 10px 10px 0;padding:14px 20px;margin-bottom:28px;'>
-  <ul style='list-style:none;padding:0;margin:0;font-size:.88rem;color:#1a4a32;line-height:2.1;'>
-    <li>📍 <strong>Une distance cible</strong> — 5 km, 10 km, semi, marathon, ultra ou distance personnalisée</li>
-    <li>⏱️ <strong>Un chrono objectif</strong> — ton temps visé, le calculateur fait le reste</li>
-    <li>🗓️ <strong>Une heure de départ</strong> — tu vois l&apos;heure réelle à chaque point de passage</li>
-    <li>🥤 <strong>Un plan ravitaillement</strong> — glucides, eau et sodium intégrés dans le tableau</li>
-  </ul>
-</div>
-
-<!-- POURQUOI C'EST UTILE -->
-<h2 style='font-size:1.3rem;font-weight:800;color:#111827;margin:32px 0 14px;'>
-  Pourquoi c&apos;est utile — vraiment
-</h2>
-
-<p style='font-size:.97rem;color:#374151;margin-bottom:28px;text-align:justify;'>
-La première faute du coureur amateur c&apos;est le départ trop rapide. L&apos;adrénaline, la foule, la bonne forme du matin — et au km 8 les jambes lâchent. Connaître ses temps de passage à l&apos;avance c&apos;est avoir un plan dans la tête avant même que le problème arrive. C&apos;est courir avec la tête autant qu&apos;avec les jambes.
-</p>
-
-<!-- SEPARATEUR -->
-<div style='display:flex;align-items:center;gap:14px;margin:36px 0;'>
-  <div style='flex:1;height:1px;background:#e5e7eb;'></div>
-  <div style='font-size:.78rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;'>Et après le calcul ?</div>
-  <div style='flex:1;height:1px;background:#e5e7eb;'></div>
-</div>
-
-<p style='font-size:.97rem;color:#374151;margin-bottom:20px;text-align:justify;'>
-Un bon temps de passage ça se prépare à l&apos;entraînement — pas seulement le jour de la course. Si tu veux un plan structuré pour progresser vraiment, j&apos;ai créé trois outils gratuits pensés pour les coureurs sérieux.
-</p>
-
-<!-- CTA FEMME -->
-<div style='background:linear-gradient(135deg,#fdf2f8,#fce7f3);border:1.5px solid #e879a0;border-radius:14px;padding:20px 22px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;'>
-  <div style='flex:1;min-width:200px;'>
-    <div style='font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#9d174d;margin-bottom:6px;'>Plan d&apos;entraînement · Femme</div>
-    <div style='font-size:.97rem;font-weight:800;color:#4a1535;margin-bottom:4px;'>Plan Norvégien Trail Femme + Cycle</div>
-    <div style='font-size:.82rem;color:#be185d;'>Tu veux un plan synchronisé avec ton cycle menstruel ? C&apos;est par ici — gratuit, 12 semaines, hors ligne.</div>
-  </div>
-  <a href='https://www.seb-run-nature.com/2026/04/plan-norvegien-trail-femme-cycle-menstruel-dashboard.html'
-     style='display:inline-flex;align-items:center;gap:8px;background:#9d174d;color:#fff;border-radius:10px;padding:12px 20px;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;'>
-    🌸 Découvrir →
-  </a>
-</div>
-
-<!-- CTA HOMME -->
-<div style='background:#f0fdf4;border:1.5px solid #2d9e72;border-radius:14px;padding:20px 22px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;'>
-  <div style='flex:1;min-width:200px;'>
-    <div style='font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#2d9e72;margin-bottom:6px;'>Plan d&apos;entraînement · Homme</div>
-    <div style='font-size:.97rem;font-weight:800;color:#111827;margin-bottom:4px;'>Plan Norvégien Trail Homme</div>
-    <div style='font-size:.82rem;color:#1e7a56;'>Tu veux un plan adapté à ton âge et ta distance objectif ? 12 semaines, M35 à M65, de 5 km à 100 km.</div>
-  </div>
-  <a href='https://www.seb-run-nature.com/2026/04/plan-norvegien-trail-homme-dashboard-gratuit.html'
-     style='display:inline-flex;align-items:center;gap:8px;background:#2d9e72;color:#fff;border-radius:10px;padding:12px 20px;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;'>
-    🏔️ Découvrir →
-  </a>
-</div>
-
-<!-- CTA SUIVI -->
-<div style='background:#f8fdfb;border:1.5px solid #d8ece4;border-radius:14px;padding:20px 22px;margin-bottom:28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;'>
-  <div style='flex:1;min-width:200px;'>
-    <div style='font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#6b857c;margin-bottom:6px;'>Suivi de préparation · Homme &amp; Femme</div>
-    <div style='font-size:.97rem;font-weight:800;color:#111827;margin-bottom:4px;'>Dashboard Suivi Préparation Trail v19</div>
-    <div style='font-size:.82rem;color:#6b7280;'>Tu t&apos;entraînes déjà et tu veux suivre ta progression semaine par semaine ? C&apos;est cet outil qu&apos;il te faut.</div>
-  </div>
-  <a href='https://www.seb-run-nature.com/2026/03/dashboard-trail-suis-ta-preparation-comme-un-pro.html'
-     style='display:inline-flex;align-items:center;gap:8px;background:#1a4a32;color:#a8f0d0;border-radius:10px;padding:12px 20px;font-size:.85rem;font-weight:700;text-decoration:none;white-space:nowrap;flex-shrink:0;'>
-    📊 Découvrir →
-  </a>
-</div>
-
-<!-- BADGE GRATUIT -->
-<div style='text-align:center;padding:12px;background:#f8fdfb;border-radius:10px;border:1px solid #d8ece4;'>
-  <p style='font-size:.8rem;color:#6b857c;margin:0;'>
-    Tous les outils sont <strong style='color:#1e7a56;'>gratuits</strong> · <strong style='color:#1e7a56;'>hors ligne</strong> · <strong style='color:#1e7a56;'>sans inscription</strong> · données privées stockées sur ton appareil<br/>
-    <a href='https://www.seb-run-nature.com/' style='color:#2d9e72;font-weight:700;text-decoration:none;'>Seb Run Nature</a> · Trail Luxembourg
-  </p>
-</div>
-
-</div>
 
 <div class="cw-footer">
   Outil gratuit · Seb Run Nature · Luxembourg<br>
@@ -397,7 +287,89 @@ Un bon temps de passage ça se prépare à l&apos;entraînement — pas seulemen
 
 
 <script>
-var ravitoMode='auto', ravitoFreq=2, pdfFormat='portrait';
+var ravitoMode='auto', ravitoFreq=2, pdfFormat='portrait', currentWeather='moderate';
+
+var NUTRITION_CONFIG = {
+  water: [
+    {maxH:1.5, mlH:0},
+    {maxH:2.5, mlH:400},
+    {maxH:4,   mlH:550},
+    {maxH:99,  mlH:650}
+  ],
+  carbs: [
+    {maxH:1.5, gH:0},
+    {maxH:2.5, gH:40},
+    {maxH:5,   gH:60},
+    {maxH:99,  gH:50}
+  ],
+  sodium: {base:500},
+  weather: {
+    cold:     {water:0.8, sodium:0.7},
+    moderate: {water:1.0, sodium:1.0},
+    hot:      {water:1.4, sodium:1.6}
+  },
+  alerts: {
+    carbsMax:80,
+    waterMin:400,
+    hypo:{waterMin:700, sodiumMax:300}
+  }
+};
+
+function setWeather(w, btn) {
+  currentWeather = w;
+  document.querySelectorAll('.weather-pill').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+}
+
+function getNutritionPerRavito(totalSec, ravitoFreqKm, distKm) {
+  var h = totalSec / 3600;
+  if (h < 1.5) return null;
+  var mod = NUTRITION_CONFIG.weather[currentWeather];
+  var nbRavitos = Math.floor(distKm / ravitoFreqKm);
+  if (nbRavitos < 1) nbRavitos = 1;
+  // Valeurs horaires
+  var waterBase = 0, carbsBase = 0;
+  NUTRITION_CONFIG.water.forEach(function(r){if(h<=r.maxH&&!waterBase)waterBase=r.mlH;});
+  NUTRITION_CONFIG.carbs.forEach(function(r){if(h<=r.maxH&&!carbsBase)carbsBase=r.gH;});
+  if(!waterBase) waterBase = 650;
+  if(!carbsBase) carbsBase = 50;
+  var waterH = Math.round(waterBase * mod.water);
+  var carbsH = carbsBase;
+  var sodiumH = Math.round(NUTRITION_CONFIG.sodium.base * mod.sodium);
+  // Par ravito
+  var waterPerRav = Math.round(waterH * h / nbRavitos);
+  var carbsPerRav = Math.round(carbsH * h / nbRavitos);
+  var sodiumPerRav = Math.round(sodiumH * h / nbRavitos);
+  // Label detail
+  var detail = h < 2.5 ? 'Gel + eau' : h < 5 ? 'Gel + eau + sel' : 'Solide + eau + sel';
+  return {
+    gluc: carbsPerRav,
+    glucL: '~'+carbsPerRav+'g',
+    eau: waterPerRav,
+    eauL: waterPerRav+'ml',
+    sod: sodiumPerRav,
+    detail: detail,
+    // Totaux horaires pour alertes
+    waterH: waterH,
+    carbsH: carbsH,
+    sodiumH: sodiumH,
+    totalWater: Math.round(waterH * h),
+    totalCarbs: Math.round(carbsH * h),
+    totalSodium: Math.round(sodiumH * h)
+  };
+}
+
+function getAlerts(n) {
+  if (!n) return [];
+  var alerts = [];
+  if (n.carbsH > NUTRITION_CONFIG.alerts.carbsMax)
+    alerts.push({type:'danger', msg:'Attention saturation gastrique — '+n.carbsH+'g/h de glucides depasse le seuil de 80g/h. Reduisez la frequence ou alternez gel et solide.'});
+  if (n.waterH < NUTRITION_CONFIG.alerts.waterMin)
+    alerts.push({type:'warn', msg:'Hydratation insuffisante — '+n.waterH+'ml/h est en dessous du minimum recommande de 400ml/h. Augmentez la frequence des ravitos.'});
+  if (n.waterH > NUTRITION_CONFIG.alerts.hypo.waterMin && n.sodiumH < NUTRITION_CONFIG.alerts.hypo.sodiumMax)
+    alerts.push({type:'danger', msg:'Risque d hyponatremie — vous buvez beaucoup ('+n.waterH+'ml/h) mais peu de sodium ('+n.sodiumH+'mg/h). Ajoutez du sel ou des capsules sodium.'});
+  return alerts;
+}
 var lastRows=[], lastMeta={};
 
 var DIST_INFO={
@@ -483,13 +455,8 @@ function addTime(hhmm,addSec){
   return pad(Math.floor(base/3600)%24)+':'+pad(Math.floor((base%3600)/60));
 }
 
-function getRavito(totalSec){
-  var h=totalSec/3600;
-  if(h<1)return null;
-  if(h<2.5)return{gluc:40,glucL:'~40g',eau:180,eauL:'180ml',sod:400,detail:'Gel + eau'};
-  if(h<4)return{gluc:65,glucL:'~65g',eau:200,eauL:'200ml',sod:600,detail:'Gel + eau + sel'};
-  return{gluc:80,glucL:'~80g',eau:200,eauL:'200ml',sod:800,detail:'Solide + eau + sel'};
-}
+// getNutritionPerRavito définie plus haut avec NUTRITION_CONFIG
+function getRavito(totalSec){ return getNutritionPerRavito(totalSec, ravitoFreq, lastMeta.dist||10); }
 
 function calculate(){
   var distSel=document.getElementById('dist').value;
@@ -506,7 +473,7 @@ function calculate(){
   var heureArr=startTime?addTime(startTime,totalSec):null;
   document.getElementById('rFin').textContent=heureArr||fmtTime(totalSec);
 
-  var needs=getRavito(totalSec);
+  var needs=getNutritionPerRavito(totalSec, ravitoFreq, dist);
   var showR=ravitoMode==='auto'&&needs;
   document.getElementById('thRavito').style.display=showR?'':'none';
   document.getElementById('thGluc').style.display=showR?'':'none';
@@ -589,6 +556,31 @@ function calculate(){
   lastMeta={dist:dist,totalSec:totalSec,avgPace:avgPace,startTime:startTime,heureArr:heureArr,showR:showR,totG:totG,totE:totE,totS:totS};
   document.getElementById('output').style.display='block';
   document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Résumé nutrition
+  if (needs) {
+    var ns = document.getElementById('nutritionSummary');
+    ns.style.display = 'block';
+    document.getElementById('nsEau').textContent = (needs.totalWater/1000).toFixed(1)+'L';
+    document.getElementById('nsGluc').textContent = needs.totalCarbs+'g';
+    document.getElementById('nsSod').textContent = needs.totalSodium+'mg';
+    document.getElementById('nsEauH').textContent = needs.waterH+'ml';
+    document.getElementById('nsGlucH').textContent = needs.carbsH+'g';
+    // Alertes
+    var alerts = getAlerts(needs);
+    var ab = document.getElementById('alertBox');
+    if (alerts.length > 0) {
+      var hasDanger = alerts.some(function(a){return a.type==='danger';});
+      ab.className = 'alert-box ' + (hasDanger ? 'alert-danger' : 'alert-warn');
+      ab.innerHTML = alerts.map(function(a){return '⚠️ '+a.msg;}).join('<br>');
+      ab.style.display = 'block';
+    } else {
+      ab.style.display = 'none';
+    }
+  } else {
+    document.getElementById('nutritionSummary').style.display = 'none';
+    document.getElementById('alertBox').style.display = 'none';
+  }
 }
 
 function exportPDF(){
