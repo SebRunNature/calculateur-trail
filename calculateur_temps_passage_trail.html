@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur Temps de Passage Trail · Seb Run Nature</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:#fdf8f4;color:#1e293b;margin:0;padding:0;}
+.cw{max-width:900px;margin:0 auto;padding:0 16px 60px;}
+
+/* APP HEADER */
+.app-topbar{background:linear-gradient(135deg,#431407,#7c2d12,#92400e);padding:8px 16px;display:flex;align-items:center;gap:10px;min-height:56px;box-shadow:0 2px 12px rgba(124,45,18,.4);flex-wrap:wrap;}
+.app-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.app-logo-icon{width:34px;height:34px;background:rgba(254,215,170,.15);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(254,215,170,.3);}
+.app-logo-text{font-size:.78rem;font-weight:800;color:#fed7aa;text-transform:uppercase;letter-spacing:1px;}
+.app-topbar-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.app-topbar-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;font-size:.75rem;font-weight:700;cursor:pointer;border:1.5px solid rgba(254,215,170,.25);background:rgba(254,215,170,.1);color:#fed7aa;font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap;}
+.app-topbar-btn:hover{background:rgba(254,215,170,.2);border-color:rgba(254,215,170,.5);}
+.app-hero{background:linear-gradient(135deg,#431407,#7c2d12,#92400e);padding:28px 20px 32px;margin-bottom:0;position:relative;overflow:hidden;}
+.app-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(254,215,170,.06);pointer-events:none;}
+.app-hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:140px;height:140px;border-radius:50%;background:rgba(254,215,170,.04);pointer-events:none;}
+.app-hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,2.8rem);color:#fff;letter-spacing:2px;line-height:1.05;margin-bottom:8px;}
+.app-hero-title span{color:#fed7aa;}
+.app-hero-sub{font-size:.85rem;color:rgba(254,215,170,.7);display:flex;gap:12px;flex-wrap:wrap;}
+.app-hero-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(254,215,170,.1);border:1px solid rgba(254,215,170,.2);color:#fed7aa;border-radius:14px;padding:3px 11px;font-size:.68rem;font-weight:700;}
+.app-content{background:#fdf8f4;padding-top:20px;}
+
+/* DARK MODE OVERRIDE */
+body.dark .app-content{background:#0f172a;}
+body.dark .cw-section,body.dark .pdf-section{background:#1e293b;border-color:#334155;}
+body.dark input,body.dark select,body.dark textarea{background:#0f172a;color:#e2e8f0;border-color:#334155;}
+body.dark input:focus,body.dark select:focus{background:#1e293b;}
+body.dark .radio-opt{background:#1e293b;border-color:#334155;}
+body.dark .freq-pill,body.dark .terrain-pill,body.dark .format-pill{background:#1e293b;color:#94a3b8;}
+body.dark .res-card,body.dark .tot-card,body.dark .disclaimer{background:#1e293b;border-color:#334155;}
+body.dark .nutrition-summary{background:#1a0a04;border-color:#7c2d12;}
+body.dark td{border-bottom-color:#334155;}
+body.dark tr:hover td{background:#1e293b!important;}
+body.dark tr:last-child td{background:#1a0a04;}
+body.dark .cw-badge{background:#1a0a04;border-color:#7c2d12;color:#fed7aa;}
+.cw-section{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:20px 22px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.05);transition:box-shadow .2s;}
+.cw-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:#2d9e72;border-left:3px solid #2d9e72;padding-left:10px;margin-bottom:18px;}
+.cw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cw-field{display:flex;flex-direction:column;gap:5px;}
+.cw-label{font-size:.78rem;font-weight:700;color:#6b7280;}
+input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.88rem;font-family:'Inter',sans-serif;background:#f8fafc;color:#1e293b;transition:all .18s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:#2d9e72;background:#fff;box-shadow:0 0 0 3px rgba(45,158,114,.1);}
+textarea{resize:none;}
+.dist-banner{background:#BA7517;border-radius:10px;padding:11px 16px;margin-top:12px;display:none;align-items:center;gap:12px;}
+.dist-banner-icon{font-size:1.3rem;flex-shrink:0;}
+.dist-banner-text{font-size:.88rem;font-weight:800;color:#fff;}
+.dist-banner-sub{font-size:.72rem;color:rgba(255,255,255,.8);margin-top:2px;}
+.radio-group{display:flex;flex-direction:column;gap:8px;}
+.radio-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid #d1d5db;border-radius:10px;cursor:pointer;}
+.radio-opt.selected{border-color:#2d9e72;background:#f0fdf4;}
+.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.radio-dot.on{border-color:#2d9e72;background:#2d9e72;}
+.radio-dot.on::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%;}
+.radio-label{font-size:.88rem;font-weight:700;color:#111827;}
+.radio-sub{font-size:.72rem;color:#6b7280;margin-top:2px;}
+.freq-pills{display:flex;gap:8px;margin-top:8px;margin-left:32px;flex-wrap:wrap;}
+.freq-pill{padding:5px 16px;border:1px solid #d1d5db;border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;background:#fff;color:#374151;}
+.freq-pill.on{background:#2d9e72;color:#fff;border-color:#2d9e72;}
+.cw-btn{width:100%;padding:14px;background:linear-gradient(135deg,#2d9e72,#248b63);color:#fff;border:none;border-radius:11px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:4px;font-family:'Inter',sans-serif;box-shadow:0 4px 14px rgba(45,158,114,.3);transition:all .2s;}
+.cw-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(45,158,114,.35);}
+.res-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.res-card{background:#f0fdf4;border:1px solid #d8ece4;border-radius:10px;padding:12px 8px;text-align:center;}
+.res-val{font-size:1rem;font-weight:800;color:#1e7a56;line-height:1.2;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;}
+.res-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#6b857c;margin-top:4px;}
+.arrivee-banner{background:#EF9F27;border-radius:10px;padding:9px 14px;margin-bottom:14px;font-size:.85rem;font-weight:800;color:#412402;display:none;}
+.t-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{text-align:left;padding:8px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;background:#1a4a32;color:#a8f0d0;white-space:nowrap;}
+th:first-child{border-radius:8px 0 0 0;}
+th:last-child{border-radius:0 8px 0 0;}
+td{padding:9px 11px;border-bottom:1px solid #f1f5f9;vertical-align:middle;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-variant-numeric:tabular-nums;}
+tr:last-child td{border-bottom:none;font-weight:800;background:#f0fdf4;}
+tr.is-ravito td{background:#e6f7f1;}
+tr.is-ravito td:first-child{border-left:3px solid #2d9e72;}
+tr.is-half td{background:#dcfce7;font-weight:700;}
+tr:hover td{background:#f8fafc!important;}
+.rav-badge{display:inline-flex;align-items:center;gap:3px;background:#2d9e72;color:#fff;border-radius:10px;padding:2px 8px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.gluc-col{min-width:70px;}
+.eau-col{min-width:70px;}
+.gluc-pill{display:inline-block;background:#EF9F27;color:#412402;border-radius:8px;padding:1px 7px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.eau-pill{display:inline-block;background:#bfdbfe;color:#1e40af;border-radius:8px;padding:1px 7px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.cum-lbl{font-size:.65rem;color:#9ca3af;margin-top:2px;display:block;}
+.totals-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.tot-card{background:#f0fdf4;border:1px solid #d8ece4;border-radius:10px;padding:12px;text-align:center;}
+.tot-val{font-size:1.1rem;font-weight:800;color:#1e7a56;font-family:'JetBrains Mono',monospace;}
+.tot-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:#6b857c;margin-top:4px;}
+.disclaimer{background:#f8fdfb;border:1px solid #d8ece4;border-radius:10px;padding:12px 14px;font-size:.75rem;color:#6b7280;line-height:1.7;margin-top:12px;}
+.disclaimer strong{color:#374151;}
+.pdf-section{background:#fff;border:1px solid #d8ece4;border-radius:14px;padding:18px 20px;margin-top:12px;}
+.format-pills{display:flex;gap:8px;margin-bottom:14px;}
+.format-pill{padding:8px 20px;border:1px solid #d1d5db;border-radius:20px;font-size:.85rem;font-weight:700;cursor:pointer;background:#fff;color:#374151;}
+.format-pill.on{background:#1a4a32;color:#a8f0d0;border-color:#1a4a32;}
+.motto-count{font-size:.72rem;color:#9ca3af;margin-top:4px;}
+.btn-row{display:flex;gap:10px;margin-top:14px;}
+.btn-row .cw-btn{margin-top:0;}
+.btn-modifier{flex:0 0 auto;padding:13px 20px;background:#f0fdf4;color:#1e7a56;border:1px solid #2d9e72;border-radius:10px;font-size:.88rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;}
+.btn-modifier:hover{background:#dcfce7;}
+.pdf-hint{font-size:.72rem;color:#9ca3af;margin-top:8px;line-height:1.6;}
+.cw-footer{text-align:center;font-size:.75rem;color:#9ca3af;margin-top:20px;line-height:1.8;}
+.cw-footer a{color:#2d9e72;font-weight:700;text-decoration:none;}
+.weather-pills{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.weather-pill{padding:7px 16px;border:1.5px solid #d1d5db;border-radius:20px;font-size:.8rem;font-weight:700;cursor:pointer;background:#fff;color:#374151;font-family:Arial,Helvetica,sans-serif;transition:all .18s;}
+.weather-pill.cold.on{background:#dbeafe;color:#1e40af;border-color:#3b82f6;}
+.weather-pill.moderate.on{background:#dcfce7;color:#166534;border-color:#2d9e72;}
+.weather-pill.hot.on{background:#fee2e2;color:#991b1b;border-color:#ef4444;}
+.alert-box{border-radius:10px;padding:10px 14px;margin-top:12px;font-size:.82rem;font-weight:700;line-height:1.6;display:none;}
+.alert-danger{background:#fee2e2;border:1px solid #fca5a5;color:#991b1b;}
+.alert-warn{background:#fef9c3;border:1px solid #fde047;color:#854d0e;}
+.nutrition-summary{background:#f0fdf4;border:1px solid #d8ece4;border-radius:10px;padding:12px 16px;margin-top:12px;display:none;}
+.ns-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:#2d9e72;margin-bottom:8px;}
+.ns-grid{display:flex;gap:12px;flex-wrap:wrap;}
+.ns-item{text-align:center;flex:1;min-width:70px;}
+.ns-val{font-size:1rem;font-weight:800;color:#1e7a56;font-family:'JetBrains Mono',monospace;}
+.ns-lbl{font-size:.62rem;color:#6b7280;text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
+/* TERRAIN PILLS */
+.terrain-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.terrain-pill{padding:7px 13px;border:1.5px solid #e2e8f0;border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;background:#fff;color:#64748b;font-family:'Inter',sans-serif;transition:all .18s;}
+.terrain-pill.on{background:#f0fdf4;color:#1a4a32;border-color:#2d9e72;}
+/* KM EFFORT BANNER */
+.km-effort-banner{background:linear-gradient(135deg,#1a4a32,#1e6644);border-radius:12px;padding:12px 16px;margin-top:12px;display:none;align-items:center;gap:14px;}
+.ke-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#a8f0d0;}
+.ke-lbl{font-size:.7rem;color:rgba(168,240,208,.7);margin-top:2px;}
+.ke-detail{font-size:.72rem;color:rgba(168,240,208,.82);margin-top:4px;line-height:1.5;}
+/* FATIGUE SLIDER */
+input[type=range]{-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg,#ef4444 0%,#EF9F27 50%,#2d9e72 100%);padding:0;border:none;box-shadow:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid #2d9e72;box-shadow:0 2px 6px rgba(0,0,0,.15);}
+.fatigue-labels{display:flex;justify-content:space-between;font-size:.62rem;color:#94a3b8;margin-top:3px;font-weight:600;}
+/* RAVITO CUSTOM */
+.ravito-custom-wrap{margin-top:10px;padding:14px;background:#f0fdf4;border:1px solid #d8ece4;border-radius:10px;display:none;}
+.ravito-custom-title{font-size:.72rem;font-weight:700;color:#1a4a32;margin-bottom:8px;}
+.ravito-km-input{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.ravito-km-input input{max-width:100px;flex:none;}
+.ravito-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.ravito-tag{display:inline-flex;align-items:center;gap:4px;background:#2d9e72;color:#fff;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:700;cursor:pointer;}
+.ravito-tag:hover{background:#1a4a32;}
+.btn-small{padding:7px 14px;background:#f0fdf4;color:#1a4a32;border:1px solid #2d9e72;border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;}
+/* POIDS SAC */
+.section-ravito{background:linear-gradient(135deg,#fff7ed,#ffedd5);border:1px solid #fed7aa;border-radius:12px;padding:14px 18px;margin-top:10px;display:none;}
+.sr-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#92400e;margin-bottom:10px;}
+.sr-grid{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.sr-item{text-align:center;flex:1;min-width:90px;background:rgba(255,255,255,.6);border-radius:8px;padding:10px 8px;border:1px solid rgba(254,215,170,.5);}
+.sr-val{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:#7c2d12;}
+.sr-lbl{font-size:.62rem;color:#92400e;text-transform:uppercase;letter-spacing:.3px;margin-top:3px;font-weight:700;}
+.sr-note{font-size:.75rem;color:#b45309;line-height:1.6;background:rgba(255,255,255,.5);border-radius:6px;padding:8px 12px;border-left:3px solid #fed7aa;}
+/* DARK MODE */
+/* dark-btn deplace dans topbar */
+body.dark{background:#0f172a;color:#e2e8f0;}
+body.dark .cw-section,body.dark .pdf-section{background:#1e293b;border-color:#334155;}
+body.dark input,body.dark select,body.dark textarea{background:#0f172a;color:#e2e8f0;border-color:#334155;}
+body.dark input:focus,body.dark select:focus{background:#1e293b;}
+body.dark .radio-opt{background:#1e293b;}
+body.dark .freq-pill,body.dark .terrain-pill,body.dark .format-pill{background:#1e293b;color:#94a3b8;}
+body.dark .res-card,body.dark .tot-card,body.dark .disclaimer{background:#1e293b;border-color:#334155;}
+body.dark .nutrition-summary{background:#0d2818;border-color:#1a4a32;}
+body.dark td{border-bottom-color:#334155;}
+body.dark tr:hover td{background:#1e293b!important;}
+body.dark tr:last-child td{background:#0d2818;}
+/* ISOL RAVITO CUSTOM */
+tr.is-ravito-custom td{background:#fdf4e7;}
+tr.is-ravito-custom td:first-child{border-left:3px solid #EF9F27;}
+.rav-badge-custom{background:#EF9F27;color:#412402;}
+/* FORMAT PILLS */
+.format-pill.on{background:#1a4a32;color:#a8f0d0;border-color:#1a4a32;}
+@media(max-width:600px){
+  #fsBtn{display:none;}
+  .app-topbar-btn{padding:6px 10px;font-size:.7rem;}
+  .cw-grid{grid-template-columns:1fr;}
+  .res-cards{grid-template-columns:1fr 1fr;}
+  .totals-row{grid-template-columns:1fr;}
+  .btn-row{flex-direction:column;}
+}
+@media(max-width:680px){
+  table{font-size:.72rem;}
+  th,td{padding:6px 6px;}
+  .hide-mobile{display:none;}
+  .t-wrap{border-radius:8px;border:1px solid #d8ece4;}
+}
+/* PDF géré via window.open() */
+</style>
+  <link rel="manifest" href="/calculateur-trail/manifest.json">
+<meta name="theme-color" content="#7c2d12">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calculateur Trail">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-V3787TTF1Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-V3787TTF1Y");
+</script>
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("/calculateur-trail/sw.js");
+}
+</script>
+</head>
+<body>
+<!-- TOPBAR -->
+<div class="app-topbar">
+  <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" class="app-logo">
+    <div class="app-logo-icon">
+      <svg width="18" height="18" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="18" stroke="#fed7aa" stroke-width="2.5"/>
+        <path d="M8 26 Q14 14 20 18 Q26 22 32 10" stroke="#fed7aa" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="app-logo-text">Seb Run Nature</span>
+  </a>
+  <div class="app-topbar-actions">
+    <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" class="app-topbar-btn">🌿 Mon Blog Trail</a>
+    <button class="app-topbar-btn" onclick="toggleDark()" id="darkBtn">🌙 Mode sombre</button>
+    <button class="app-topbar-btn" onclick="toggleFullscreen()" id="fsBtn">&#x26F6; Fullscreen</button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="app-hero">
+  <div class="app-hero-title">Calculateur de<br><span>temps de passage</span><br>&amp; ravitaillement</div>
+  <div class="app-hero-sub">
+    <span class="app-hero-badge">&#x23F1; Splits km par km</span>
+    <span class="app-hero-badge">&#x1F4A7; Nutrition intelligente</span>
+    <span class="app-hero-badge">&#x26F0; D&eacute;nivel&eacute; D+</span>
+    <span class="app-hero-badge">&#x1F392; Poids du sac</span>
+    <span class="app-hero-badge">&#x1F4C4; Export PDF</span>
+  </div>
+</div>
+
+<div class="app-content">
+<div class="cw">
+
+<div class="cw-section">
+  <div class="cw-section-title">Ma course</div>
+  <div class="cw-grid">
+    <div class="cw-field">
+      <span class="cw-label">Distance</span>
+      <select id="dist" onchange="onDistChange()">
+        <option value="5">5 km</option>
+        <option value="10" selected>10 km</option>
+        <option value="15">15 km</option>
+        <option value="18.7">Uelzechtdall 18,7 km</option>
+        <option value="21.1">Semi-marathon 21,1 km</option>
+        <option value="42.195">Marathon 42,195 km</option>
+        <option value="50">Ultra 50 km</option>
+        <option value="80">Ultra 80 km</option>
+        <option value="100">Ultra 100 km</option>
+        <option value="200">Ultra 200 km</option>
+        <option value="custom">Distance personnalisée</option>
+      </select>
+    </div>
+    <div class="cw-field" id="customField" style="display:none;">
+      <span class="cw-label">Distance (km)</span>
+      <input type="number" id="customDist" min="1" max="200" step="0.1" placeholder="ex: 18.5" oninput="onDistChange()">
+    </div>
+    <div class="cw-field">
+      <span class="cw-label">Chrono objectif (h:mm:ss)</span>
+      <input type="text" id="targetTime" placeholder="1:26:00" value="1:26:00">
+    </div>
+    <div class="cw-field">
+      <span class="cw-label">Heure de départ</span>
+      <input type="time" id="startTime" value="09:00">
+    </div>
+    <div class="cw-field">
+      <span class="cw-label">Fréquence des points de passage</span>
+      <select id="freq">
+        <option value="1" selected>Tous les 1 km</option>
+        <option value="2">Tous les 2 km</option>
+        <option value="5">Tous les 5 km</option>
+      </select>
+    </div>
+    <div class="cw-field">
+      <span class="cw-label">Stratégie de course</span>
+      <select id="strat">
+        <option value="even">Allure régulière</option>
+        <option value="neg">Départ conservateur (accélération finale)</option>
+        <option value="pos">Départ rapide (gestion en fin de course)</option>
+      </select>
+    </div>
+    <div class="cw-field">
+      <span class="cw-label">Dénivelé positif D+ <span style="font-size:.65rem;color:#94a3b8;">(optionnel)</span></span>
+      <input type="number" id="dplus" min="0" max="20000" step="50" placeholder="ex: 2500" oninput="onDplusChange()">
+    </div>
+    <div class="cw-field" id="terrainField" style="display:none;grid-column:1/-1;">
+      <span class="cw-label">⛰️ Technicité du terrain</span>
+      <div class="terrain-pills">
+        <button class="terrain-pill on" onclick="setTerrain('easy',this)">🟢 Facile (×1.0)</button>
+        <button class="terrain-pill" onclick="setTerrain('tech',this)">🟠 Technique (×1.2)</button>
+        <button class="terrain-pill" onclick="setTerrain('expert',this)">🔴 Expert / Skyrunning (×1.5)</button>
+      </div>
+      <div style="font-size:.68rem;color:#94a3b8;margin-top:4px;">Pierriers, racines, dévers — ajuste le temps d'effort réel sur le D+</div>
+    </div>
+    <div class="cw-field" style="grid-column:1/-1;">
+      <span class="cw-label">Conditions météo le jour de la course</span>
+      <div class="weather-pills">
+        <button class="weather-pill cold" onclick="setWeather('cold',this)">❄️ Froid (&lt;10°C)</button>
+        <button class="weather-pill moderate on" onclick="setWeather('moderate',this)">🌤️ Tempéré (10-20°C)</button>
+        <button class="weather-pill hot" onclick="setWeather('hot',this)">☀️ Chaud (&gt;20°C)</button>
+      </div>
+      <div style="font-size:.68rem;color:#94a3b8;margin-top:4px;">Ajuste automatiquement les besoins en eau et sodium</div>
+    </div>
+    <div class="cw-field" style="grid-column:1/-1;">
+      <span class="cw-label">📉 Dérive de fatigue <span id="fatigueVal" style="font-weight:500;">0% — Allure constante</span></span>
+      <input type="range" id="fatigueSlider" min="0" max="30" value="0" step="5" oninput="onFatigueChange(this.value)">
+      <div class="fatigue-labels"><span>Constant</span><span>−10%</span><span>−20%</span><span>−30%</span></div>
+      <div style="font-size:.68rem;color:#94a3b8;margin-top:4px;">Ralentit progressivement l'allure sur les 30 derniers km — rend les temps de passage réalistes</div>
+    </div>
+  </div>
+  <div id="kmEffortBanner" class="km-effort-banner">
+    <div style="font-size:1.5rem;flex-shrink:0;">⚡</div>
+    <div>
+      <div class="ke-val" id="kmEffortVal">— km-effort</div>
+      <div class="ke-lbl">Distance effort réelle (D+ intégré)</div>
+      <div class="ke-detail" id="kmEffortDetail"></div>
+    </div>
+  </div>
+  <div id="distBanner" class="dist-banner">
+    <div class="dist-banner-icon">🏔️</div>
+    <div>
+      <div class="dist-banner-text" id="distBannerText"></div>
+      <div class="dist-banner-sub" id="distBannerSub"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cw-section">
+  <div class="cw-section-title">Ravitaillement</div>
+  <div class="radio-group">
+    <div class="radio-opt selected" id="opt-auto" onclick="setRavito('auto')">
+      <div class="radio-dot on" id="dot-auto"></div>
+      <div>
+        <div class="radio-label">Automatique</div>
+        <div class="radio-sub">Ravitos placés selon la durée de ton effort, glucides et eau dans le tableau</div>
+      </div>
+    </div>
+    <div class="freq-pills" id="freqPills">
+      <div class="freq-pill on" id="fp2" onclick="setFreq(2)">Tous les 2 km</div>
+      <div class="freq-pill" id="fp5" onclick="setFreq(5)">Tous les 5 km</div>
+      <div class="freq-pill" id="fp10" onclick="setFreq(10)">Tous les 10 km</div>
+    </div>
+    <div class="radio-opt" id="opt-custom" onclick="setRavito('custom')">
+      <div class="radio-dot" id="dot-custom"></div>
+      <div>
+        <div class="radio-label">🎒 Ravitaillements réels</div>
+        <div class="radio-sub">Entre les km exacts des ravitos de ta course — nutrition groupée par section</div>
+      </div>
+    </div>
+    <div class="ravito-custom-wrap" id="ravitoCustomWrap">
+      <div class="ravito-custom-title">Km des ravitaillements officiels</div>
+      <div class="ravito-km-input">
+        <input type="number" id="ravitoKmInput" min="1" max="300" step="0.5" placeholder="ex: 15">
+        <button class="btn-small" onclick="addRavitoKm()">+ Ajouter</button>
+      </div>
+      <div class="ravito-tags" id="ravitoTags"></div>
+      <div style="font-size:.68rem;color:#94a3b8;margin-top:6px;">Clique sur un km pour le supprimer</div>
+    </div>
+    <div class="radio-opt" id="opt-none" onclick="setRavito('none')">
+      <div class="radio-dot" id="dot-none"></div>
+      <div>
+        <div class="radio-label">Ne pas inclure les ravitaillements</div>
+        <div class="radio-sub">Afficher uniquement les temps de passage</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="cw-btn" onclick="calculate()">Calculer mes temps de passage</button>
+
+<div id="output" style="display:none;">
+
+  <div class="cw-section" style="margin-top:12px;">
+    <div class="res-cards">
+      <div class="res-card"><div class="res-val" id="rAllure">—</div><div class="res-lbl">Allure moyenne</div></div>
+      <div class="res-card"><div class="res-val" id="rVitesse">—</div><div class="res-lbl">Vitesse moy.</div></div>
+      <div class="res-card"><div class="res-val" id="rDemi">—</div><div class="res-lbl">Mi-course</div></div>
+      <div class="res-card"><div class="res-val" id="rFin">—</div><div class="res-lbl">Heure d&apos;arrivée</div></div>
+    </div>
+    <div id="arriveeBanner" class="arrivee-banner"></div>
+    <div class="t-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Point de passage</th>
+            <th>Allure</th>
+            <th>Temps de course</th>
+            <th>Heure réelle</th>
+            <th id="thRavito" style="display:none;">Ravitaillement</th>
+            <th id="thGluc" style="display:none;">Glucides</th>
+            <th id="thEau" style="display:none;">Eau</th>
+            <th class="hide-mobile">Écart objectif</th>
+          </tr>
+        </thead>
+        <tbody id="splitsBody"></tbody>
+      </table>
+    </div>
+    <div id="totalsRow" class="totals-row" style="display:none;">
+      <div class="tot-card"><div class="tot-val" id="totGluc">—</div><div class="tot-lbl">Glucides totaux</div></div>
+      <div class="tot-card"><div class="tot-val" id="totEau">—</div><div class="tot-lbl">Eau totale</div></div>
+      <div class="tot-card"><div class="tot-val" id="totSod">—</div><div class="tot-lbl">Sodium total</div></div>
+    </div>
+    <div id="sectionRavito" class="section-ravito">
+      <div class="sr-title">🎒 Ce que tu emportes entre deux ravitos</div>
+      <div class="sr-grid">
+        <div class="sr-item"><div class="sr-val" id="srEau">—</div><div class="sr-lbl">💧 Eau / section</div></div>
+        <div class="sr-item"><div class="sr-val" id="srGluc">—</div><div class="sr-lbl">🍫 Glucides / section</div></div>
+        <div class="sr-item"><div class="sr-val" id="srPoids">—</div><div class="sr-lbl">⚖️ Poids à porter</div></div>
+        <div class="sr-item"><div class="sr-val" id="srDist">—</div><div class="sr-lbl">📍 Distance section</div></div>
+      </div>
+      <div class="sr-note" id="srNote">En trail, tu ne portes que ce qu'il te faut jusqu'au prochain ravito. Tu complètes à chaque point de contrôle.</div>
+    </div>
+    <div id="alertBox" class="alert-box"></div>
+    <div id="nutritionSummary" class="nutrition-summary">
+      <div class="ns-title">Résumé nutrition course</div>
+      <div class="ns-grid">
+        <div class="ns-item"><div class="ns-val" id="nsEau">—</div><div class="ns-lbl">Eau totale</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsGluc">—</div><div class="ns-lbl">Glucides totaux</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsSod">—</div><div class="ns-lbl">Sodium total</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsEauH">—</div><div class="ns-lbl">Eau / heure</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsGlucH">—</div><div class="ns-lbl">Glucides / heure</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsCal">—</div><div class="ns-lbl">Calories totales</div></div>
+      </div>
+    </div>
+    <div class="disclaimer">
+      <strong>Temps de passage :</strong> Ces estimations sont basées sur ton chrono objectif. Ta forme du jour, la météo, le terrain ou les conditions de course peuvent influencer ton allure réelle.
+      <span id="disclaimerRavito" style="display:none;"><br><br><strong>Ravitaillement :</strong> Les quantités indiquées sont indicatives et basées sur des recommandations générales. Consulte un nutritionniste du sport pour un plan personnalisé.</span>
+    </div>
+  </div>
+
+  <div class="pdf-section">
+    <div class="cw-section-title">Exporter mon tableau</div>
+    <div class="cw-label" style="margin-bottom:8px;">Format du PDF</div>
+    <div class="format-pills">
+      <div class="format-pill on" id="pfV" onclick="setFormat('portrait')">📄 Portrait A4</div>
+      <div class="format-pill" id="pfH" onclick="setFormat('landscape')">📋 Paysage A4</div>
+      <div class="format-pill" id="pfB" onclick="setFormat('bracelet')">🏃 Bracelet poignet</div>
+    </div>
+    <div class="cw-label" style="margin-bottom:6px;">Ton message pour te motiver le jour J</div>
+    <textarea id="mottoInput" rows="2" maxlength="120"
+      placeholder="Ex : Je suis prêt(e), j&apos;ai tout donné à l&apos;entraînement. Ce tableau c&apos;est mon plan de bataille !"
+      oninput="updateCount()"></textarea>
+    <div class="motto-count" id="mottoCount">120 caractères restants</div>
+    <div class="btn-row">
+      <button class="cw-btn" onclick="exportPDF()">Générer le PDF</button>
+      <button class="btn-modifier" onclick="window.scrollTo({top:0,behavior:'smooth'})">Modifier</button>
+    </div>
+    <div class="pdf-hint">
+      Le PDF s'ouvre dans la fenêtre d'impression · clique sur "Enregistrer en PDF" ou "Imprimer".<br>
+      Sur mobile : Safari iOS ou Chrome → Partager → Imprimer.<br>
+      🏃 <strong>Bracelet poignet</strong> : format étroit à imprimer, découper et plastifier — emporte ton plan en course sans téléphone.
+    </div>
+  </div>
+
+</div>
+
+</div><!-- fin cw -->
+</div><!-- fin app-content -->
+
+<div style="background:linear-gradient(135deg,#431407,#7c2d12);padding:14px 20px;text-align:center;font-size:.75rem;color:rgba(254,215,170,.7);font-family:'Inter',sans-serif;">
+  Cr&eacute;&eacute; avec ❤️ par <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" style="color:#fed7aa;font-weight:700;text-decoration:none;">Seb Run Nature</a> &nbsp;&middot;&nbsp; Donn&eacute;es stock&eacute;es localement sur votre appareil
+</div>
+
+
+<script>
+var ravitoMode='auto', ravitoFreq=2, pdfFormat='portrait';
+var currentWeather='moderate', currentTerrain='easy', currentFatigue=0;
+var customRavitoKms=[];
+
+var NUTRITION_CONFIG = {
+  water: [
+    {maxH:1.5, mlH:0},
+    {maxH:2.5, mlH:400},
+    {maxH:4,   mlH:550},
+    {maxH:99,  mlH:650}
+  ],
+  carbs: [
+    {maxH:1.5, gH:0},
+    {maxH:2.5, gH:40},
+    {maxH:5,   gH:60},
+    {maxH:99,  gH:50}
+  ],
+  sodium: {base:500},
+  weather: {
+    cold:     {water:0.8, sodium:0.7},
+    moderate: {water:1.0, sodium:1.0},
+    hot:      {water:1.4, sodium:1.6}
+  },
+  alerts: {
+    carbsMax:80,
+    waterMin:400,
+    hypo:{waterMin:700, sodiumMax:300}
+  }
+};
+
+function setWeather(w, btn) {
+  currentWeather = w;
+  document.querySelectorAll('.weather-pill').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+}
+
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  var isDark=document.body.classList.contains('dark');
+  var btn=document.getElementById('darkBtn');
+  if(btn)btn.textContent=isDark?'☀️ Mode clair':'🌙 Mode sombre';
+}
+
+function toggleFullscreen(){
+  var btn=document.getElementById('fsBtn');
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(function(){});
+    if(btn)btn.textContent='⊠ Quitter';
+  } else {
+    document.exitFullscreen();
+    if(btn)btn.textContent='⛶ Fullscreen';
+  }
+  document.addEventListener('fullscreenchange',function(){
+    if(!document.fullscreenElement&&btn)btn.textContent='⛶ Fullscreen';
+  },{once:true});
+}
+
+function setTerrain(t,btn){
+  currentTerrain=t;
+  document.querySelectorAll('.terrain-pill').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  onDplusChange();
+}
+
+function onFatigueChange(v){
+  currentFatigue=parseInt(v);
+  var labels=['0% — Allure constante','-5% sur les 30 derniers km','-10% sur les 30 derniers km','-15% sur les 30 derniers km','-20% sur les 30 derniers km','-25% sur les 30 derniers km','-30% sur les 30 derniers km'];
+  document.getElementById('fatigueVal').textContent=labels[parseInt(v)/5]||v+'%';
+}
+
+function onDplusChange(){
+  var dplus=parseInt(document.getElementById('dplus').value)||0;
+  var distSel=document.getElementById('dist').value;
+  var dist=distSel==='custom'?parseFloat(document.getElementById('customDist').value)||0:parseFloat(distSel)||0;
+  var tf=document.getElementById('terrainField');
+  if(dplus>0&&dist>0){
+    tf.style.display='block';
+    var coeff={'easy':1.0,'tech':1.2,'expert':1.5}[currentTerrain]||1.0;
+    var ke=Math.round((dist+(dplus/100)*coeff)*10)/10;
+    var banner=document.getElementById('kmEffortBanner');
+    banner.style.display='flex';
+    document.getElementById('kmEffortVal').textContent=ke+' km-effort';
+    document.getElementById('kmEffortDetail').textContent=
+      dist+' km + '+(dplus/100*coeff).toFixed(1)+' km D+ (Naismith ×'+coeff+') = '+ke+' km-effort · nutrition calculée sur cette base';
+  } else {
+    tf.style.display='none';
+    document.getElementById('kmEffortBanner').style.display='none';
+  }
+}
+
+function calcKmEffort(dist,dplus){
+  if(!dplus||dplus<=0)return dist;
+  var coeff={'easy':1.0,'tech':1.2,'expert':1.5}[currentTerrain]||1.0;
+  return Math.round((dist+(dplus/100)*coeff)*10)/10;
+}
+
+function addRavitoKm(){
+  var v=parseFloat(document.getElementById('ravitoKmInput').value);
+  if(!v||v<=0)return;
+  if(customRavitoKms.indexOf(v)===-1){
+    customRavitoKms.push(v);
+    customRavitoKms.sort(function(a,b){return a-b;});
+    renderRavitoTags();
+  }
+  document.getElementById('ravitoKmInput').value='';
+}
+
+function removeRavitoKm(km){
+  customRavitoKms=customRavitoKms.filter(function(k){return k!==km;});
+  renderRavitoTags();
+}
+
+function renderRavitoTags(){
+  var c=document.getElementById('ravitoTags');c.innerHTML='';
+  customRavitoKms.forEach(function(km){
+    var t=document.createElement('span');t.className='ravito-tag';
+    t.innerHTML='km '+km+' ✕';
+    t.onclick=(function(k){return function(){removeRavitoKm(k);};})(km);
+    c.appendChild(t);
+  });
+}
+
+function getEffectivePace(avgPace,km,dist){
+  var strat=document.getElementById('strat').value;
+  var pace=avgPace;
+  if(strat==='neg')pace=avgPace*(1+0.05*(1-2*km/dist));
+  else if(strat==='pos')pace=avgPace*(1-0.05*(1-2*km/dist));
+  if(currentFatigue>0&&dist>30&&km>dist-30){
+    var fatigueRatio=1+(currentFatigue/100)*((km-(dist-30))/30);
+    pace=pace*fatigueRatio;
+  }
+  return pace;
+}
+
+function getNutritionSection(effortSec,sectionKm,totalKm){
+  var n=getNutritionPerRavito(effortSec,1,totalKm);
+  if(!n)return null;
+  var ratio=sectionKm/totalKm;
+  return{
+    gluc:Math.round(n.totalCarbs*ratio),glucL:'~'+Math.round(n.totalCarbs*ratio)+'g',
+    eau:Math.round(n.totalWater*ratio),eauL:Math.round(n.totalWater*ratio)+'ml',
+    sod:Math.round(n.totalSodium*ratio),detail:n.detail
+  };
+}
+
+function getNutritionPerRavito(totalSec, ravitoFreqKm, distKm) {
+  var h = totalSec / 3600;
+  if (h < 1.5) return null;
+  var mod = NUTRITION_CONFIG.weather[currentWeather];
+  var nbRavitos = Math.floor(distKm / ravitoFreqKm);
+  if (nbRavitos < 1) nbRavitos = 1;
+  // Valeurs horaires
+  var waterBase = 0, carbsBase = 0;
+  NUTRITION_CONFIG.water.forEach(function(r){if(h<=r.maxH&&!waterBase)waterBase=r.mlH;});
+  NUTRITION_CONFIG.carbs.forEach(function(r){if(h<=r.maxH&&!carbsBase)carbsBase=r.gH;});
+  if(!waterBase) waterBase = 650;
+  if(!carbsBase) carbsBase = 50;
+  var waterH = Math.round(waterBase * mod.water);
+  var carbsH = carbsBase;
+  var sodiumH = Math.round(NUTRITION_CONFIG.sodium.base * mod.sodium);
+  // Par ravito
+  var waterPerRav = Math.round(waterH * h / nbRavitos);
+  var carbsPerRav = Math.round(carbsH * h / nbRavitos);
+  var sodiumPerRav = Math.round(sodiumH * h / nbRavitos);
+  // Label detail
+  var detail = h < 2.5 ? 'Gel + eau' : h < 5 ? 'Gel + eau + sel' : 'Solide + eau + sel';
+  return {
+    gluc: carbsPerRav,
+    glucL: '~'+carbsPerRav+'g',
+    eau: waterPerRav,
+    eauL: waterPerRav+'ml',
+    sod: sodiumPerRav,
+    detail: detail,
+    // Totaux horaires pour alertes
+    waterH: waterH,
+    carbsH: carbsH,
+    sodiumH: sodiumH,
+    totalWater: Math.round(waterH * h),
+    totalCarbs: Math.round(carbsH * h),
+    totalSodium: Math.round(sodiumH * h)
+  };
+}
+
+function getAlerts(n) {
+  if (!n) return [];
+  var alerts = [];
+  if (n.carbsH > NUTRITION_CONFIG.alerts.carbsMax)
+    alerts.push({type:'danger', msg:'Attention saturation gastrique — '+n.carbsH+'g/h de glucides depasse le seuil de 80g/h. Reduisez la frequence ou alternez gel et solide.'});
+  if (n.waterH < NUTRITION_CONFIG.alerts.waterMin)
+    alerts.push({type:'warn', msg:'Hydratation insuffisante — '+n.waterH+'ml/h est en dessous du minimum recommande de 400ml/h. Augmentez la frequence des ravitos.'});
+  if (n.waterH > NUTRITION_CONFIG.alerts.hypo.waterMin && n.sodiumH < NUTRITION_CONFIG.alerts.hypo.sodiumMax)
+    alerts.push({type:'danger', msg:'Risque d hyponatremie — vous buvez beaucoup ('+n.waterH+'ml/h) mais peu de sodium ('+n.sodiumH+'mg/h). Ajoutez du sel ou des capsules sodium.'});
+  return alerts;
+}
+var lastRows=[], lastMeta={};
+
+var DIST_INFO={
+  '5':{label:'5 km',sub:'Courte distance \u00B7 moins de 30 min pour les rapides'},
+  '10':{label:'10 km',sub:'Distance classique \u00B7 r\u00E9f\u00E9rence pour calibrer tes allures'},
+  '15':{label:'15 km',sub:'Trail court \u00B7 1 \u00E0 2 ravitos selon ton allure'},
+  '18.7':{label:'Uelzechtdall 18,7 km',sub:'Trail Lorentzweiler \u00B7 550 m D+ \u00B7 sentiers et for\u00EAt'},
+  '21.1':{label:'Semi-marathon 21,1 km',sub:'21,097 km officiels \u00B7 distance de r\u00E9f\u00E9rence'},
+  '42.195':{label:'Marathon 42,195 km',sub:'La reine des distances \u00B7 42,195 km officiels'},
+  '50':{label:'Ultra 50 km',sub:'Ultra trail \u00B7 gestion de l\'effort sur la dur\u00E9e'},
+  '80':{label:'Ultra 80 km',sub:'Grand ultra \u00B7 nutrition et mental \u00E0 anticiper'},
+  '100':{label:'Ultra 100 km',sub:'100 km \u00B7 le d\u00E9fi ultime du trail running'},'200':{label:'Ultra 200 km',sub:'200 km \u00B7 The Great Escape \u00B7 44h dans les Ardennes'}
+};
+
+function onDistChange(){
+  var sel=document.getElementById('dist').value;
+  var cf=document.getElementById('customField');
+  cf.style.display=sel==='custom'?'block':'none';
+  var banner=document.getElementById('distBanner');
+  if(sel!=='custom'&&DIST_INFO[sel]){
+    document.getElementById('distBannerText').textContent=DIST_INFO[sel].label;
+    document.getElementById('distBannerSub').textContent=DIST_INFO[sel].sub;
+    banner.style.display='flex';
+  } else if(sel==='custom'){
+    var v=parseFloat(document.getElementById('customDist').value);
+    if(v>0){
+      document.getElementById('distBannerText').textContent=v+' km \u00B7 distance personnalis\u00E9e';
+      document.getElementById('distBannerSub').textContent='Ton trail, tes r\u00E8gles.';
+      banner.style.display='flex';
+    } else banner.style.display='none';
+  } else banner.style.display='none';
+}
+
+function setRavito(m){
+  ravitoMode=m;
+  ['auto','custom','none'].forEach(function(x){
+    var o=document.getElementById('opt-'+x);
+    var d=document.getElementById('dot-'+x);
+    if(o)o.classList.toggle('selected',x===m);
+    if(d)d.classList.toggle('on',x===m);
+  });
+  document.getElementById('freqPills').style.display=m==='auto'?'flex':'none';
+  document.getElementById('ravitoCustomWrap').style.display=m==='custom'?'block':'none';
+}
+
+function setFreq(f){
+  ravitoFreq=f;
+  [2,5,10].forEach(function(v){document.getElementById('fp'+v).classList.toggle('on',v===f);});
+}
+
+function setFormat(f){
+  pdfFormat=f;
+  ['pfV','pfH','pfB'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('on');});
+  var map={'portrait':'pfV','landscape':'pfH','bracelet':'pfB'};
+  var el=document.getElementById(map[f]);if(el)el.classList.add('on');
+}
+
+function updateCount(){
+  var r=120-document.getElementById('mottoInput').value.length;
+  document.getElementById('mottoCount').textContent=r+' caract\u00E8re'+(r!==1?'s':'')+' restant'+(r!==1?'s':'');
+}
+
+function parseTime(s){
+  var p=s.trim().split(':').map(Number);
+  if(p.length===3)return p[0]*3600+p[1]*60+p[2];
+  if(p.length===2)return p[0]*60+p[1];
+  return NaN;
+}
+
+function fmtTime(sec){
+  sec=Math.round(sec);
+  var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+  if(h>0)return h+':'+pad(m)+':'+pad(s);
+  return m+':'+pad(s);
+}
+
+function pad(n){return String(n).padStart(2,'0');}
+
+function fmtPace(spm){
+  var m=Math.floor(spm/60),s=Math.round(spm%60);
+  return m+"'"+pad(s)+'"/km';
+}
+
+function addTime(hhmm,addSec){
+  var p=hhmm.split(':').map(Number);
+  var base=p[0]*3600+p[1]*60+Math.round(addSec);
+  return pad(Math.floor(base/3600)%24)+':'+pad(Math.floor((base%3600)/60));
+}
+
+// getNutritionPerRavito définie plus haut avec NUTRITION_CONFIG
+function getRavito(totalSec){ return getNutritionPerRavito(totalSec, ravitoFreq, lastMeta.dist||10); }
+
+function calculate(){
+  var distSel=document.getElementById('dist').value;
+  var dist=distSel==='custom'?parseFloat(document.getElementById('customDist').value):parseFloat(distSel);
+  var totalSec=parseTime(document.getElementById('targetTime').value);
+  var startTime=document.getElementById('startTime').value;
+  var splitFreq=parseInt(document.getElementById('freq').value);
+  var strat=document.getElementById('strat').value;
+  var dplus=parseInt(document.getElementById('dplus').value)||0;
+  if(!dist||isNaN(dist)||isNaN(totalSec)||totalSec<=0)return;
+
+  var kmEffort=calcKmEffort(dist,dplus);
+  var effortSec=dplus>0?(totalSec/dist)*kmEffort:totalSec;
+
+  var avgPace=totalSec/dist;
+  document.getElementById('rAllure').textContent=fmtPace(avgPace);
+  document.getElementById('rVitesse').textContent=(3600/avgPace).toFixed(1)+' km/h';
+  var heureArr=startTime?addTime(startTime,totalSec):null;
+  document.getElementById('rFin').textContent=heureArr||fmtTime(totalSec);
+
+  var nbRavCustom=ravitoMode==='custom'?customRavitoKms.length:Math.floor(dist/ravitoFreq);
+  var needs=ravitoMode!=='none'?getNutritionPerRavito(effortSec, ravitoFreq, dist):null;
+  var showR=ravitoMode!=='none'&&needs;
+  document.getElementById('thRavito').style.display=showR?'':'none';
+  document.getElementById('thGluc').style.display=showR?'':'none';
+  document.getElementById('thEau').style.display=showR?'':'none';
+  document.getElementById('totalsRow').style.display=showR?'grid':'none';
+  document.getElementById('disclaimerRavito').style.display=showR?'inline':'none';
+
+  var points=[];
+  if(ravitoMode==='custom'&&customRavitoKms.length>0){
+    var allPts=[];
+    var km0=splitFreq;
+    while(km0<dist-0.01){allPts.push(Math.round(km0*10)/10);km0+=splitFreq;}
+    allPts.push(Math.round(dist*10)/10);
+    customRavitoKms.forEach(function(k){if(allPts.indexOf(k)===-1&&k<dist)allPts.push(k);});
+    allPts.sort(function(a,b){return a-b;});
+    points=allPts;
+  } else {
+    var km=splitFreq;
+    while(km<dist-0.01){points.push(Math.round(km*10)/10);km+=splitFreq;}
+    points.push(Math.round(dist*10)/10);
+  }
+
+  var halfTime=null, halfDist=dist/2;
+  var totG=0,totE=0,totS=0,gCum=0,eCum=0;
+  var tbody=document.getElementById('splitsBody');
+  tbody.innerHTML='';
+  lastRows=[];
+
+  var prevKm=0;
+  points.forEach(function(pt,idx){
+    var elapsed=0,segStart=0;
+    for(var j=0;j<=idx;j++){
+      var p=points[j],seg=p-segStart;
+      elapsed+=seg*getEffectivePace(avgPace,p,dist); segStart=p;
+    }
+    if(!halfTime&&pt>=halfDist)halfTime=elapsed-(pt-halfDist)*avgPace;
+
+    var isLast=idx===points.length-1;
+    var isHalf=!isLast&&Math.abs(pt-halfDist)<splitFreq/2;
+    var pace=getEffectivePace(avgPace,pt,dist);
+    var diff=Math.round(elapsed-(pt/dist)*totalSec);
+    var diffStr=diff===0?'±0s':(diff>0?'+':'')+fmtTime(Math.abs(diff));
+    var isRavAuto=showR&&ravitoMode==='auto'&&!isLast&&Math.round(pt*10)%Math.round(ravitoFreq*10)===0;
+    var isRavCustom=showR&&ravitoMode==='custom'&&customRavitoKms.indexOf(pt)!==-1;
+    var isRav=isRavAuto||isRavCustom;
+    var sectionKm=pt-prevKm;
+
+    if(isRavAuto&&needs){gCum+=needs.gluc;eCum+=needs.eau;totG+=needs.gluc;totE+=needs.eau;totS+=needs.sod;}
+    if(isRavCustom&&needs){
+      var ns=getNutritionSection(effortSec,sectionKm,dist);
+      if(ns){gCum+=ns.gluc;eCum+=ns.eau;totG+=ns.gluc;totE+=ns.eau;totS+=ns.sod;}
+    }
+    var hp=startTime?addTime(startTime,elapsed):'--:--';
+    var ravData=null;
+    if(isRavAuto&&needs)ravData={detail:needs.detail,glucL:needs.glucL,eauL:needs.eauL,gCum:gCum,eCum:eCum,custom:false};
+    if(isRavCustom&&needs){var nsc=getNutritionSection(effortSec,sectionKm,dist);if(nsc)ravData={detail:nsc.detail,glucL:nsc.glucL,eauL:nsc.eauL,gCum:gCum,eCum:eCum,custom:true};}
+    lastRows.push({pt:pt,pace:pace,elapsed:elapsed,hp:hp,isRav:isRav,isRavCustom:isRavCustom,isLast:isLast,isHalf:isHalf,diff:diff,diffStr:diffStr,ravData:ravData});
+    prevKm=pt;
+
+    var tr=document.createElement('tr');
+    if(isRavCustom)tr.className='is-ravito-custom';
+    else if(isRav)tr.className='is-ravito';
+    else if(isHalf)tr.className='is-half';
+
+    var rCell='',gCell='',eCell='';
+    if(showR){
+      if(isLast){
+        rCell='<td style="font-size:.72rem;color:#6b7280;">Arriv\u00E9e</td>';
+        gCell='<td style="font-size:.72rem;color:#6b7280;">'+totG+'g total</td>';
+        eCell='<td style="font-size:.72rem;color:#6b7280;">'+Math.round(totE/100)/10+'L total</td>';
+      } else if(isRav&&needs){
+        var badgeCls=ravData&&ravData.custom?'rav-badge rav-badge-custom':'rav-badge';
+        rCell='<td><span class="'+badgeCls+'">'+ravData.detail+'</span></td>';
+        gCell='<td><span class="gluc-pill">'+needs.glucL+'</span><span class="cum-lbl">cum. '+gCum+'g</span></td>';
+        eCell='<td><span class="eau-pill">'+needs.eauL+'</span><span class="cum-lbl">cum. '+Math.round(eCum/100)/10+'L</span></td>';
+      } else {rCell='<td style="color:#9ca3af;">\u2014</td>';gCell='<td style="color:#9ca3af;">\u2014</td>';eCell='<td style="color:#9ca3af;">\u2014</td>';}
+    }
+    var dc=Math.abs(diff)<5?'#9ca3af':diff>0?'#E24B4A':'#2d9e72';
+    var hb=isHalf?' <span style="font-size:.65rem;color:#166534;">\u00BD course</span>':'';
+    tr.innerHTML='<td><strong>'+(isLast?'Arriv\u00E9e '+pt+' km':'Km '+pt)+'</strong>'+hb+'</td>'
+      +'<td>'+fmtPace(pace)+'</td><td>'+fmtTime(elapsed)+'</td>'
+      +'<td style="font-weight:700;color:#1e7a56;">'+hp+'</td>'
+      +rCell+gCell+eCell
+      +'<td class="hide-mobile" style="font-size:.78rem;color:'+dc+';">'+diffStr+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  if(halfTime)document.getElementById('rDemi').textContent=startTime?addTime(startTime,halfTime):fmtTime(halfTime);
+  if(showR&&totG>0){
+    document.getElementById('totGluc').textContent=totG+'g';
+    document.getElementById('totEau').textContent=Math.round(totE/100)/10+'L';
+    document.getElementById('totSod').textContent=totS+'mg';
+  }
+  if(heureArr){
+    var b=document.getElementById('arriveeBanner');
+    b.innerHTML='D\u00E9part <strong>'+startTime+'</strong> &nbsp;\u00B7&nbsp; Arriv\u00E9e estim\u00E9e <strong>'+heureArr+'</strong> &nbsp;\u00B7&nbsp; Dur\u00E9e <strong>'+fmtTime(totalSec)+'</strong>';
+    b.style.display='block';
+  }
+  lastMeta={dist:dist,totalSec:totalSec,avgPace:avgPace,startTime:startTime,heureArr:heureArr,showR:showR,totG:totG,totE:totE,totS:totS};
+  document.getElementById('output').style.display='block';
+  document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Résumé nutrition + poids sac
+  if (needs && showR) {
+    document.getElementById('nutritionSummary').style.display = 'block';
+    document.getElementById('nsEau').textContent = (needs.totalWater/1000).toFixed(1)+'L';
+    document.getElementById('nsGluc').textContent = needs.totalCarbs+'g';
+    document.getElementById('nsSod').textContent = needs.totalSodium+'mg';
+    document.getElementById('nsEauH').textContent = needs.waterH+'ml';
+    document.getElementById('nsGlucH').textContent = needs.carbsH+'g';
+    var nsCal = document.getElementById('nsCal');
+    if(nsCal) nsCal.textContent = Math.round(needs.totalCarbs*4)+' kcal';
+    // Section ravito — ce qu'on porte entre 2 ravitos
+    var sr = document.getElementById('sectionRavito');
+    if(sr){
+      sr.style.display='block';
+      var distSection = ravitoMode==='auto' ? ravitoFreq : (customRavitoKms.length>1 ? Math.round((dist/customRavitoKms.length)*10)/10 : dist);
+      var eauSection = needs.eau; // ml par ravito
+      var glucSection = needs.gluc; // g par ravito
+      var poidsSection = (eauSection/1000) + (glucSection/400); // eau kg + nourriture kg (gel ~40g=100kcal)
+      document.getElementById('srEau').textContent = eauSection+'ml';
+      document.getElementById('srGluc').textContent = glucSection+'g';
+      document.getElementById('srPoids').textContent = (poidsSection*1000).toFixed(0)+'g';
+      document.getElementById('srDist').textContent = distSection+'km';
+      var dureeSection = (needs.waterH>0) ? Math.round(distSection/((3600/lastMeta.avgPace||1)/60)) : 0;
+      document.getElementById('srNote').textContent =
+        'Entre chaque ravito ('+distSection+' km) tu portes environ '+eauSection+'ml eau et '+glucSection+'g de glucides — soit ~'+(poidsSection*1000).toFixed(0)+'g dans ton sac. Tu completes eau et nourriture a chaque point de controle.';
+    }
+    // Alertes
+    var alerts = getAlerts(needs);
+    var ab = document.getElementById('alertBox');
+    if (alerts.length > 0) {
+      var hasDanger = alerts.some(function(a){return a.type==='danger';});
+      ab.className = 'alert-box ' + (hasDanger ? 'alert-danger' : 'alert-warn');
+      ab.innerHTML = alerts.map(function(a){return '⚠️ '+a.msg;}).join('<br>');
+      ab.style.display = 'block';
+    } else ab.style.display = 'none';
+    lastMeta.dplus=dplus; lastMeta.kmEffort=kmEffort;
+  } else {
+    document.getElementById('nutritionSummary').style.display = 'none';
+    var sr2=document.getElementById('sectionRavito'); if(sr2)sr2.style.display='none';
+    document.getElementById('alertBox').style.display = 'none';
+  }
+}
+
+function exportPDF(){
+  var motto=document.getElementById('mottoInput').value.trim();
+  var m=lastMeta;
+  if(!m.dist){alert('Lance d\'abord le calcul avant de g\u00E9n\u00E9rer le PDF.');return;}
+  var thExtra=m.showR
+    ?'<th style="background:#2d9e72;color:#fff;padding:5px 7px;">Ravitaillement</th><th style="background:#BA7517;color:#fff;padding:5px 7px;">Glucides</th><th style="background:#185FA5;color:#fff;padding:5px 7px;">Eau</th>'
+    :'';
+  var rows='';
+  lastRows.forEach(function(r){
+    var cls=r.isRav?'background:#e6f7f1;':r.isHalf?'background:#dcfce7;font-weight:700;':'';
+    var lborder=r.isRav?'border-left:3px solid #2d9e72;':'';
+    var rc='',gc='',ec='';
+    if(m.showR){
+      if(r.isLast){rc='<td>Arriv\u00E9e</td>';gc='<td>'+m.totG+'g total</td>';ec='<td>'+Math.round(m.totE/100)/10+'L total</td>';}
+      else if(r.ravData){
+        rc='<td style="color:#1e7a56;font-weight:700;">'+r.ravData.detail+'</td>';
+        gc='<td><span style="background:#EF9F27;color:#412402;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;white-space:nowrap;">'+r.ravData.glucL+'</span><br><small style="color:#9ca3af;">cum. '+r.ravData.gCum+'g</small></td>';
+        ec='<td><span style="background:#bfdbfe;color:#1e40af;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;white-space:nowrap;">'+r.ravData.eauL+'</span><br><small style="color:#9ca3af;">cum. '+Math.round(r.ravData.eCum/100)/10+'L</small></td>';
+      } else {rc='<td>\u2014</td>';gc='<td>\u2014</td>';ec='<td>\u2014</td>';}
+    }
+    var dc=Math.abs(r.diff)<5?'#9ca3af':r.diff>0?'#E24B4A':'#2d9e72';
+    var fw=r.isLast?'font-weight:800;':'';
+    rows+='<tr style="'+cls+fw+'">'
+      +'<td style="'+lborder+fw+'"><strong>'+(r.isLast?'Arriv\u00E9e '+r.pt+' km':'Km '+r.pt)+'</strong>'+(r.isHalf?' <em style=\'font-size:9px;color:#166534;\'>\u00BD course</em>':'')+'</td>'
+      +'<td>'+fmtPace(r.pace)+'</td><td>'+fmtTime(r.elapsed)+'</td>'
+      +'<td style="color:#1e7a56;font-weight:700;">'+r.hp+'</td>'
+      +rc+gc+ec
+      +'<td style="color:'+dc+';">'+r.diffStr+'</td></tr>';
+  });
+  var tots=m.showR&&m.totG>0
+    ?'<div style="display:flex;gap:12px;margin:10px 0;flex-wrap:wrap;">'
+      +'<div style="border:1px solid #d8ece4;border-radius:6px;padding:6px 14px;text-align:center;"><div style="font-size:14px;font-weight:800;color:#1e7a56;">'+m.totG+'g</div><div style="font-size:9px;color:#6b7280;">Glucides totaux</div></div>'
+      +'<div style="border:1px solid #d8ece4;border-radius:6px;padding:6px 14px;text-align:center;"><div style="font-size:14px;font-weight:800;color:#1e7a56;">'+Math.round(m.totE/100)/10+'L</div><div style="font-size:9px;color:#6b7280;">Eau totale</div></div>'
+      +'<div style="border:1px solid #d8ece4;border-radius:6px;padding:6px 14px;text-align:center;"><div style="font-size:14px;font-weight:800;color:#1e7a56;">'+m.totS+'mg</div><div style="font-size:9px;color:#6b7280;">Sodium total</div></div>'
+      +'</div>'
+    :'';
+  var mottoH=motto?'<div style="margin-top:14px;padding:10px 14px;border:1px solid #d8ece4;border-radius:8px;font-size:11px;font-style:italic;color:#374151;background:#f0fdf4;">"'+motto+'"</div>':'';
+  var arrH=m.heureArr?'<div style="background:#EF9F27;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:800;color:#412402;display:inline-block;margin:8px 0;">'+'D\u00E9part '+m.startTime+' &nbsp;\u00B7&nbsp; Arriv\u00E9e estim\u00E9e '+m.heureArr+' &nbsp;\u00B7&nbsp; Dur\u00E9e '+fmtTime(m.totalSec)+'</div><br>':'';
+  var sel=document.getElementById('dist');
+  var distLabel=sel.value==='custom'?m.dist+' km':sel.options[sel.selectedIndex].text;
+  var dplusLabel=m.dplus>0?' · D+ '+m.dplus+'m ('+m.kmEffort+' km-effort)':'';
+  var isBracelet=pdfFormat==='bracelet';
+  var orientation=pdfFormat==='landscape'?'landscape':'portrait';
+  var pageSize=isBracelet?'70mm 220mm':'A4 '+orientation;
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<title>Temps de passage \u00B7 '+distLabel+'</title>'
+    +'<style>'
+    +'@page{size:'+pageSize+';margin:'+(isBracelet?'5mm':'1cm')+';}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}'
+    +'body{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#1f2937;padding:8px;}'
+    +'.ph{text-align:center;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #2d9e72;}'
+    +'.ph h1{font-size:16px;font-weight:800;color:#1a4a32;margin-bottom:2px;}'
+    +'.ph p{font-size:9px;color:#6b7280;}'
+    +'.pc{display:flex;gap:10px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}'
+    +'.pc-item{border:1px solid #d8ece4;border-radius:8px;padding:6px 14px;text-align:center;}'
+    +'.pc-val{font-size:13px;font-weight:800;color:#1e7a56;}'
+    +'.pc-lbl{font-size:9px;color:#6b7280;text-transform:uppercase;}'
+    +'table{width:100%;border-collapse:collapse;font-size:9px;}'
+    +'th{background:#1a4a32;color:#a8f0d0;padding:5px 6px;text-align:left;}'
+    +'td{padding:4px 6px;border-bottom:1px solid #e6f7f1;vertical-align:middle;}'
+    +'.pf{margin-top:12px;font-size:8px;color:#9ca3af;text-align:center;padding-top:8px;border-top:1px solid #e6f7f1;}'
+    +'</style></head><body>'
+    +'<div class="ph"><h1>Mes temps de passage · '+distLabel+dplusLabel+'</h1><p>Seb Run Nature · seb-run-nature.com</p></div>'
+    +arrH
+    +'<div class="pc">'
+    +'<div class="pc-item"><div class="pc-val">'+fmtPace(m.avgPace)+'</div><div class="pc-lbl">Allure moyenne</div></div>'
+    +'<div class="pc-item"><div class="pc-val">'+fmtTime(m.totalSec)+'</div><div class="pc-lbl">Chrono objectif</div></div>'
+    +'<div class="pc-item"><div class="pc-val">'+((3600/m.avgPace).toFixed(1))+' km/h</div><div class="pc-lbl">Vitesse</div></div>'
+    +'</div>'
+    +'<table><thead><tr>'
+    +'<th>Point de passage</th><th>Allure</th><th>Temps de course</th><th>Heure r\u00E9elle</th>'
+    +thExtra+'<th>\u00C9cart objectif</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>'
+    +tots+mottoH
+    +'<div class="pf">Ces temps sont des estimations \u00B7 ta forme, la m\u00E9t\u00E9o et le terrain peuvent influencer ton allure r\u00E9elle. Bonne course ! \u00B7 Seb Run Nature \u00B7 seb-run-nature.com</div>'
+    +'</body></html>';
+
+  var w=window.open('','_blank','width=800,height=600');
+  if(!w){alert('Le navigateur a bloqu\u00E9 la nouvelle fen\u00EAtre. Autorise les popups pour ce site puis r\u00E9essaie.');return;}
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(function(){w.print();},400);
+}
+
+onDistChange();
+</script>
+</body>
+</html>
