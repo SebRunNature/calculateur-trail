@@ -1,0 +1,2062 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur Temps de Passage Trail · Seb Run Nature</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================
+   CHARTE GRAPHIQUE — Palette monochrome
+   Base : #323232 / #cfcfcf / #fafafa / #d5d5d5 / #ffffff / #fefefe
+   Accents sémantiques : conservés en tons désaturés
+   pour la lisibilité fonctionnelle (alertes, eau, glucides…)
+   ============================================ */
+:root{
+  /* Palette de base */
+  --c-ink:        #323232;   /* texte principal, accents forts */
+  --c-ink-soft:   #525252;   /* texte secondaire */
+  --c-ink-mute:   #6b6b6b;   /* texte tertiaire, hints */
+  --c-line:       #cfcfcf;   /* bordures principales */
+  --c-line-soft:  #d5d5d5;   /* bordures secondaires, hover */
+  --c-line-faint: #e5e5e5;   /* séparateurs très discrets */
+  --c-bg:         #fafafa;   /* fond principal */
+  --c-bg-alt:     #fefefe;   /* fond alternatif (cartes secondaires) */
+  --c-surface:    #ffffff;   /* surface (cartes, sections) */
+  --c-surface-2:  #f4f4f4;   /* surface enfoncée (inputs) */
+
+  /* Accent principal — états actifs, boutons, focus, success */
+  --c-accent:        #323232; /* l'accent = ink dans une charte mono */
+  --c-accent-soft:   #4a4a4a;
+  --c-accent-bg:     #ececec; /* fond pill/badge "actif" */
+  --c-accent-on:     #ffffff; /* texte sur accent */
+
+  /* Accents sémantiques discrets (désaturés) */
+  --c-success:    #4a6e57;   /* "on track", glucides OK */
+  --c-success-bg: #eef2ef;
+  --c-warning:    #8a6a3a;   /* glucides, attention */
+  --c-warning-bg: #f3eee3;
+  --c-info:       #4a6478;   /* eau, hydratation */
+  --c-info-bg:    #eaeef2;
+  --c-danger:     #8a4a4a;   /* alertes critiques */
+  --c-danger-bg:  #f3e8e8;
+  --c-caf:        #4a4a6e;   /* caféine, nuit */
+  --c-caf-bg:     #ececf0;
+
+  /* Ombres */
+  --shadow-sm: 0 1px 2px rgba(50,50,50,.04), 0 2px 6px rgba(50,50,50,.05);
+  --shadow-md: 0 1px 2px rgba(50,50,50,.05), 0 4px 12px rgba(50,50,50,.07);
+  --shadow-lg: 0 2px 4px rgba(50,50,50,.06), 0 8px 24px rgba(50,50,50,.09);
+  --shadow-hover: 0 2px 4px rgba(50,50,50,.05), 0 12px 28px rgba(50,50,50,.10);
+
+  /* Dégradé sombre — topbar, hero, mode-selector, footer */
+  --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #3a3a3a 100%);
+
+  /* Rayons */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--c-bg);color:var(--c-ink);margin:0;padding:0;}
+.cw{max-width:900px;margin:0 auto;padding:0 16px 60px;}
+
+/* APP HEADER */
+.app-topbar{background:var(--gradient-dark);padding:8px 16px;display:flex;align-items:center;gap:10px;min-height:56px;box-shadow:0 1px 0 rgba(0,0,0,.04);flex-wrap:wrap;}
+.app-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.app-logo-icon{width:34px;height:34px;background:rgba(255,255,255,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18);}
+.app-logo-text{font-size:.78rem;font-weight:800;color:#fafafa;text-transform:uppercase;letter-spacing:1px;}
+.app-topbar-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.app-topbar-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;font-size:.75rem;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fafafa;font-family:'Inter',sans-serif;transition:all .18s;white-space:nowrap;}
+.app-topbar-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.32);}
+.app-hero{background:var(--gradient-dark);padding:28px 20px 32px;margin-bottom:0;position:relative;overflow:hidden;}
+.app-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.03);pointer-events:none;}
+.app-hero::after{content:'';position:absolute;bottom:-40px;left:40px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,.02);pointer-events:none;}
+.app-hero-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(2rem,5vw,2.8rem);color:#ffffff;letter-spacing:2px;line-height:1.05;margin-bottom:8px;}
+.app-hero-title span{color:#cfcfcf;}
+.app-hero-sub{font-size:.85rem;color:rgba(250,250,250,.65);display:flex;gap:12px;flex-wrap:wrap;}
+.app-hero-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.16);color:#fafafa;border-radius:14px;padding:3px 11px;font-size:.68rem;font-weight:700;}
+.app-content{background:var(--c-bg);padding-top:20px;}
+
+/* DARK MODE OVERRIDE — centralisé plus bas */
+.cw-section{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:12px;box-shadow:var(--shadow-md);transition:box-shadow .25s ease,transform .25s ease;}
+.cw-section:hover{box-shadow:var(--shadow-hover);}
+.cw-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--c-ink);border-left:3px solid var(--c-ink);padding-left:10px;margin-bottom:18px;}
+.cw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cw-field{display:flex;flex-direction:column;gap:5px;}
+.cw-label{font-size:.78rem;font-weight:700;color:var(--c-ink-soft);}
+input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--c-line);border-radius:9px;font-size:.88rem;font-family:'Inter',sans-serif;background:var(--c-surface-2);color:var(--c-ink);transition:all .18s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--c-ink);background:var(--c-surface);box-shadow:0 0 0 3px rgba(50,50,50,.10);}
+textarea{resize:none;}
+.dist-banner{background:linear-gradient(135deg, #4a4a4a 0%, #5a5a5a 100%);border-radius:var(--radius-md);padding:11px 16px;margin-top:12px;display:none;align-items:center;gap:12px;box-shadow:var(--shadow-md);}
+.dist-banner-icon{font-size:1.3rem;flex-shrink:0;}
+.dist-banner-text{font-size:.88rem;font-weight:800;color:#fff;}
+.dist-banner-sub{font-size:.72rem;color:rgba(255,255,255,.75);margin-top:2px;}
+.radio-group{display:flex;flex-direction:column;gap:8px;}
+.radio-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--c-line);border-radius:var(--radius-md);cursor:pointer;background:var(--c-surface);transition:all .18s;}
+.radio-opt:hover{border-color:var(--c-line-soft);background:var(--c-bg-alt);}
+.radio-opt.selected{border-color:var(--c-ink);background:var(--c-accent-bg);}
+.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--c-line);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.radio-dot.on{border-color:var(--c-ink);background:var(--c-ink);}
+.radio-dot.on::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%;}
+.radio-label{font-size:.88rem;font-weight:700;color:var(--c-ink);}
+.radio-sub{font-size:.72rem;color:var(--c-ink-mute);margin-top:2px;}
+.freq-pills{display:flex;gap:8px;margin-top:8px;margin-left:32px;flex-wrap:wrap;}
+.freq-pill{padding:5px 16px;border:1px solid var(--c-line);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);transition:all .15s;}
+.freq-pill:hover{border-color:var(--c-line-soft);}
+.freq-pill.on{background:var(--c-ink);color:#fff;border-color:var(--c-ink);}
+.cw-btn{width:100%;padding:14px;background:var(--c-ink);color:#fff;border:none;border-radius:11px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:4px;font-family:'Inter',sans-serif;box-shadow:var(--shadow-md);transition:all .2s;letter-spacing:.3px;}
+.cw-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);background:#1f1f1f;}
+.res-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.res-card{background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px 8px;text-align:center;box-shadow:var(--shadow-sm);transition:box-shadow .2s ease,transform .2s ease;}
+.res-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.res-val{font-size:1rem;font-weight:800;color:var(--c-ink);line-height:1.2;font-family:'JetBrains Mono',monospace;font-variant-numeric:tabular-nums;}
+.res-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--c-ink-mute);margin-top:4px;}
+.arrivee-banner{background:var(--c-warning-bg);border:1px solid #e0d4b8;border-radius:var(--radius-md);padding:9px 14px;margin-bottom:14px;font-size:.85rem;font-weight:800;color:var(--c-warning);display:none;}
+.t-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{text-align:left;padding:8px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;background:var(--c-ink);color:#fafafa;white-space:nowrap;}
+th:first-child{border-radius:8px 0 0 0;}
+th:last-child{border-radius:0 8px 0 0;}
+td{padding:9px 11px;border-bottom:1px solid var(--c-line-faint);vertical-align:middle;font-family:'JetBrains Mono',monospace;font-size:.78rem;font-variant-numeric:tabular-nums;color:var(--c-ink);}
+tr:last-child td{border-bottom:none;font-weight:800;background:var(--c-accent-bg);}
+tr.is-ravito td{background:var(--c-success-bg);}
+tr.is-ravito td:first-child{border-left:3px solid var(--c-success);}
+tr.is-half td{background:#e6ebe8;font-weight:700;}
+tr:hover td{background:var(--c-bg)!important;}
+.rav-badge{display:inline-flex;align-items:center;gap:3px;background:var(--c-success);color:#fff;border-radius:10px;padding:2px 8px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.gluc-col{min-width:70px;}
+.eau-col{min-width:70px;}
+.gluc-pill{display:inline-block;background:var(--c-warning-bg);color:var(--c-warning);border:1px solid #e0d4b8;border-radius:8px;padding:1px 7px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.eau-pill{display:inline-block;background:var(--c-info-bg);color:var(--c-info);border:1px solid #d4dde4;border-radius:8px;padding:1px 7px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.cum-lbl{font-size:.65rem;color:var(--c-ink-mute);margin-top:2px;display:block;}
+.totals-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.tot-card{background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px;text-align:center;box-shadow:var(--shadow-sm);transition:box-shadow .2s ease,transform .2s ease;}
+.tot-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.tot-val{font-size:1.1rem;font-weight:800;color:var(--c-ink);font-family:'JetBrains Mono',monospace;}
+.tot-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--c-ink-mute);margin-top:4px;}
+.disclaimer{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px 14px;font-size:.75rem;color:var(--c-ink-mute);line-height:1.7;margin-top:12px;}
+.disclaimer strong{color:var(--c-ink-soft);}
+.pdf-section{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--radius-lg);padding:18px 20px;margin-top:12px;box-shadow:var(--shadow-md);transition:box-shadow .25s ease;}
+.pdf-section:hover{box-shadow:var(--shadow-hover);}
+.format-pills{display:flex;gap:8px;margin-bottom:14px;}
+.format-pill{padding:8px 20px;border:1px solid var(--c-line);border-radius:20px;font-size:.85rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);transition:all .15s;}
+.format-pill:hover{border-color:var(--c-line-soft);}
+/* .format-pill.on défini dans le bloc dark mode ci-dessous */
+.motto-count{font-size:.72rem;color:var(--c-ink-mute);margin-top:4px;}
+.btn-row{display:flex;gap:10px;margin-top:14px;}
+.btn-row .cw-btn{margin-top:0;}
+.btn-modifier{flex:0 0 auto;padding:13px 20px;background:var(--c-accent-bg);color:var(--c-ink);border:1px solid var(--c-line);border-radius:var(--radius-md);font-size:.88rem;font-weight:800;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.btn-modifier:hover{background:#dcdcdc;border-color:var(--c-ink-soft);}
+.pdf-hint{font-size:.72rem;color:var(--c-ink-mute);margin-top:8px;line-height:1.6;}
+.cw-footer{text-align:center;font-size:.75rem;color:var(--c-ink-mute);margin-top:20px;line-height:1.8;}
+.cw-footer a{color:var(--c-ink);font-weight:700;text-decoration:underline;}
+.weather-pills{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.weather-pill{padding:7px 16px;border:1.5px solid var(--c-line);border-radius:20px;font-size:.8rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);font-family:'Inter',sans-serif;transition:all .18s;}
+.weather-pill:hover{border-color:var(--c-line-soft);}
+.weather-pill.cold.on{background:var(--c-info-bg);color:var(--c-info);border-color:var(--c-info);}
+.weather-pill.moderate.on{background:var(--c-success-bg);color:var(--c-success);border-color:var(--c-success);}
+.weather-pill.hot.on{background:var(--c-danger-bg);color:var(--c-danger);border-color:var(--c-danger);}
+.alert-box{border-radius:var(--radius-md);padding:10px 14px;margin-top:12px;font-size:.82rem;font-weight:700;line-height:1.6;display:none;}
+.alert-danger{background:var(--c-danger-bg);border:1px solid #d4b8b8;color:var(--c-danger);}
+.alert-warn{background:var(--c-warning-bg);border:1px solid #e0d4b8;color:var(--c-warning);}
+.nutrition-summary{background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px 16px;margin-top:12px;display:none;box-shadow:var(--shadow-sm);}
+.ns-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--c-ink);margin-bottom:8px;}
+.ns-grid{display:flex;gap:12px;flex-wrap:wrap;}
+.ns-item{text-align:center;flex:1;min-width:70px;}
+.ns-val{font-size:1rem;font-weight:800;color:var(--c-ink);font-family:'JetBrains Mono',monospace;}
+.ns-lbl{font-size:.62rem;color:var(--c-ink-mute);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
+/* TERRAIN PILLS */
+.terrain-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.terrain-pill{padding:7px 13px;border:1.5px solid var(--c-line);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);font-family:'Inter',sans-serif;transition:all .18s;}
+.terrain-pill:hover{border-color:var(--c-line-soft);}
+.terrain-pill.on{background:var(--c-accent-bg);color:var(--c-ink);border-color:var(--c-ink);}
+/* KM EFFORT BANNER */
+.km-effort-banner{background:var(--c-ink);border-radius:var(--radius-lg);padding:12px 16px;margin-top:12px;display:none;align-items:center;gap:14px;box-shadow:var(--shadow-md);}
+.ke-val{font-family:'JetBrains Mono',monospace;font-size:1.1rem;font-weight:700;color:#fafafa;}
+.ke-lbl{font-size:.7rem;color:rgba(250,250,250,.65);margin-top:2px;}
+.ke-detail{font-size:.72rem;color:rgba(250,250,250,.78);margin-top:4px;line-height:1.5;}
+/* FATIGUE SLIDER — vert (forme) → rouge (épuisé) */
+input[type=range]{-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg, #4a9b6e 0%, #d4a04a 50%, #c45a4a 100%);padding:0;border:none;box-shadow:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--c-ink);box-shadow:0 2px 6px rgba(50,50,50,.20);}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--c-ink);box-shadow:0 2px 6px rgba(50,50,50,.20);cursor:pointer;}
+.fatigue-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--c-ink-mute);margin-top:3px;font-weight:600;}
+/* RAVITO NUTRITION — nouvelle présentation */
+.rav-section-info{font-size:.68rem;color:var(--c-ink-mute);margin-bottom:4px;font-style:italic;}
+.rav-units-badge{display:inline-flex;align-items:center;gap:4px;background:var(--c-ink);color:#fafafa;border-radius:8px;padding:2px 9px;font-size:.75rem;font-weight:800;white-space:nowrap;margin-bottom:3px;}
+.rav-gluc-section{font-size:.72rem;color:var(--c-warning);font-weight:700;}
+.rav-cum{font-size:.62rem;color:var(--c-ink-mute);margin-top:1px;display:block;}
+.rav-ontrack{color:var(--c-success);font-weight:700;}
+.rav-alert-eau{background:var(--c-danger-bg);color:var(--c-danger);border:1px solid #d4b8b8;border-radius:6px;padding:1px 7px;font-size:.68rem;font-weight:700;display:inline-block;margin-top:2px;}
+.eau-section-val{display:inline-block;background:var(--c-info-bg);color:var(--c-info);border:1px solid #d4dde4;border-radius:8px;padding:2px 9px;font-size:.75rem;font-weight:800;white-space:nowrap;margin-bottom:3px;}
+/* Légende tableau */
+.table-legend{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.72rem;color:var(--c-ink-mute);line-height:1.8;}
+.table-legend strong{color:var(--c-ink-soft);}
+/* CAFÉINE */
+.caf-badge{display:inline-flex;align-items:center;gap:5px;background:var(--c-caf);color:#fff;border-radius:8px;padding:3px 10px;font-size:.72rem;font-weight:800;white-space:nowrap;}
+.caf-dose{font-size:.65rem;color:rgba(255,255,255,.78);display:block;margin-top:2px;}
+.caf-info-bloc{background:var(--c-caf);border-radius:var(--radius-lg);padding:14px 18px;margin-top:12px;color:#fafafa;font-size:.75rem;line-height:1.8;display:none;box-shadow:var(--shadow-md);}
+.caf-info-bloc strong{color:#fff;}
+.caf-info-bloc .caf-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.caf-info-bloc .caf-row:last-child{margin-bottom:0;}
+.is-caf td{background:var(--c-caf-bg)!important;}
+.is-caf td:first-child{border-left:3px solid var(--c-caf)!important;}
+
+.ravito-custom-wrap{margin-top:10px;padding:14px;background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);display:none;}
+.ravito-custom-title{font-size:.72rem;font-weight:700;color:var(--c-ink);margin-bottom:8px;}
+.ravito-km-input{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.ravito-km-input input{max-width:100px;flex:none;}
+.ravito-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.ravito-tag{display:inline-flex;align-items:center;gap:4px;background:var(--c-ink);color:#fff;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:700;cursor:pointer;transition:background .15s;}
+.ravito-tag:hover{background:#1f1f1f;}
+.btn-small{padding:7px 14px;background:var(--c-accent-bg);color:var(--c-ink);border:1px solid var(--c-line);border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;}
+.btn-small:hover{background:#dcdcdc;border-color:var(--c-ink-soft);}
+/* POIDS SAC */
+.section-ravito{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:var(--radius-lg);padding:14px 18px;margin-top:10px;display:none;box-shadow:var(--shadow-md);}
+.sr-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--c-ink);margin-bottom:10px;}
+.sr-grid{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.sr-item{text-align:center;flex:1;min-width:90px;background:var(--c-surface);border-radius:8px;padding:10px 8px;border:1px solid var(--c-line);box-shadow:var(--shadow-sm);}
+.sr-val{font-family:'JetBrains Mono',monospace;font-size:1rem;font-weight:800;color:var(--c-ink);}
+.sr-lbl{font-size:.62rem;color:var(--c-ink-mute);text-transform:uppercase;letter-spacing:.3px;margin-top:3px;font-weight:700;}
+.sr-note{font-size:.75rem;color:var(--c-ink-soft);line-height:1.6;background:var(--c-surface);border-radius:6px;padding:8px 12px;border-left:3px solid var(--c-line);}
+/* DARK MODE — bloc unifié, palette gris foncés */
+body.dark{
+  --c-ink:        #f0f0f0;
+  --c-ink-soft:   #cccccc;
+  --c-ink-mute:   #999999;
+  --c-line:       #3a3a3a;
+  --c-line-soft:  #4a4a4a;
+  --c-line-faint: #2a2a2a;
+  --c-bg:         #1a1a1a;
+  --c-bg-alt:     #1f1f1f;
+  --c-surface:    #242424;
+  --c-surface-2:  #1a1a1a;
+  --c-accent:     #f0f0f0;
+  --c-accent-soft:#d0d0d0;
+  --c-accent-bg:  #2e2e2e;
+  --c-accent-on:  #1a1a1a;
+  --c-success-bg: #25302a;
+  --c-warning-bg: #2e2a22;
+  --c-info-bg:    #232930;
+  --c-danger-bg:  #2e2222;
+  --c-caf-bg:     #25252e;
+}
+body.dark{background:var(--c-bg);color:var(--c-ink);}
+/* Ombres adaptées au mode sombre — plus profondes et noires */
+body.dark{
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px rgba(0,0,0,.20);
+  --shadow-md: 0 1px 2px rgba(0,0,0,.35), 0 4px 12px rgba(0,0,0,.28);
+  --shadow-lg: 0 2px 4px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.35);
+  --shadow-hover: 0 2px 4px rgba(0,0,0,.40), 0 12px 28px rgba(0,0,0,.40);
+}
+body.dark .app-content{background:var(--c-bg);}
+body.dark .app-topbar,body.dark .app-hero{background:#0e0e0e;}
+body.dark .app-hero-title{color:#fafafa;}
+body.dark .app-hero-title span{color:#cfcfcf;}
+body.dark .cw-section,body.dark .pdf-section{background:var(--c-surface);border-color:var(--c-line);}
+body.dark input,body.dark select,body.dark textarea{background:#161616;color:var(--c-ink);border-color:var(--c-line);}
+body.dark input:focus,body.dark select:focus{background:var(--c-surface);border-color:var(--c-ink);box-shadow:0 0 0 3px rgba(240,240,240,.10);}
+body.dark .radio-opt{background:var(--c-surface);border-color:var(--c-line);}
+body.dark .radio-opt.selected{background:var(--c-accent-bg);border-color:var(--c-ink);}
+body.dark .freq-pill,body.dark .terrain-pill,body.dark .format-pill,body.dark .weather-pill{background:var(--c-surface);color:var(--c-ink-soft);border-color:var(--c-line);}
+body.dark .freq-pill.on,body.dark .format-pill.on,body.dark .terrain-pill.on{background:#fafafa;color:#1a1a1a;border-color:#fafafa;}
+body.dark .res-card,body.dark .tot-card,body.dark .disclaimer{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .res-val,body.dark .tot-val,body.dark .ns-val,body.dark .sr-val{color:var(--c-ink);}
+body.dark .nutrition-summary{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .section-ravito{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .sr-item{background:var(--c-surface);border-color:var(--c-line);}
+body.dark .sr-note{background:var(--c-surface);color:var(--c-ink-soft);border-left-color:var(--c-line);}
+body.dark td{border-bottom-color:var(--c-line-faint);color:var(--c-ink);}
+body.dark th{background:#0e0e0e;color:#fafafa;}
+body.dark tr:hover td{background:var(--c-bg-alt)!important;}
+body.dark tr:last-child td{background:var(--c-accent-bg);}
+body.dark tr.is-half td{background:#2a2a2a;}
+body.dark .table-legend{background:var(--c-bg-alt);border-color:var(--c-line);color:var(--c-ink-mute);}
+body.dark .ravito-custom-wrap{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .km-effort-banner{background:#0e0e0e;}
+body.dark .cw-btn{background:#fafafa;color:#1a1a1a;}
+body.dark .cw-btn:hover{background:#ffffff;}
+body.dark .btn-modifier{background:var(--c-accent-bg);color:var(--c-ink);border-color:var(--c-line);}
+body.dark .btn-small{background:var(--c-accent-bg);color:var(--c-ink);border-color:var(--c-line);}
+body.dark .dist-banner{background:#0e0e0e;}
+/* Format pill active (light) */
+.format-pill.on{background:var(--c-ink);color:#fff;border-color:var(--c-ink);}
+/* ISOL RAVITO CUSTOM */
+tr.is-ravito-custom td{background:var(--c-warning-bg);}
+tr.is-ravito-custom td:first-child{border-left:3px solid var(--c-warning);}
+.rav-badge-custom{background:var(--c-warning);color:#fff;}
+/* MODE SELECTOR */
+.mode-selector{display:flex;gap:0;background:var(--gradient-dark);padding:12px 20px;gap:10px;}
+.mode-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 10px;border-radius:var(--radius-lg);border:2px solid transparent;background:rgba(255,255,255,.06);cursor:pointer;transition:all .2s;font-family:'Inter',sans-serif;}
+.mode-btn:hover{background:rgba(255,255,255,.12);}
+.mode-btn.active{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.32);box-shadow:0 2px 12px rgba(0,0,0,.20);}
+.mode-icon{font-size:1.6rem;line-height:1;}
+.mode-label{font-size:.88rem;font-weight:800;color:#fff;letter-spacing:.3px;}
+.mode-sub{font-size:.65rem;color:rgba(250,250,250,.65);text-align:center;line-height:1.3;}
+/* Mode show/hide */
+body.mode-simple .expert-only{display:none!important;}
+body.mode-expert .simple-only{display:none!important;}
+body.mode-simple .simple-only{display:block;}
+/* Bouton "Calculer" — texte adaptatif selon le mode */
+.btn-label-simple,.btn-label-expert{display:none;}
+body.mode-simple .btn-label-simple{display:inline;}
+body.mode-expert .btn-label-expert{display:inline;}
+/* Fallback si aucune classe de mode n'est posée (chargement initial) */
+body:not(.mode-simple):not(.mode-expert) .btn-label-simple{display:inline;}
+/* SAVE BAR */
+.save-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--c-ink);border-radius:var(--radius-md);padding:10px 16px;margin-bottom:12px;}
+.save-bar-left{display:flex;align-items:center;gap:10px;}
+.save-bar-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.save-bar-label{font-size:.72rem;font-weight:800;color:#cfcfcf;text-transform:uppercase;letter-spacing:.5px;}
+.save-status{font-size:.7rem;color:#a8d4b9;font-weight:700;min-width:120px;}
+.save-status.error{color:#e0a0a0;}
+.save-btn{padding:6px 12px;border-radius:8px;font-size:.72rem;font-weight:700;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#cfcfcf;cursor:pointer;font-family:'Inter',sans-serif;transition:all .15s;white-space:nowrap;}
+.save-btn:hover{background:rgba(255,255,255,.14);color:#fafafa;border-color:rgba(255,255,255,.32);}
+.save-btn-danger{color:#e0a0a0;border-color:rgba(224,160,160,.4);}
+.save-btn-danger:hover{background:rgba(224,160,160,.18);color:#fff;}
+body.dark .save-bar{background:#0e0e0e;border:1px solid var(--c-line);}
+/* FORMAT PILLS */
+@media(max-width:600px){
+  #fsBtn{display:none;}
+  .app-topbar-btn{padding:6px 10px;font-size:.7rem;}
+  .cw-grid{grid-template-columns:1fr;}
+  .res-cards{grid-template-columns:1fr 1fr;}
+  .totals-row{grid-template-columns:1fr;}
+  .btn-row{flex-direction:column;}
+}
+@media(max-width:680px){
+  table{font-size:.72rem;}
+  th,td{padding:6px 6px;}
+  .hide-mobile{display:none;}
+  .t-wrap{border-radius:8px;border:1px solid var(--c-line);}
+}
+/* PDF géré via window.open() */
+</style>
+  <link rel="manifest" href="/calculateur-trail/manifest.json">
+<meta name="description" content="Calculez vos temps de passage trail km par km, planifiez votre ravitaillement eau et glucides selon les recommandations scientifiques. Export PDF et bracelet poignet.">
+<meta name="theme-color" content="#323232">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Calculateur Trail">
+<!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-V3787TTF1Y"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag("js", new Date());
+  gtag("config", "G-V3787TTF1Y");
+</script>
+<script>
+if("serviceWorker" in navigator){
+  navigator.serviceWorker.register("/calculateur-trail/sw.js");
+}
+</script>
+</head>
+<body>
+<!-- TOPBAR -->
+<div class="app-topbar">
+  <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" class="app-logo">
+    <div class="app-logo-icon">
+      <svg width="22" height="22" viewBox="0 0 210 210" fill="none" aria-hidden="true">
+        <circle cx="105" cy="105" r="98" fill="none" stroke="#fafafa" stroke-width="3"/>
+        <polygon points="40,150 73,76 106,150" fill="#cfcfcf"/>
+        <polygon points="62,150 105,40 148,150" fill="#fafafa"/>
+        <polygon points="129,150 162,78 195,150" fill="#cfcfcf"/>
+        <circle cx="160" cy="60" r="11" fill="#fafafa"/>
+        <line x1="32" y1="150" x2="178" y2="150" stroke="#fafafa" stroke-width="2.5"/>
+      </svg>
+    </div>
+    <span class="app-logo-text">Seb Run Nature</span>
+  </a>
+  <div class="app-topbar-actions">
+    <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" class="app-topbar-btn">🌿 Mon Blog Trail</a>
+    <button class="app-topbar-btn" onclick="toggleDark()" id="darkBtn">🌙 Mode sombre</button>
+    <button class="app-topbar-btn" onclick="toggleFullscreen()" id="fsBtn">&#x26F6; Fullscreen</button>
+  </div>
+</div>
+
+<!-- SÉLECTEUR DE MODE -->
+<div class="mode-selector">
+  <button class="mode-btn active" id="modeSimpleBtn" onclick="setMode('simple')">
+    <span class="mode-icon">🏃</span>
+    <span class="mode-label">Mode Simple</span>
+    <span class="mode-sub">Calcule tes temps de passage</span>
+  </button>
+  <button class="mode-btn" id="modeExpertBtn" onclick="setMode('expert')">
+    <span class="mode-icon">🧠</span>
+    <span class="mode-label">Mode Expert</span>
+    <span class="mode-sub">Assistant Stratégique Ultra Trail</span>
+  </button>
+</div>
+
+<!-- HERO — adapté selon le mode -->
+<div class="app-hero" id="heroSimple">
+  <div class="app-hero-title">Calcule tes<br><span>temps de passage</span></div>
+  <div class="app-hero-sub">
+    <span class="app-hero-badge">⏱ Splits km par km</span>
+    <span class="app-hero-badge">🕐 Heures réelles</span>
+    <span class="app-hero-badge">⛰️ Dénivelé D+</span>
+    <span class="app-hero-badge">📄 Export PDF</span>
+  </div>
+</div>
+<div class="app-hero" id="heroExpert" style="display:none;">
+  <div class="app-hero-title">Assistant Stratégique<br><span>Ultra Trail</span></div>
+  <div class="app-hero-sub">
+    <span class="app-hero-badge">⏱ Splits km par km</span>
+    <span class="app-hero-badge">💧 Nutrition intelligente</span>
+    <span class="app-hero-badge">⛰️ Dénivelé D+</span>
+    <span class="app-hero-badge">🎒 Poids du sac</span>
+    <span class="app-hero-badge">☕ Protocole caféine</span>
+    <span class="app-hero-badge">📄 Export PDF</span>
+  </div>
+</div>
+
+<div class="app-content">
+<div class="cw">
+
+<!-- BARRE SAUVEGARDE -->
+<div class="save-bar expert-only" id="saveBar">
+  <div class="save-bar-left">
+    <span class="save-bar-label">💾 Sauvegarde</span>
+    <span id="saveStatus" class="save-status"></span>
+  </div>
+  <div class="save-bar-right">
+    <button class="save-btn" onclick="saveToLocal()" title="Sauvegarder dans le navigateur">💾 Sauvegarder</button>
+    <button class="save-btn" onclick="exportJSON()" title="Exporter en fichier .json">📤 Exporter .json</button>
+    <label class="save-btn" title="Importer un fichier .json">
+      📥 Importer .json
+      <input type="file" id="importFile" accept=".json" style="display:none;" onchange="importJSON(event)">
+    </label>
+    <button class="save-btn save-btn-danger" onclick="clearSave()" title="Effacer la sauvegarde locale">🗑 Effacer</button>
+  </div>
+</div>
+
+<div class="cw-section">
+  <div class="cw-section-title">Ma course</div>
+
+  <!-- NOM DE LA COURSE -->
+  <div class="cw-field expert-only" style="margin-bottom:14px;">
+    <label class="cw-label" for="raceName">🏆 Nom de la course <span style="font-size:.65rem;color:#9a9a9a;">— apparaît dans le PDF et le bracelet poignet</span></label>
+    <input type="text" id="raceName" placeholder="ex: Ultra Trail des Ardennes 2025" maxlength="60" style="font-size:.95rem;font-weight:600;">
+  </div>
+
+  <div class="cw-grid">
+    <div class="cw-field">
+      <label class="cw-label" for="dist">Distance</label>
+      <select id="dist" onchange="onDistChange()">
+        <option value="5">5 km</option>
+        <option value="10" selected>10 km</option>
+        <option value="15">15 km</option>
+        <option value="18.7">Uelzechtdall 18,7 km</option>
+        <option value="21.1">Semi-marathon 21,1 km</option>
+        <option value="42.195">Marathon 42,195 km</option>
+        <option value="50">Ultra 50 km</option>
+        <option value="80">Ultra 80 km</option>
+        <option value="100">Ultra 100 km</option>
+        <option value="200">Ultra 200 km</option>
+        <option value="custom">Distance personnalisée</option>
+      </select>
+    </div>
+    <div class="cw-field" id="customField" style="display:none;">
+      <label class="cw-label" for="customDist">Distance (km)</label>
+      <input type="number" id="customDist" min="1" max="200" step="0.1" placeholder="ex: 18.5" oninput="onDistChange()">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="targetTime">Chrono objectif (h:mm:ss)</label>
+      <input type="text" id="targetTime" placeholder="1:26:00" value="1:26:00">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="startTime">Heure de départ</label>
+      <input type="time" id="startTime" value="09:00">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="freq">Fréquence des points de passage</label>
+      <select id="freq">
+        <option value="1" selected>Tous les 1 km</option>
+        <option value="2">Tous les 2 km</option>
+        <option value="5">Tous les 5 km</option>
+      </select>
+    </div>
+    <div class="cw-field expert-only">
+      <label class="cw-label" for="strat">Stratégie de course</label>
+      <select id="strat">
+        <option value="even">Allure régulière</option>
+        <option value="neg">Départ conservateur (accélération finale)</option>
+        <option value="pos">Départ rapide (gestion en fin de course)</option>
+      </select>
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="dplus">Dénivelé positif D+ <span style="font-size:.65rem;color:#9a9a9a;">(optionnel)</span></label>
+      <input type="number" id="dplus" min="0" max="20000" step="50" placeholder="ex: 2500" oninput="onDplusChange()">
+    </div>
+    <div class="cw-field" id="terrainField" style="display:none;grid-column:1/-1;">
+      <div class="cw-label" id="terrainLabel">⛰️ Technicité du terrain</div>
+      <div class="terrain-pills" role="group" aria-labelledby="terrainLabel">
+        <button class="terrain-pill on" onclick="setTerrain('easy',this)">🟢 Facile (×1.0)</button>
+        <button class="terrain-pill" onclick="setTerrain('tech',this)">🟠 Technique (×1.2)</button>
+        <button class="terrain-pill" onclick="setTerrain('expert',this)">🔴 Expert / Skyrunning (×1.5)</button>
+      </div>
+      <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Pierriers, racines, dévers — ajuste le temps d'effort réel sur le D+</div>
+    </div>
+    <div class="cw-field" style="grid-column:1/-1;">
+      <div class="cw-label" id="weatherLabel">Conditions météo le jour de la course</div>
+      <div class="weather-pills" role="group" aria-labelledby="weatherLabel">
+        <button class="weather-pill cold" onclick="setWeather('cold',this)" aria-pressed="false">❄️ Froid (&lt;10°C)</button>
+        <button class="weather-pill moderate on" onclick="setWeather('moderate',this)" aria-pressed="true">🌤️ Tempéré (10-20°C)</button>
+        <button class="weather-pill hot" onclick="setWeather('hot',this)" aria-pressed="false">☀️ Chaud (&gt;20°C)</button>
+      </div>
+      <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ajuste automatiquement les besoins en eau et sodium</div>
+    </div>
+    <div class="cw-field expert-only" style="grid-column:1/-1;">
+      <label class="cw-label" for="fatigueSlider">📉 Dérive de fatigue <span id="fatigueVal" style="font-weight:500;">0% — Allure constante</span></label>
+      <input type="range" id="fatigueSlider" min="0" max="30" value="0" step="5" oninput="onFatigueChange(this.value)">
+      <div class="fatigue-labels"><span>Constant</span><span>−10%</span><span>−20%</span><span>−30%</span></div>
+      <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ralentit progressivement l'allure sur les 30 derniers km — rend les temps de passage réalistes</div>
+    </div>
+  </div>
+  <div id="kmEffortBanner" class="km-effort-banner">
+    <div style="font-size:1.5rem;flex-shrink:0;">⚡</div>
+    <div>
+      <div class="ke-val" id="kmEffortVal">— km-effort</div>
+      <div class="ke-lbl">Distance effort réelle (D+ intégré)</div>
+      <div class="ke-detail" id="kmEffortDetail"></div>
+    </div>
+  </div>
+  <div id="distBanner" class="dist-banner">
+    <div class="dist-banner-icon">🏔️</div>
+    <div>
+      <div class="dist-banner-text" id="distBannerText"></div>
+      <div class="dist-banner-sub" id="distBannerSub"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SECTION NUTRITION PERSONNALISÉE -->
+<div class="cw-section expert-only">
+  <div class="cw-section-title">🥤 Nutrition — personnalisation</div>
+  <div style="font-size:.75rem;color:#6b6b6b;margin-bottom:12px;line-height:1.6;">
+    Laisse vide pour utiliser les valeurs scientifiques recommandées. Remplis si tu connais tes besoins réels à l'entraînement.
+  </div>
+  <div class="cw-grid">
+    <div class="cw-field">
+      <label class="cw-label" for="userWeight">⚖️ Poids corporel (kg) <span style="font-size:.65rem;color:#9a9a9a;">— pour affiner l'hydratation</span></label>
+      <input type="number" id="userWeight" min="40" max="130" step="1" placeholder="ex: 70 (optionnel)" oninput="updateNutritionPreview()">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="userCarbsH">🍬 Glucides / heure (g/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
+      <input type="number" id="userCarbsH" min="20" max="120" step="5" placeholder="ex: 60 (laisse vide = auto)" oninput="updateNutritionPreview()">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="userWaterH">💧 Eau / heure (ml/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
+      <input type="number" id="userWaterH" min="200" max="1200" step="50" placeholder="ex: 600 (laisse vide = auto)" oninput="updateNutritionPreview()">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="userSodiumH">🧂 Sodium / heure (mg/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
+      <input type="number" id="userSodiumH" min="100" max="1500" step="50" placeholder="ex: 500 (laisse vide = auto)" oninput="updateNutritionPreview()">
+    </div>
+    <div class="cw-field">
+      <label class="cw-label" for="userFlasque">💧 Capacité flasques / poche eau (ml) <span style="font-size:.65rem;color:#9a9a9a;">— alerte si dépassé</span></label>
+      <input type="number" id="userFlasque" min="250" max="3000" step="250" placeholder="ex: 1000" value="1000" oninput="updateNutritionPreview()">
+    </div>
+  </div>
+
+  <!-- BOISSON DANS LES FLASQUES -->
+  <div style="margin-top:14px;border-top:1px solid #cfcfcf;padding-top:14px;">
+    <div class="cw-label" id="drinkLabel" style="display:block;margin-bottom:6px;">💧 Boisson dans tes flasques <span style="font-size:.65rem;color:#9a9a9a;">— glucides liquides déduits des solides à emporter</span></div>
+    <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Si tu mets autre chose que de l'eau dans tes flasques, l'app calcule les glucides apportés par la boisson et te dit combien de solides tu dois encore prendre.</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="drinkPills" role="group" aria-labelledby="drinkLabel">
+      <button class="terrain-pill on" id="dp-water"      onclick="setDrink('water')"      >💧 Eau pure</button>
+      <button class="terrain-pill"    id="dp-maurten160" onclick="setDrink('maurten160')" >🟡 Maurten 160 (40g/500ml)</button>
+      <button class="terrain-pill"    id="dp-maurten320" onclick="setDrink('maurten320')" >🟠 Maurten 320 (80g/500ml)</button>
+      <button class="terrain-pill"    id="dp-isostar"    onclick="setDrink('isostar')"    >🔵 Isostar (~18g/500ml)</button>
+      <button class="terrain-pill"    id="dp-custom"     onclick="setDrink('custom')"     >⚙️ Autre</button>
+    </div>
+    <div id="drinkCustomWrap" style="display:none;">
+      <div class="cw-grid">
+        <div class="cw-field">
+          <label class="cw-label" for="drinkName">Nom de la boisson</label>
+          <input type="text" id="drinkName" placeholder="ex: High5 Zero, SIS Beta Fuel…" maxlength="30" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="drinkCarbs500">Glucides pour 500ml (g)</label>
+          <input type="number" id="drinkCarbs500" min="0" max="150" step="1" placeholder="ex: 45" oninput="updateNutritionPreview()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUIT NUTRITION -->
+  <div style="margin-top:14px;border-top:1px solid #cfcfcf;padding-top:14px;">
+    <div class="cw-label" id="productsLabel" style="display:block;margin-bottom:6px;">🎒 Produits solides <span style="font-size:.65rem;color:#9a9a9a;">— sélection multiple possible · l'app alterne selon l'heure de la journée</span></div>
+
+    <!-- Info rythme circadien -->
+    <div style="font-size:.7rem;color:#6b6b6b;background:#fafafa;border:1px solid #cfcfcf;border-radius:8px;padding:8px 12px;margin-bottom:10px;border-left:3px solid #323232;line-height:1.7;">
+      🕐 <strong style="color:#323232;">Rythme circadien automatique :</strong>
+      Matin/Après-midi <span style="color:#4a6e57;font-weight:700;">🟡 Sucré</span> ·
+      Midi &amp; Soir <span style="color:#8a6a3a;font-weight:700;">🔴 Salé</span> ·
+      Nuit <span style="color:#4a6e57;font-weight:700;">🟡 Sucré</span>
+    </div>
+
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="productPills" role="group" aria-labelledby="productsLabel">
+      <button class="terrain-pill" id="pp-naak_sucre" onclick="toggleProduct('naak_sucre')">🟢 Naak Purée sucrée <span style="font-size:.65rem;opacity:.7;">26g</span></button>
+      <button class="terrain-pill" id="pp-naak_sale"  onclick="toggleProduct('naak_sale')" >🟤 Naak Purée salée <span style="font-size:.65rem;opacity:.7;">26g</span></button>
+      <button class="terrain-pill" id="pp-deca"       onclick="toggleProduct('deca')"      >🔶 Decathlon Fruit Mix <span style="font-size:.65rem;opacity:.7;">25g</span></button>
+      <button class="terrain-pill" id="pp-gel"        onclick="toggleProduct('gel')"       >💊 Gel <span style="font-size:.65rem;opacity:.7;">25g</span></button>
+      <button class="terrain-pill" id="pp-barre"      onclick="toggleProduct('barre')"     >🍫 Barre <span style="font-size:.65rem;opacity:.7;">35g</span></button>
+      <button class="terrain-pill" id="pp-perso"      onclick="toggleProduct('perso')"     >⚙️ Perso</button>
+    </div>
+
+    <div id="productCustomWrap" style="display:none;">
+      <div class="cw-grid">
+        <div class="cw-field">
+          <label class="cw-label" for="productName">Nom du produit</label>
+          <input type="text" id="productName" placeholder="ex: SIS Go, High5…" maxlength="30" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="productCarbs">Glucides / unité (g)</label>
+          <input type="number" id="productCarbs" min="5" max="100" step="1" placeholder="ex: 22" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="productSodium">Sodium / unité (mg) <span style="font-size:.65rem;color:#9a9a9a;">optionnel</span></label>
+          <input type="number" id="productSodium" min="0" max="2000" step="10" placeholder="ex: 200" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="productSweet">Sucré ou salé ?</label>
+          <select id="productSweet" oninput="updateNutritionPreview()" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cfcfcf;">
+            <option value="sweet">🟡 Sucré</option>
+            <option value="salty">🔴 Salé</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Récap sélection -->
+    <div id="productSelectionInfo" style="display:none;font-size:.7rem;color:#323232;background:#fafafa;border-radius:8px;padding:8px 12px;margin-top:8px;border:1px solid #cfcfcf;line-height:1.8;"></div>
+  </div>
+
+  <div id="nutritionPreview" style="display:none;margin-top:12px;padding:10px 14px;background:#fafafa;border:1px solid #cfcfcf;border-radius:8px;font-size:.75rem;color:#323232;line-height:1.8;"></div>
+</div>
+
+<div class="cw-section expert-only">
+  <div class="cw-section-title">Ravitaillement</div>
+  <div class="radio-group">
+    <div class="radio-opt selected" id="opt-auto" onclick="setRavito('auto')">
+      <div class="radio-dot on" id="dot-auto"></div>
+      <div>
+        <div class="radio-label">Automatique</div>
+        <div class="radio-sub">Ravitos placés selon la durée de ton effort, glucides et eau dans le tableau</div>
+      </div>
+    </div>
+    <div class="freq-pills" id="freqPills">
+      <div class="freq-pill on" id="fp2" onclick="setFreq(2)">Tous les 2 km</div>
+      <div class="freq-pill" id="fp5" onclick="setFreq(5)">Tous les 5 km</div>
+      <div class="freq-pill" id="fp10" onclick="setFreq(10)">Tous les 10 km</div>
+    </div>
+    <div class="radio-opt" id="opt-custom" onclick="setRavito('custom')">
+      <div class="radio-dot" id="dot-custom"></div>
+      <div>
+        <div class="radio-label">🎒 Ravitaillements réels</div>
+        <div class="radio-sub">Entre les km exacts des ravitos de ta course — nutrition groupée par section</div>
+      </div>
+    </div>
+    <div class="ravito-custom-wrap" id="ravitoCustomWrap">
+      <div class="ravito-custom-title">Km des ravitaillements officiels</div>
+      <div class="ravito-km-input">
+        <input type="number" id="ravitoKmInput" min="1" max="300" step="0.5" placeholder="ex: 15">
+        <button class="btn-small" onclick="addRavitoKm()">+ Ajouter</button>
+      </div>
+      <div class="ravito-tags" id="ravitoTags"></div>
+      <div style="font-size:.68rem;color:#9a9a9a;margin-top:6px;">Clique sur un km pour le supprimer</div>
+    </div>
+    <div class="radio-opt" id="opt-none" onclick="setRavito('none')">
+      <div class="radio-dot" id="dot-none"></div>
+      <div>
+        <div class="radio-label">Ne pas inclure les ravitaillements</div>
+        <div class="radio-sub">Afficher uniquement les temps de passage</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<button class="cw-btn" onclick="calculate()" aria-label="Calculer mes temps de passage et mon plan de ravitaillement"><span class="btn-label-simple">Calculer mes temps de passage</span><span class="btn-label-expert">Calculer mes temps de passage + mes ravitos</span></button>
+
+<div id="output" style="display:none;">
+
+  <div class="cw-section" style="margin-top:12px;">
+    <div id="raceNameDisplay" style="display:none;font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:1.5px;color:#323232;margin-bottom:10px;"></div>
+    <div class="res-cards">
+      <div class="res-card"><div class="res-val" id="rAllure">—</div><div class="res-lbl">Allure moyenne</div></div>
+      <div class="res-card"><div class="res-val" id="rVitesse">—</div><div class="res-lbl">Vitesse moy.</div></div>
+      <div class="res-card"><div class="res-val" id="rDemi">—</div><div class="res-lbl">Mi-course</div></div>
+      <div class="res-card"><div class="res-val" id="rFin">—</div><div class="res-lbl">Heure d&apos;arrivée</div></div>
+    </div>
+    <div id="arriveeBanner" class="arrivee-banner"></div>
+    <div id="tableLegend" class="table-legend" style="display:none;">
+      📖 <strong>Comment lire le tableau :</strong> Les lignes colorées sont tes ravitaillements. 
+      <strong>Glucides section</strong> = ce que tu dois avoir consommé <em>pendant cette section</em> (depuis le ravito précédent). 
+      <strong>Eau section</strong> = ce que tu dois boire sur cette section. 
+      Le <strong>cumulatif</strong> (cum.) = total depuis le départ. 
+      <strong>On track ✓</strong> = tu es dans tes objectifs horaires.
+      Les lignes avec le badge <span style="background:#4a4a6e;color:#fff;border-radius:4px;padding:1px 6px;font-size:.65rem;font-weight:700;">☕ Fenêtre caféine</span> indiquent les ravitos de la 2ème nuit où la caféine est recommandée.
+    </div>
+    <div class="t-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Point de passage</th>
+            <th>Allure</th>
+            <th>Temps de course</th>
+            <th>Heure réelle</th>
+            <th id="thRavito" style="display:none;">⏱ Section / Type</th>
+            <th id="thGluc" style="display:none;">🍬 Glucides section</th>
+            <th id="thEau" style="display:none;">💧 Eau section</th>
+            <th class="hide-mobile">Écart objectif</th>
+          </tr>
+        </thead>
+        <tbody id="splitsBody"></tbody>
+      </table>
+    </div>
+    <div id="totalsRow" class="totals-row expert-only" style="display:none;">
+      <div class="tot-card"><div class="tot-val" id="totGluc">—</div><div class="tot-lbl">Glucides totaux</div></div>
+      <div class="tot-card"><div class="tot-val" id="totEau">—</div><div class="tot-lbl">Eau totale</div></div>
+      <div class="tot-card"><div class="tot-val" id="totSod">—</div><div class="tot-lbl">Sodium total</div></div>
+    </div>
+    <div id="sectionRavito" class="section-ravito expert-only">
+      <div class="sr-title">🎒 Ce que tu emportes entre deux ravitos</div>
+      <div class="sr-grid">
+        <div class="sr-item"><div class="sr-val" id="srEau">—</div><div class="sr-lbl">💧 Eau / section</div></div>
+        <div class="sr-item"><div class="sr-val" id="srGluc">—</div><div class="sr-lbl">🍫 Glucides / section</div></div>
+        <div class="sr-item"><div class="sr-val" id="srPoids">—</div><div class="sr-lbl">⚖️ Poids à porter</div></div>
+        <div class="sr-item"><div class="sr-val" id="srDist">—</div><div class="sr-lbl">📍 Distance section</div></div>
+      </div>
+      <div class="sr-note" id="srNote">En trail, tu ne portes que ce qu'il te faut jusqu'au prochain ravito. Tu complètes à chaque point de contrôle.</div>
+    </div>
+    <div id="alertBox" class="alert-box expert-only"></div>
+    <div id="caffeineBloc" class="caf-info-bloc expert-only"></div>
+    <div class="nutrition-summary expert-only" id="nutritionSummaryWrap">
+      <div class="ns-title">📊 Résumé nutrition course</div>
+      <div class="ns-grid">
+        <div class="ns-item"><div class="ns-val" id="nsEau">—</div><div class="ns-lbl">Eau totale</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsGluc">—</div><div class="ns-lbl">Glucides totaux</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsSod">—</div><div class="ns-lbl">Sodium total</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsEauH">—</div><div class="ns-lbl">Eau / heure</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsGlucH">—</div><div class="ns-lbl">Glucides / heure</div></div>
+        <div class="ns-item"><div class="ns-val" id="nsCal">—</div><div class="ns-lbl">Kcal glucides</div></div>
+      </div>
+      <div id="nsConseil" style="font-size:.72rem;color:#323232;margin-top:10px;padding:8px 12px;background:rgba(50,50,50,.06);border-radius:8px;border-left:3px solid #323232;line-height:1.6;display:none;"></div>
+    </div>
+    <div class="disclaimer">
+      <strong>Temps de passage :</strong> Ces estimations sont basées sur ton chrono objectif. Ta forme du jour, la météo, le terrain ou les conditions de course peuvent influencer ton allure réelle.
+      <span id="disclaimerRavito" style="display:none;"><br><br><strong>Ravitaillement :</strong> Les quantités sont calculées sur la base des recommandations scientifiques actuelles (ACSM 2007, Jeukendrup 2014, Casa et al. 2019). Elles sont indicatives et varient selon ton poids, ton taux de sudation et ta tolérance digestive. <strong>Conseil :</strong> entraîne ton intestin à ces quantités à l'entraînement avant la course. Consulte un nutritionniste du sport pour un plan 100% personnalisé.</span>
+    </div>
+  </div><!-- fin cw-section résultats -->
+
+  <!-- Export simple mode -->
+  <div id="simpleExportSection" class="simple-only" style="margin-top:12px;">
+    <div class="pdf-section">
+      <div class="cw-section-title">Exporter mon tableau</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="cw-btn" style="margin-top:0;flex:1;" onclick="setFormat('portrait');exportPDF()">📄 Exporter PDF A4</button>
+        <button class="cw-btn" style="margin-top:0;flex:1;background:#525252;" onclick="setFormat('bracelet');exportPDF()">🏃 Bracelet poignet</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export mode expert -->
+  <div class="pdf-section expert-only">
+    <div class="cw-section-title">Exporter mon tableau</div>
+    <div class="cw-label" id="formatLabel" style="margin-bottom:8px;">Format du PDF</div>
+    <div class="format-pills" role="group" aria-labelledby="formatLabel">
+      <div class="format-pill on" id="pfV" onclick="setFormat('portrait')">📄 Portrait A4</div>
+      <div class="format-pill" id="pfH" onclick="setFormat('landscape')">📋 Paysage A4</div>
+      <div class="format-pill" id="pfB" onclick="setFormat('bracelet')">🏃 Bracelet poignet</div>
+    </div>
+    <label class="cw-label" for="mottoInput" style="margin-bottom:6px;display:block;">Ton message pour te motiver le jour J</label>
+    <textarea id="mottoInput" rows="2" maxlength="120"
+      placeholder="Ex : Je suis prêt(e), j&apos;ai tout donné à l&apos;entraînement. Ce tableau c&apos;est mon plan de bataille !"
+      oninput="updateCount()"></textarea>
+    <div class="motto-count" id="mottoCount">120 caractères restants</div>
+    <div class="btn-row">
+      <button class="cw-btn" onclick="exportPDF()">Générer le PDF</button>
+      <button class="btn-modifier" onclick="window.scrollTo({top:0,behavior:'smooth'})">Modifier</button>
+    </div>
+    <div class="pdf-hint">
+      Le PDF s'ouvre dans la fenêtre d'impression · clique sur "Enregistrer en PDF" ou "Imprimer".<br>
+      Sur mobile : Safari iOS ou Chrome → Partager → Imprimer.<br>
+      🏃 <strong>Bracelet poignet</strong> : format étroit à imprimer, découper et plastifier — emporte ton plan en course sans téléphone.
+    </div>
+  </div>
+
+</div><!-- fin output -->
+
+</div><!-- fin cw -->
+</div><!-- fin app-content -->
+
+<div style="background:linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 50%, #3a3a3a 100%);padding:14px 20px;text-align:center;font-size:.75rem;color:rgba(250,250,250,.65);font-family:'Inter',sans-serif;">
+  Cr&eacute;&eacute; avec ❤️ par <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" style="color:#fafafa;font-weight:700;text-decoration:none;">Seb Run Nature</a> &nbsp;&middot;&nbsp; Donn&eacute;es stock&eacute;es localement sur votre appareil
+</div>
+
+
+<script>
+var ravitoMode='auto', ravitoFreq=2, pdfFormat='portrait';
+var currentWeather='moderate', currentTerrain='easy', currentFatigue=0;
+var customRavitoKms=[];
+var currentProduct='none'; // legacy - non utilisé
+// Multi-sélection produits
+var selectedProducts=[]; // tableau de clés produits actifs
+// Index global pour la rotation des produits aux ravitos (réinitialisé dans calculate())
+var ravIndex=0;
+
+var PRODUCTS={
+  naak_sucre:  {label:'Naak Purée sucrée',   glucides:26, sodium:500, icon:'🟢', sweet:true,  brand:'naak'},
+  naak_sale:   {label:'Naak Purée salée',     glucides:26, sodium:500, icon:'🟤', sweet:false, brand:'naak'},
+  deca:        {label:'Decathlon Fruit Mix',  glucides:25, sodium:0,   icon:'🔶', sweet:true,  brand:'deca'},
+  gel:         {label:'Gel',                  glucides:25, sodium:0,   icon:'💊', sweet:true,  brand:'generic'},
+  barre:       {label:'Barre',                glucides:35, sodium:0,   icon:'🍫', sweet:true,  brand:'generic'},
+  perso:       {label:'',                     glucides:0,  sodium:0,   icon:'⚙️', sweet:true,  brand:'custom'}
+};
+
+// Plages horaires sucrée/salée (rythme circadien)
+// Retourne 'sweet' ou 'salty' selon l'heure réelle
+function getSweetSaltyByHour(heureStr){
+  // heureStr format HH:MM
+  if(!heureStr||heureStr==='--:--') return 'sweet';
+  var parts=heureStr.split(':');
+  var h=parseInt(parts[0])||0;
+  // 06–12 : sucré | 12–15 : salé | 15–19 : sucré | 19–23 : salé | 23–06 : sucré
+  if(h>=6  && h<12) return 'sweet';
+  if(h>=12 && h<15) return 'salty';
+  if(h>=15 && h<19) return 'sweet';
+  if(h>=19 && h<23) return 'salty';
+  return 'sweet'; // 23h–06h : sucré (nuit)
+}
+
+function toggleProduct(key){
+  var idx=selectedProducts.indexOf(key);
+  if(idx===-1) selectedProducts.push(key);
+  else selectedProducts.splice(idx,1);
+  var el=document.getElementById('pp-'+key);
+  if(el) el.classList.toggle('on', selectedProducts.indexOf(key)!==-1);
+  var wrap=document.getElementById('productCustomWrap');
+  if(wrap) wrap.style.display=selectedProducts.indexOf('perso')!==-1?'block':'none';
+  updateNutritionPreview();
+}
+
+// Retourne le produit à utiliser à un ravito donné selon heure réelle + préférences
+function getProductForRavito(heureStr){
+  if(!selectedProducts.length) return null;
+  var preference=getSweetSaltyByHour(heureStr); // 'sweet' ou 'salty'
+  // Filtrer les produits compatibles avec la préférence horaire
+  var sweetOpts=selectedProducts.filter(function(k){return PRODUCTS[k]&&PRODUCTS[k].sweet;});
+  var saltyOpts=selectedProducts.filter(function(k){return PRODUCTS[k]&&!PRODUCTS[k].sweet;});
+  var pool;
+  if(preference==='salty' && saltyOpts.length>0) pool=saltyOpts;
+  else pool=sweetOpts.length>0 ? sweetOpts : selectedProducts;
+  // Choisir dans le pool (rotation simple)
+  var key=pool[ravIndex % pool.length];
+  ravIndex++;
+  var cfg=Object.assign({},PRODUCTS[key]);
+  // Si perso, lire les champs
+  if(key==='perso'){
+    cfg.label=(document.getElementById('productName')||{}).value||'Mon produit';
+    cfg.glucides=parseFloat((document.getElementById('productCarbs')||{}).value)||0;
+    cfg.sodium=parseFloat((document.getElementById('productSodium')||{}).value)||0;
+  }
+  return cfg.glucides>0 ? cfg : null;
+}
+
+function getProductConfig(){ return selectedProducts.length ? getProductForRavito('--:--') : null; }
+
+function fmtUnits(glucSection, product){
+  if(!product||!product.glucides) return null;
+  var n=Math.ceil(glucSection/product.glucides);
+  var label=product.label||'unité';
+  return n+'&nbsp;×&nbsp;'+product.icon+' '+label;
+}
+
+var currentDrink='water'; // 'water','maurten160','maurten320','isostar','custom'
+var DRINKS={
+  water:      {label:'Eau pure',          glucPer500:0,   sodPer500:0,   icon:'💧'},
+  maurten160: {label:'Maurten Mix 160',   glucPer500:40,  sodPer500:325, icon:'🟡'},
+  maurten320: {label:'Maurten Mix 320',   glucPer500:80,  sodPer500:650, icon:'🟠'},
+  isostar:    {label:'Isostar',           glucPer500:18,  sodPer500:250, icon:'🔵'},
+  custom:     {label:'Boisson perso',     glucPer500:0,   sodPer500:0,   icon:'🧪'}
+};
+
+function setDrink(d){
+  currentDrink=d;
+  document.querySelectorAll('#drinkPills .terrain-pill').forEach(function(b){b.classList.remove('on');});
+  var el=document.getElementById('dp-'+d); if(el)el.classList.add('on');
+  var wrap=document.getElementById('drinkCustomWrap');
+  wrap.style.display=(d==='custom')?'block':'none';
+  updateNutritionPreview();
+}
+
+function getDrinkConfig(){
+  if(currentDrink==='water') return null;
+  if(currentDrink!=='custom') return DRINKS[currentDrink];
+  var name=(document.getElementById('drinkName')||{}).value||'Boisson perso';
+  var gluc=parseFloat((document.getElementById('drinkCarbs500')||{}).value)||0;
+  if(gluc>0) return {label:name, glucPer500:gluc, icon:'🧪'};
+  return null;
+}
+
+// ── SAUVEGARDE / EXPORT / IMPORT ─────────────────────────────────────────
+var SAVE_KEY = 'seb_trail_calc_v1';
+
+function collectFormData(){
+  var data = {
+    version: 1,
+    savedAt: new Date().toISOString(),
+    // Course
+    raceName:    (document.getElementById('raceName')||{}).value||'',
+    dist:        (document.getElementById('dist')||{}).value||'10',
+    customDist:  (document.getElementById('customDist')||{}).value||'',
+    targetTime:  (document.getElementById('targetTime')||{}).value||'',
+    startTime:   (document.getElementById('startTime')||{}).value||'',
+    freq:        (document.getElementById('freq')||{}).value||'1',
+    strategy:    (document.getElementById('strat')||{}).value||'constant',
+    fatigue:     (document.getElementById('fatigueSlider')||{}).value||'0',
+    dplus:       (document.getElementById('dplus')||{}).value||'',
+    terrain:     currentTerrain,
+    weather:     currentWeather,
+    // Ravito
+    ravitoMode:  ravitoMode,
+    ravitoFreq:  ravitoFreq,
+    customRavitoKms: customRavitoKms.slice(),
+    // Nutrition
+    userWeight:  (document.getElementById('userWeight')||{}).value||'',
+    userCarbsH:  (document.getElementById('userCarbsH')||{}).value||'',
+    userWaterH:  (document.getElementById('userWaterH')||{}).value||'',
+    userSodiumH: (document.getElementById('userSodiumH')||{}).value||'',
+    userFlasque: (document.getElementById('userFlasque')||{}).value||'1000',
+    // Boisson
+    currentDrink: currentDrink,
+    drinkName:   (document.getElementById('drinkName')||{}).value||'',
+    drinkCarbs500:(document.getElementById('drinkCarbs500')||{}).value||'',
+    // Produits
+    selectedProducts: selectedProducts.slice(),
+    productName: (document.getElementById('productName')||{}).value||'',
+    productCarbs:(document.getElementById('productCarbs')||{}).value||'',
+    productSodium:(document.getElementById('productSodium')||{}).value||'',
+    productSweet:(document.getElementById('productSweet')||{}).value||'sweet',
+    // PDF
+    pdfFormat:   pdfFormat,
+    motivation:  (document.getElementById('mottoInput')||{}).value||''
+  };
+  return data;
+}
+
+function applyFormData(data){
+  if(!data) return;
+  // Course
+  if(data.raceName    !== undefined) setVal('raceName',    data.raceName);
+  if(data.dist        !== undefined){ setVal('dist', data.dist); onDistChange(); }
+  if(data.customDist  !== undefined) setVal('customDist',  data.customDist);
+  if(data.targetTime  !== undefined) setVal('targetTime',  data.targetTime);
+  if(data.startTime   !== undefined) setVal('startTime',   data.startTime);
+  if(data.freq        !== undefined) setVal('freq',        data.freq);
+  if(data.strategy    !== undefined) setVal('strat',    data.strategy);
+  if(data.fatigue     !== undefined){
+    setVal('fatigueSlider', data.fatigue);
+    var lbl=document.getElementById('fatigueVal');
+    if(lbl) lbl.textContent=data.fatigue+'%';
+  }
+  if(data.dplus       !== undefined){ setVal('dplus', data.dplus); onDplusChange&&onDplusChange(); }
+  if(data.terrain     !== undefined){
+    currentTerrain=data.terrain;
+    document.querySelectorAll('.terrain-pill').forEach(function(b){b.classList.remove('on');});
+    var tb=document.getElementById('tp-'+data.terrain); if(tb)tb.classList.add('on');
+  }
+  if(data.weather     !== undefined){
+    currentWeather=data.weather;
+    document.querySelectorAll('.weather-pill').forEach(function(b){b.classList.remove('on');b.setAttribute('aria-pressed','false');});
+    var wb=document.querySelector('.weather-pill.'+data.weather); if(wb){wb.classList.add('on');wb.setAttribute('aria-pressed','true');}
+  }
+  // Ravito
+  if(data.ravitoMode  !== undefined) setRavito(data.ravitoMode);
+  if(data.ravitoFreq  !== undefined) setFreq(data.ravitoFreq);
+  if(data.customRavitoKms !== undefined){
+    customRavitoKms = data.customRavitoKms.slice();
+    renderRavitoTags();
+  }
+  // Nutrition
+  if(data.userWeight  !== undefined) setVal('userWeight',  data.userWeight);
+  if(data.userCarbsH  !== undefined) setVal('userCarbsH',  data.userCarbsH);
+  if(data.userWaterH  !== undefined) setVal('userWaterH',  data.userWaterH);
+  if(data.userSodiumH !== undefined) setVal('userSodiumH', data.userSodiumH);
+  if(data.userFlasque !== undefined) setVal('userFlasque', data.userFlasque);
+  // Boisson
+  if(data.currentDrink !== undefined) setDrink(data.currentDrink);
+  if(data.drinkName   !== undefined) setVal('drinkName',   data.drinkName);
+  if(data.drinkCarbs500 !== undefined) setVal('drinkCarbs500', data.drinkCarbs500);
+  // Produits
+  if(data.selectedProducts !== undefined){
+    selectedProducts = [];
+    document.querySelectorAll('#productPills .terrain-pill').forEach(function(b){b.classList.remove('on');});
+    data.selectedProducts.forEach(function(k){ toggleProduct(k); });
+  }
+  if(data.productName  !== undefined) setVal('productName',  data.productName);
+  if(data.productCarbs !== undefined) setVal('productCarbs', data.productCarbs);
+  if(data.productSodium!== undefined) setVal('productSodium',data.productSodium);
+  if(data.productSweet !== undefined) setVal('productSweet', data.productSweet);
+  // PDF
+  if(data.pdfFormat !== undefined){
+    pdfFormat = data.pdfFormat;
+    document.querySelectorAll('.format-pill').forEach(function(b){b.classList.remove('on');});
+    var fp = document.getElementById('pf'+data.pdfFormat.charAt(0).toUpperCase()+data.pdfFormat.slice(1));
+    if(fp) fp.classList.add('on');
+  }
+  if(data.motivation !== undefined) setVal('mottoInput', data.motivation);
+  updateNutritionPreview();
+}
+
+function setVal(id, val){
+  var el = document.getElementById(id);
+  if(el) el.value = val;
+}
+
+function setStatus(msg, isError){
+  var el = document.getElementById('saveStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.className = 'save-status' + (isError ? ' error' : '');
+  setTimeout(function(){ el.textContent = ''; }, 3000);
+}
+
+// ── SAUVEGARDE LOCALE (localStorage) ──────────────────────────────────────
+function saveToLocal(){
+  try {
+    var data = collectFormData();
+    localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    setStatus('✓ Sauvegardé localement · ' + new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+  } catch(e){
+    setStatus('⚠ Erreur sauvegarde locale', true);
+  }
+}
+
+function loadFromLocal(){
+  try {
+    var raw = localStorage.getItem(SAVE_KEY);
+    if(!raw) return false;
+    var data = JSON.parse(raw);
+    applyFormData(data);
+    var d = new Date(data.savedAt);
+    var dateStr = d.toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'})
+      + ' ' + d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+    setStatus('✓ Données restaurées · ' + dateStr);
+    return true;
+  } catch(e){
+    return false;
+  }
+}
+
+function clearSave(){
+  if(!confirm('Effacer la sauvegarde locale ?')) return;
+  localStorage.removeItem(SAVE_KEY);
+  setStatus('🗑 Sauvegarde effacée');
+}
+
+// ── EXPORT JSON ────────────────────────────────────────────────────────────
+function exportJSON(){
+  var data = collectFormData();
+  var name = (data.raceName||'ma-course').toLowerCase()
+    .replace(/[àáâã]/g,'a').replace(/[éèêë]/g,'e')
+    .replace(/[îï]/g,'i').replace(/[ôõ]/g,'o').replace(/[ùûü]/g,'u')
+    .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'')
+    || 'course';
+  var year = new Date().getFullYear();
+  var filename = name + '-' + year + '.json';
+  var blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+  var url  = URL.createObjectURL(blob);
+  var a    = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  setStatus('✓ Exporté : ' + filename);
+}
+
+// ── IMPORT JSON ────────────────────────────────────────────────────────────
+function importJSON(event){
+  var file = event.target.files[0];
+  if(!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e){
+    try {
+      var data = JSON.parse(e.target.result);
+      if(!data.version) throw new Error('Format invalide');
+      applyFormData(data);
+      setStatus('✓ Importé : ' + (data.raceName||file.name));
+    } catch(err){
+      setStatus('⚠ Fichier invalide ou corrompu', true);
+    }
+    event.target.value = ''; // reset input
+  };
+  reader.readAsText(file);
+}
+
+var currentMode = 'simple'; // 'simple' ou 'expert'
+
+function setMode(mode){
+  currentMode = mode;
+  // Classes body
+  document.body.classList.toggle('mode-simple', mode==='simple');
+  document.body.classList.toggle('mode-expert', mode==='expert');
+  // Boutons toggle
+  document.getElementById('modeSimpleBtn').classList.toggle('active', mode==='simple');
+  document.getElementById('modeExpertBtn').classList.toggle('active', mode==='expert');
+  // Hero adaptatif
+  document.getElementById('heroSimple').style.display = mode==='simple' ? '' : 'none';
+  document.getElementById('heroExpert').style.display = mode==='expert' ? '' : 'none';
+  // En mode simple : forcer ravitoMode = 'none' et stratégie = 'even'
+  if(mode==='simple'){
+    // Pas de ravito en mode simple
+    ravitoMode='none';
+    document.querySelectorAll('.radio-opt').forEach(function(el){el.classList.remove('selected');});
+    var noneOpt=document.getElementById('opt-none');
+    if(noneOpt)noneOpt.classList.add('selected');
+    // Stratégie constante par défaut
+    var stratEl=document.getElementById('strat');
+    if(stratEl)stratEl.value='even';
+  }
+  // Mémoriser le choix
+  try{ localStorage.setItem('seb_trail_mode', mode); }catch(e){}
+}
+
+// Initialisation mode au démarrage
+window.addEventListener('DOMContentLoaded', function(){
+  var savedMode = 'simple';
+  try{ savedMode = localStorage.getItem('seb_trail_mode') || 'simple'; }catch(e){}
+  setMode(savedMode);
+  // Charger sauvegarde après avoir défini le mode
+  if(localStorage.getItem(SAVE_KEY)) loadFromLocal();
+});
+// Fenêtre caféine = 2ème nuit uniquement (pas la 1ère — adrénaline du départ)
+// Départ + ~24h → on entre dans la 2ème nuit → caféine activée jusqu'au lever du soleil
+
+function getCaffeineWindow(startTimeStr, totalSec){
+  // Fenêtre caféine = 2ème nuit uniquement
+  // Logique : trouver quand 22h00 arrive pour la 2ème fois depuis le départ
+  if(!startTimeStr || startTimeStr==='--:--') return null;
+  var parts = startTimeStr.split(':');
+  var startH   = parseInt(parts[0])||0;
+  var startMin = parseInt(parts[1])||0;
+  var startMinOfDay = startH*60 + startMin; // minutes depuis minuit
+
+  // Minutes restantes jusqu'à 22h00 ce même jour (première fois)
+  var night22h = 22*60; // 1320 min
+  var minToFirst22h = night22h - startMinOfDay;
+  if(minToFirst22h < 0) minToFirst22h += 24*60; // déjà passé → demain
+  if(minToFirst22h === 0) minToFirst22h = 24*60; // pile à 22h → compter la prochaine
+
+  // 1ère fenêtre 22h = minToFirst22h minutes après le départ
+  // 2ème fenêtre 22h = minToFirst22h + 24*60 minutes (la nuit suivante)
+  var cafStartMin = minToFirst22h + 24*60;
+  var cafStartSec = cafStartMin * 60;
+  var cafEndSec   = cafStartSec + 8 * 3600; // 22h → 06h = 8h de fenêtre
+
+  if(cafStartSec >= totalSec) return null; // course terminée avant la 2ème nuit
+
+  return {
+    startSec: cafStartSec,
+    endSec:   Math.min(cafEndSec, totalSec)
+  };
+}
+
+function getCafDose(weightKg){
+  // 1-2 mg/kg/h, recommandation ISSN, max 100mg/h
+  var w = parseFloat(weightKg)||70;
+  var low  = Math.round(w * 1);
+  var high = Math.round(Math.min(w * 2, 100));
+  return {low:low, high:high};
+}
+
+function getCafSources(dose){
+  // Exemples de sources pour atteindre la dose
+  var lines = [];
+  lines.push('☕ 1 café expresso (~60–80mg)');
+  lines.push('💊 1 comprimé caféine 100mg (Nocca, Vivarin…)');
+  lines.push('🟣 1 gel caféiné (SIS Caffeine 75mg, Maurten Caf 100mg…)');
+  lines.push('🥤 Maurten 320 CAF 100 (100mg/500ml — glucides inclus)');
+  return lines;
+}
+
+var NUTRITION_CONFIG = {
+  // === EAU (ml/h) — ACSM 2007 / Sawka et al.
+  // < 1h : pas besoin de ravitaillement structuré
+  // 1h–2h : ~400–500 ml/h selon intensité
+  // 2h–4h : ~500–700 ml/h (pertes sudation soutenues)
+  // > 4h  : ~600–800 ml/h (ultras, terrain difficile)
+  water: [
+    {maxH:1.5, mlH:0},
+    {maxH:2.5, mlH:450},
+    {maxH:4,   mlH:600},
+    {maxH:99,  mlH:700}
+  ],
+  // === GLUCIDES (g/h) — Jeukendrup 2014, Burke et al. 2011
+  // < 1h30 : réserves glycogène suffisantes, pas besoin
+  // 1h30–2h30 : 30–60 g/h (glucose seul, absorption maximale ~60g/h)
+  // 2h30–5h : 60–90 g/h (glucose + fructose 2:1, double transporteur)
+  // > 5h (ultra) : 60–80 g/h (réduction digestive liée à la fatigue intestinale)
+  // NOTE : 80g/h est le seuil de saturation intestinale pour glucose seul
+  carbs: [
+    {maxH:1.5, gH:0},
+    {maxH:2.5, gH:45},
+    {maxH:5,   gH:75},
+    {maxH:99,  gH:70}
+  ],
+  // === SODIUM (mg/h) — Casa et al. 2019, ACSM
+  // Sudation normale : 500–1000 mg Na/L de sueur
+  // Base : 400 mg/h (seuil minimum pour prévenir hyponatrémie)
+  // Chaleur / durée longue : jusqu'à 1000–1200 mg/h
+  sodium: {base:500},
+  // === MODIFICATEURS MÉTÉO
+  weather: {
+    cold:     {water:0.75, sodium:0.7},   // Moins de sudation, Na modéré
+    moderate: {water:1.0,  sodium:1.0},   // Référence
+    hot:      {water:1.45, sodium:1.6}    // +45% eau, +60% Na (sudation intense)
+  },
+  // === SEUILS D'ALERTE
+  alerts: {
+    carbsMax:90,       // > 90g/h → saturation intestinale (double transporteur max)
+    carbsHigh:80,      // > 80g/h → attention si pas d'entraînement intestinal
+    waterMin:400,      // < 400ml/h → déshydratation significative probable
+    waterMax:1000,     // > 1000ml/h → risque hyponatrémie par dilution
+    hypo:{waterMin:700, sodiumMax:350}   // Boire bcp + peu de Na → hyponatrémie
+  }
+};
+
+function setWeather(w, btn) {
+  currentWeather = w;
+  document.querySelectorAll('.weather-pill').forEach(function(b){
+    b.classList.remove('on');
+    b.setAttribute('aria-pressed','false');
+  });
+  btn.classList.add('on');
+  btn.setAttribute('aria-pressed','true');
+}
+
+function toggleDark(){
+  document.body.classList.toggle('dark');
+  var isDark=document.body.classList.contains('dark');
+  var btn=document.getElementById('darkBtn');
+  if(btn)btn.textContent=isDark?'☀️ Mode clair':'🌙 Mode sombre';
+}
+
+function toggleFullscreen(){
+  var btn=document.getElementById('fsBtn');
+  if(!document.fullscreenElement){
+    document.documentElement.requestFullscreen().catch(function(){});
+    if(btn)btn.textContent='⊠ Quitter';
+  } else {
+    document.exitFullscreen();
+    if(btn)btn.textContent='⛶ Fullscreen';
+  }
+}
+// Listener unique — évite les fuites mémoire dues aux ajouts répétés
+document.addEventListener('fullscreenchange',function(){
+  var btn=document.getElementById('fsBtn');
+  if(!document.fullscreenElement&&btn)btn.textContent='⛶ Fullscreen';
+});
+
+function setTerrain(t,btn){
+  currentTerrain=t;
+  document.querySelectorAll('.terrain-pill').forEach(function(b){b.classList.remove('on');});
+  btn.classList.add('on');
+  onDplusChange();
+}
+
+function onFatigueChange(v){
+  currentFatigue=parseInt(v);
+  var labels=['0% — Allure constante','-5% sur les 30 derniers km','-10% sur les 30 derniers km','-15% sur les 30 derniers km','-20% sur les 30 derniers km','-25% sur les 30 derniers km','-30% sur les 30 derniers km'];
+  document.getElementById('fatigueVal').textContent=labels[parseInt(v)/5]||v+'%';
+}
+
+function onDplusChange(){
+  var dplus=parseInt(document.getElementById('dplus').value)||0;
+  var distSel=document.getElementById('dist').value;
+  var dist=distSel==='custom'?parseFloat(document.getElementById('customDist').value)||0:parseFloat(distSel)||0;
+  var tf=document.getElementById('terrainField');
+  if(dplus>0&&dist>0){
+    tf.style.display='block';
+    var coeff={'easy':1.0,'tech':1.2,'expert':1.5}[currentTerrain]||1.0;
+    var ke=Math.round((dist+(dplus/100)*coeff)*10)/10;
+    var banner=document.getElementById('kmEffortBanner');
+    banner.style.display='flex';
+    document.getElementById('kmEffortVal').textContent=ke+' km-effort';
+    document.getElementById('kmEffortDetail').textContent=
+      dist+' km + '+(dplus/100*coeff).toFixed(1)+' km D+ (Naismith ×'+coeff+') = '+ke+' km-effort · utilisé pour calculer ton allure par section';
+  } else {
+    tf.style.display='none';
+    document.getElementById('kmEffortBanner').style.display='none';
+  }
+}
+
+function calcKmEffort(dist,dplus){
+  if(!dplus||dplus<=0)return dist;
+  var coeff={'easy':1.0,'tech':1.2,'expert':1.5}[currentTerrain]||1.0;
+  return Math.round((dist+(dplus/100)*coeff)*10)/10;
+}
+
+function addRavitoKm(){
+  var v=parseFloat(document.getElementById('ravitoKmInput').value);
+  if(!v||v<=0)return;
+  if(customRavitoKms.indexOf(v)===-1){
+    customRavitoKms.push(v);
+    customRavitoKms.sort(function(a,b){return a-b;});
+    renderRavitoTags();
+  }
+  document.getElementById('ravitoKmInput').value='';
+}
+
+function removeRavitoKm(km){
+  customRavitoKms=customRavitoKms.filter(function(k){return k!==km;});
+  renderRavitoTags();
+}
+
+function renderRavitoTags(){
+  var c=document.getElementById('ravitoTags');c.innerHTML='';
+  customRavitoKms.forEach(function(km){
+    var t=document.createElement('span');t.className='ravito-tag';
+    t.innerHTML='km '+km+' ✕';
+    t.onclick=(function(k){return function(){removeRavitoKm(k);};})(km);
+    c.appendChild(t);
+  });
+}
+
+function getEffectivePace(avgPace,km,dist){
+  var strat=document.getElementById('strat').value;
+  var pace=avgPace;
+  if(strat==='neg')pace=avgPace*(1+0.05*(1-2*km/dist));
+  else if(strat==='pos')pace=avgPace*(1-0.05*(1-2*km/dist));
+  if(currentFatigue>0&&dist>30&&km>dist-30){
+    var fatigueRatio=1+(currentFatigue/100)*((km-(dist-30))/30);
+    pace=pace*fatigueRatio;
+  }
+  return pace;
+}
+
+function getNutritionSection(elapsedSecStart, elapsedSecEnd, totalSec, totalKm){
+  // Calcule les besoins PENDANT une section, basé sur la durée réelle de la section
+  // elapsedSecStart = temps écoulé au début de la section (ravito précédent ou départ)
+  // elapsedSecEnd   = temps écoulé à la fin de la section (ce ravito)
+  var sectionDurSec = elapsedSecEnd - elapsedSecStart;
+  var sectionH = sectionDurSec / 3600;
+  if(sectionH <= 0) return null;
+
+  var n = getNutritionPerRavito(totalSec, 1, totalKm);
+  if(!n) return null;
+
+  // Les besoins de la section = taux horaire × durée de la section
+  var glucSection  = Math.round(n.carbsH  * sectionH);
+  var eauSection   = Math.round(n.waterH  * sectionH);
+  var sodSection   = Math.round(n.sodiumH * sectionH);
+
+  return {
+    gluc:     glucSection,
+    glucL:    glucSection+'g',
+    eau:      eauSection,
+    eauL:     eauSection+'ml',
+    sod:      sodSection,
+    sectionH: sectionH,
+    carbsH:   n.carbsH,
+    waterH:   n.waterH,
+    detail:   n.detail
+  };
+}
+
+function getNutritionPerRavito(totalSec, ravitoFreqKm, distKm) {
+  var h = totalSec / 3600;
+  if (h < 1.5) return null;
+  var mod = NUTRITION_CONFIG.weather[currentWeather];
+  var nbRavitos = Math.floor(distKm / ravitoFreqKm);
+  if (nbRavitos < 1) nbRavitos = 1;
+
+  // === Valeurs horaires : personnalisées si saisies, sinon recommandations auto ===
+  var userCarbsH = parseFloat(document.getElementById('userCarbsH').value) || 0;
+  var userWaterH = parseFloat(document.getElementById('userWaterH').value) || 0;
+  var userSodiumH = parseFloat(document.getElementById('userSodiumH').value) || 0;
+  var userWeight = parseFloat(document.getElementById('userWeight').value) || 0;
+
+  // Calcul automatique basé sur durée réelle
+  var waterBase = 0, carbsBase = 0;
+  NUTRITION_CONFIG.water.forEach(function(r){if(h<=r.maxH&&!waterBase)waterBase=r.mlH;});
+  NUTRITION_CONFIG.carbs.forEach(function(r){if(h<=r.maxH&&!carbsBase)carbsBase=r.gH;});
+  if(!waterBase) waterBase = 700;
+  if(!carbsBase) carbsBase = 70;
+
+  // Si poids renseigné : ajustement eau (~8-10ml/kg/h en conditions tempérées)
+  var autoWaterBase = waterBase;
+  if(userWeight > 0) {
+    // Formule : 8ml/kg/h (froid) à 12ml/kg/h (chaud), base 10ml/kg/h tempéré
+    var mlPerKg = currentWeather==='cold' ? 7 : currentWeather==='hot' ? 12 : 9;
+    autoWaterBase = Math.round(userWeight * mlPerKg);
+    // On plafonne entre 300ml et 1000ml/h pour sécurité
+    autoWaterBase = Math.max(300, Math.min(1000, autoWaterBase));
+  }
+
+  var carbsH  = userCarbsH  > 0 ? userCarbsH  : carbsBase;
+  var waterH  = userWaterH  > 0 ? userWaterH  : Math.round(autoWaterBase * mod.water);
+  var sodiumH = userSodiumH > 0 ? userSodiumH : Math.round(NUTRITION_CONFIG.sodium.base * mod.sodium);
+
+  // Par ravito (basé sur durée réelle h = totalSec/3600)
+  var waterPerRav  = Math.round(waterH  * h / nbRavitos);
+  var carbsPerRav  = Math.round(carbsH  * h / nbRavitos);
+  var sodiumPerRav = Math.round(sodiumH * h / nbRavitos);
+
+  // Label type nutrition selon durée réelle
+  var detail;
+  if (h < 2) detail = 'Gorgées d\'eau';
+  else if (h < 2.5) detail = 'Gel + eau';
+  else if (h < 4) detail = 'Gel + eau + sel';
+  else if (h < 6) detail = 'Gel/barre + eau + sel';
+  else detail = 'Solide + eau + sel + protéines';
+
+  return {
+    gluc: carbsPerRav,
+    glucL: '~'+carbsPerRav+'g',
+    eau: waterPerRav,
+    eauL: waterPerRav+'ml',
+    sod: sodiumPerRav,
+    detail: detail,
+    // Totaux horaires pour alertes (basés sur durée réelle !)
+    waterH: waterH,
+    carbsH: carbsH,
+    sodiumH: sodiumH,
+    totalWater: Math.round(waterH  * h),
+    totalCarbs: Math.round(carbsH  * h),
+    totalSodium: Math.round(sodiumH * h),
+    isCustomCarbs:  userCarbsH  > 0,
+    isCustomWater:  userWaterH  > 0,
+    isCustomSodium: userSodiumH > 0,
+    isWeightBased:  userWeight  > 0 && userWaterH === 0
+  };
+}
+
+function getAlerts(n) {
+  if (!n) return [];
+  var alerts = [];
+
+  // Sodium total réel = sodium alimentation + sodium boisson
+  var drink = typeof getDrinkConfig === 'function' ? getDrinkConfig() : null;
+  var waterH = n.waterH || 0;
+  var drinkSodH = drink && drink.sodPer500
+    ? Math.round(drink.sodPer500 * (Math.min(waterH, 1000) / 500))
+    : 0;
+  var totalSodiumH = n.sodiumH + drinkSodH;
+
+  // Saturation intestinale glucides
+  if (n.carbsH > NUTRITION_CONFIG.alerts.carbsMax)
+    alerts.push({type:'danger', msg:'Saturation gastrique probable — '+n.carbsH+'g/h de glucides dépasse 90g/h (limite absolue double transporteur glucose+fructose). Réduisez ou alternez gel et solide.'});
+  else if (n.carbsH > NUTRITION_CONFIG.alerts.carbsHigh)
+    alerts.push({type:'warn', msg:'Charge glucidique élevée — '+n.carbsH+'g/h approche le seuil de 80g/h. Assurez-vous d\'avoir entraîné votre intestin à cette quantité.'});
+  // Hydratation insuffisante
+  if (n.waterH < NUTRITION_CONFIG.alerts.waterMin)
+    alerts.push({type:'warn', msg:'Hydratation insuffisante — '+n.waterH+'ml/h est en dessous du minimum recommandé de 400ml/h. Augmentez la fréquence des ravitos ou votre capacité de flasque.'});
+  // Sur-hydratation
+  if (n.waterH > NUTRITION_CONFIG.alerts.waterMax)
+    alerts.push({type:'warn', msg:'Volume hydrique très élevé — '+n.waterH+'ml/h. Boire plus de 1L/h sans compensation sodée peut diluer le sodium sanguin. Vérifiez votre apport en sel.'});
+  // Hyponatrémie — on utilise le sodium TOTAL (alimentation + boisson)
+  if (n.waterH > NUTRITION_CONFIG.alerts.hypo.waterMin && totalSodiumH < NUTRITION_CONFIG.alerts.hypo.sodiumMax)
+    alerts.push({type:'danger', msg:'⚠️ Risque d\'hyponatrémie — vous buvez beaucoup ('+n.waterH+'ml/h) mais peu de sodium total ('+totalSodiumH+'mg/h). Ajoutez du sel, des capsules sodium ou des boissons isotoniques.'});
+  return alerts;
+}
+var lastRows=[], lastMeta={};
+
+var DIST_INFO={
+  '5':{label:'5 km',sub:'Courte distance \u00B7 moins de 30 min pour les rapides'},
+  '10':{label:'10 km',sub:'Distance classique \u00B7 r\u00E9f\u00E9rence pour calibrer tes allures'},
+  '15':{label:'15 km',sub:'Trail court \u00B7 1 \u00E0 2 ravitos selon ton allure'},
+  '18.7':{label:'Uelzechtdall 18,7 km',sub:'Trail Lorentzweiler \u00B7 550 m D+ \u00B7 sentiers et for\u00EAt'},
+  '21.1':{label:'Semi-marathon 21,1 km',sub:'21,097 km officiels \u00B7 distance de r\u00E9f\u00E9rence'},
+  '42.195':{label:'Marathon 42,195 km',sub:'La reine des distances \u00B7 42,195 km officiels'},
+  '50':{label:'Ultra 50 km',sub:'Ultra trail \u00B7 gestion de l\'effort sur la dur\u00E9e'},
+  '80':{label:'Ultra 80 km',sub:'Grand ultra \u00B7 nutrition et mental \u00E0 anticiper'},
+  '100':{label:'Ultra 100 km',sub:'100 km \u00B7 le d\u00E9fi ultime du trail running'},'200':{label:'Ultra 200 km',sub:'200 km \u00B7 The Great Escape \u00B7 44h dans les Ardennes'}
+};
+
+function updateNutritionPreview(){
+  var carbsH  = parseFloat(document.getElementById('userCarbsH').value)||0;
+  var waterH  = parseFloat(document.getElementById('userWaterH').value)||0;
+  var sodiumH = parseFloat(document.getElementById('userSodiumH').value)||0;
+  var weight  = parseFloat(document.getElementById('userWeight').value)||0;
+  var flasque = parseFloat(document.getElementById('userFlasque').value)||1000;
+  var drink   = getDrinkConfig();
+  var el = document.getElementById('nutritionPreview');
+  if(!el) return;
+  var hasInput = carbsH||waterH||sodiumH||weight||drink||selectedProducts.length;
+  if(!hasInput){el.style.display='none';}
+  else{
+    var lines = [];
+    if(carbsH) lines.push('🍬 Glucides : <strong>'+carbsH+'g/h</strong> (saisi)');
+    else lines.push('🍬 Glucides : <strong>auto</strong> selon durée (45–75g/h)');
+    if(waterH) lines.push('💧 Eau : <strong>'+waterH+'ml/h</strong> (saisi)');
+    else if(weight) lines.push('💧 Eau : <strong>~'+Math.round(weight*9)+'ml/h</strong> (poids '+weight+'kg)');
+    else lines.push('💧 Eau : <strong>auto</strong> selon météo (450–700ml/h)');
+    if(drink) lines.push('🥤 Boisson : <strong>'+drink.icon+' '+drink.label+'</strong> · '+drink.glucPer500+'g glucides/500ml · '+drink.sodPer500+'mg Na/500ml');
+    lines.push('💧 Capacité flasques : <strong>'+flasque+'ml</strong>');
+    el.innerHTML = lines.join('<br>');
+    el.style.display = 'block';
+  }
+  // Récap produits sélectionnés
+  var info = document.getElementById('productSelectionInfo');
+  if(info){
+    if(!selectedProducts.length){ info.style.display='none'; return; }
+    var sweetList=selectedProducts.filter(function(k){return PRODUCTS[k]&&PRODUCTS[k].sweet;}).map(function(k){return PRODUCTS[k].icon+' '+PRODUCTS[k].label;});
+    var saltyList=selectedProducts.filter(function(k){return PRODUCTS[k]&&!PRODUCTS[k].sweet;}).map(function(k){return PRODUCTS[k].icon+' '+PRODUCTS[k].label;});
+    var html='<strong>✓ Produits sélectionnés :</strong><br>';
+    if(sweetList.length) html+='🟡 <strong>Sucré</strong> (matin / après-midi / nuit) : '+sweetList.join(', ')+'<br>';
+    if(saltyList.length) html+='🔴 <strong>Salé</strong> (midi 12-15h / soir 19-23h) : '+saltyList.join(', ');
+    if(!saltyList.length) html+='💡 Ajoute <strong>Naak Purée salée</strong> pour le rythme midi/soir';
+    info.innerHTML=html;
+    info.style.display='block';
+  }
+}
+
+function onDistChange(){
+  var sel=document.getElementById('dist').value;
+  var cf=document.getElementById('customField');
+  cf.style.display=sel==='custom'?'block':'none';
+  var banner=document.getElementById('distBanner');
+  if(sel!=='custom'&&DIST_INFO[sel]){
+    document.getElementById('distBannerText').textContent=DIST_INFO[sel].label;
+    document.getElementById('distBannerSub').textContent=DIST_INFO[sel].sub;
+    banner.style.display='flex';
+  } else if(sel==='custom'){
+    var v=parseFloat(document.getElementById('customDist').value);
+    if(v>0){
+      document.getElementById('distBannerText').textContent=v+' km \u00B7 distance personnalis\u00E9e';
+      document.getElementById('distBannerSub').textContent='Ton trail, tes r\u00E8gles.';
+      banner.style.display='flex';
+    } else banner.style.display='none';
+  } else banner.style.display='none';
+}
+
+function setRavito(m){
+  ravitoMode=m;
+  ['auto','custom','none'].forEach(function(x){
+    var o=document.getElementById('opt-'+x);
+    var d=document.getElementById('dot-'+x);
+    if(o)o.classList.toggle('selected',x===m);
+    if(d)d.classList.toggle('on',x===m);
+  });
+  document.getElementById('freqPills').style.display=m==='auto'?'flex':'none';
+  document.getElementById('ravitoCustomWrap').style.display=m==='custom'?'block':'none';
+}
+
+function setFreq(f){
+  ravitoFreq=f;
+  [2,5,10].forEach(function(v){document.getElementById('fp'+v).classList.toggle('on',v===f);});
+}
+
+function setFormat(f){
+  pdfFormat=f;
+  ['pfV','pfH','pfB'].forEach(function(id){var el=document.getElementById(id);if(el)el.classList.remove('on');});
+  var map={'portrait':'pfV','landscape':'pfH','bracelet':'pfB'};
+  var el=document.getElementById(map[f]);if(el)el.classList.add('on');
+}
+
+function updateCount(){
+  var r=120-document.getElementById('mottoInput').value.length;
+  document.getElementById('mottoCount').textContent=r+' caract\u00E8re'+(r!==1?'s':'')+' restant'+(r!==1?'s':'');
+}
+
+function parseTime(s){
+  var p=s.trim().split(':').map(Number);
+  if(p.length===3)return p[0]*3600+p[1]*60+p[2];
+  if(p.length===2)return p[0]*60+p[1];
+  return NaN;
+}
+
+function fmtTime(sec){
+  sec=Math.round(sec);
+  var h=Math.floor(sec/3600),m=Math.floor((sec%3600)/60),s=sec%60;
+  if(h>0)return h+':'+pad(m)+':'+pad(s);
+  return m+':'+pad(s);
+}
+
+function pad(n){return String(n).padStart(2,'0');}
+
+function fmtPace(spm){
+  var m=Math.floor(spm/60),s=Math.round(spm%60);
+  return m+"'"+pad(s)+'"/km';
+}
+
+function addTime(hhmm,addSec){
+  var p=hhmm.split(':').map(Number);
+  var base=p[0]*3600+p[1]*60+Math.round(addSec);
+  return pad(Math.floor(base/3600)%24)+':'+pad(Math.floor((base%3600)/60));
+}
+
+// getNutritionPerRavito définie plus haut avec NUTRITION_CONFIG
+function getRavito(totalSec){ return getNutritionPerRavito(totalSec, ravitoFreq, lastMeta.dist||10); }
+
+function calculate(){
+  var distSel=document.getElementById('dist').value;
+  var dist=distSel==='custom'?parseFloat(document.getElementById('customDist').value):parseFloat(distSel);
+  var totalSec=parseTime(document.getElementById('targetTime').value);
+  var startTime=document.getElementById('startTime').value;
+  var splitFreq=parseInt(document.getElementById('freq').value);
+  var strat=document.getElementById('strat').value;
+  var dplus=parseInt(document.getElementById('dplus').value)||0;
+  if(!dist||isNaN(dist)||isNaN(totalSec)||totalSec<=0)return;
+
+  // Affichage du nom de la course en haut des résultats (si renseigné)
+  var raceNameEl=document.getElementById('raceNameDisplay');
+  var raceNameVal=(document.getElementById('raceName')||{}).value||'';
+  if(raceNameEl){
+    if(raceNameVal){
+      raceNameEl.textContent='🏆 '+raceNameVal;
+      raceNameEl.style.display='block';
+    } else {
+      raceNameEl.style.display='none';
+    }
+  }
+
+  var kmEffort=calcKmEffort(dist,dplus);
+  // effortSec conservé pour compatibilité affichage banner uniquement
+  // La NUTRITION utilise toujours totalSec (durée réelle) — cf. getNutritionPerRavito
+  var avgPace=totalSec/dist;
+  document.getElementById('rAllure').textContent=fmtPace(avgPace);
+  document.getElementById('rVitesse').textContent=(3600/avgPace).toFixed(1)+' km/h';
+  var heureArr=startTime?addTime(startTime,totalSec):null;
+  document.getElementById('rFin').textContent=heureArr||fmtTime(totalSec);
+
+  var nbRavCustom=ravitoMode==='custom'?customRavitoKms.length:Math.floor(dist/ravitoFreq);
+  // ⚠️ CORRECTION BUG : la nutrition se base sur la durée RÉELLE (totalSec),
+  // pas sur effortSec (durée fictive km-effort qui gonfle artificiellement les totaux).
+  // Le D+ allonge le temps d'effort mais le sportif mange bien pendant sa durée réelle de course.
+  var needs=ravitoMode!=='none'?getNutritionPerRavito(totalSec, ravitoFreq, dist):null;
+  var showR=ravitoMode!=='none'&&needs;
+  document.getElementById('thRavito').style.display=showR?'':'none';
+  document.getElementById('thGluc').style.display=showR?'':'none';
+  document.getElementById('thEau').style.display=showR?'':'none';
+  document.getElementById('totalsRow').style.display=showR?'grid':'none';
+  document.getElementById('disclaimerRavito').style.display=showR?'inline':'none';
+
+  var points=[];
+  if(ravitoMode==='custom'&&customRavitoKms.length>0){
+    var allPts=[];
+    var km0=splitFreq;
+    while(km0<dist-0.01){allPts.push(Math.round(km0*10)/10);km0+=splitFreq;}
+    allPts.push(Math.round(dist*10)/10);
+    customRavitoKms.forEach(function(k){if(allPts.indexOf(k)===-1&&k<dist)allPts.push(k);});
+    allPts.sort(function(a,b){return a-b;});
+    points=allPts;
+  } else {
+    var km=splitFreq;
+    while(km<dist-0.01){points.push(Math.round(km*10)/10);km+=splitFreq;}
+    points.push(Math.round(dist*10)/10);
+  }
+
+  var cafWin = getCaffeineWindow(startTime, totalSec);
+  var userW   = parseFloat((document.getElementById('userWeight')||{}).value)||70;
+  var cafDose = getCafDose(userW);
+
+  var halfTime=null, halfDist=dist/2;
+  var totG=0,totE=0,totS=0,gCum=0,eCum=0;
+  var tbody=document.getElementById('splitsBody');
+  tbody.innerHTML='';
+  lastRows=[];
+
+  // Afficher la légende
+  var leg=document.getElementById('tableLegend');
+  if(leg)leg.style.display=showR?'block':'none';
+
+  var product=null; // déterminé par ravito selon heure
+  var flasqueCap=parseFloat((document.getElementById('userFlasque')||{}).value)||1000;
+
+  var prevKm=0;
+  var prevElapsed=0;
+  ravIndex=0; // reset index global pour la rotation produits
+
+  points.forEach(function(pt,idx){
+    var unitsStr; // partagée entre la collecte (isRav) et le rendu HTML — déclarée une seule fois
+    var elapsed=0,segStart=0;
+    for(var j=0;j<=idx;j++){
+      var p=points[j],seg=p-segStart;
+      elapsed+=seg*getEffectivePace(avgPace,p,dist); segStart=p;
+    }
+    if(!halfTime&&pt>=halfDist)halfTime=elapsed-(pt-halfDist)*avgPace;
+
+    var isLast=idx===points.length-1;
+    var isHalf=!isLast&&Math.abs(pt-halfDist)<splitFreq/2;
+    var pace=getEffectivePace(avgPace,pt,dist);
+    var diff=Math.round(elapsed-(pt/dist)*totalSec);
+    var diffStr=diff===0?'±0s':(diff>0?'+':'')+fmtTime(Math.abs(diff));
+    var isRavAuto=showR&&ravitoMode==='auto'&&!isLast&&Math.round(pt*10)%Math.round(ravitoFreq*10)===0;
+    var isRavCustom=showR&&ravitoMode==='custom'&&customRavitoKms.indexOf(pt)!==-1;
+    var isRav=isRavAuto||isRavCustom;
+    var sectionKm=pt-prevKm;
+
+    var ravData=null;
+    if(isRav&&needs){
+      // Calcul nutrition basé sur la DURÉE de la section (temps réel)
+      var ns=getNutritionSection(prevElapsed, elapsed, totalSec, dist);
+      if(ns){
+        gCum+=ns.gluc; eCum+=ns.eau; totG+=ns.gluc; totE+=ns.eau; totS+=ns.sod;
+
+        // Produit choisi selon heure réelle (rythme circadien)
+        var ravHp=startTime?addTime(startTime,elapsed):'--:--';
+        product=getProductForRavito(ravHp);
+
+        // Nombre d'unités produit (sur la part solide si boisson présente)
+        var boissonForCalc = getDrinkConfig();
+        var glucBoissonCalc = boissonForCalc ? Math.round(boissonForCalc.glucPer500 * (Math.min(ns.eau,flasqueCap)/500)) : 0;
+        var glucSolideCalc  = Math.max(0, ns.gluc - glucBoissonCalc);
+        unitsStr = product ? fmtUnits(glucSolideCalc, product) : null;
+        var prodVariant=''; // plus d'alternance manuelle — géré par rythme circadien
+
+        // Alerte eau si section dépasse capacité flasques
+        var eauAlert=ns.eau>flasqueCap;
+
+        // Durée section formatée
+        var sectionDurStr=fmtTime(elapsed-prevElapsed);
+
+        // On track indicator
+        var onTrackStr=ns.carbsH+'g/h ✓';
+
+        ravData={
+          detail:   ns.detail,
+          sectionH: ns.sectionH,
+          sectionDurStr: sectionDurStr,
+          glucSection: ns.gluc,
+          eauSection:  ns.eau,
+          carbsH:   ns.carbsH,
+          waterH:   ns.waterH,
+          gCum:     gCum,
+          eCum:     eCum,
+          unitsStr: unitsStr,
+          prodVariant: prodVariant,
+          eauAlert: eauAlert,
+          custom:   isRavCustom
+        };
+      }
+    }
+
+    var hp=startTime?addTime(startTime,elapsed):'--:--';
+    lastRows.push({pt:pt,pace:pace,elapsed:elapsed,hp:hp,isRav:isRav,isRavCustom:isRavCustom,isLast:isLast,isHalf:isHalf,diff:diff,diffStr:diffStr,ravData:ravData});
+
+    if(isRav){ prevKm=pt; prevElapsed=elapsed; }
+
+    var isCaf = cafWin && elapsed>=cafWin.startSec && elapsed<=cafWin.endSec;
+
+    var tr=document.createElement('tr');
+    if(isRavCustom)tr.className='is-ravito-custom';
+    else if(isRav)tr.className='is-ravito';
+    else if(isHalf)tr.className='is-half';
+    if(isCaf && isRav) tr.className+=' is-caf';
+
+    var rCell='',gCell='',eCell='';
+    if(showR){
+      if(isLast){
+        rCell='<td style="font-size:.72rem;color:#6b6b6b;">🏁 Arrivée</td>';
+        gCell='<td style="font-size:.72rem;font-weight:800;color:#4a6e57;">'+totG+'g total</td>';
+        eCell='<td style="font-size:.72rem;font-weight:800;color:#4a6478;">'+(Math.round(totE/100)/10)+'L total</td>';
+      } else if(isRav&&ravData){
+        // Colonne Section/Type
+        var cafBadge = isCaf
+          ? '<div class="caf-badge" style="margin-top:4px;">☕ Fenêtre caféine'
+            +'<span class="caf-dose">'+cafDose.low+'–'+cafDose.high+'mg · café, gel, comprimé</span></div>'
+          : '';
+        rCell='<td>'
+          +'<div style="font-size:.65rem;color:#6b6b6b;margin-bottom:2px;">⏱ '+ravData.sectionDurStr+' · '+sectionKm.toFixed(1)+'km</div>'
+          +'<span class="rav-badge'+(ravData.custom?' rav-badge-custom':'')+'">'+ravData.detail+(ravData.prodVariant?ravData.prodVariant:'')+'</span>'
+          +cafBadge
+          +'</td>';
+
+        // Colonne Glucides — split boisson / solide
+        var glucLines='';
+        var boissonCfg = getDrinkConfig();
+        var flasqueCapLocal = parseFloat((document.getElementById('userFlasque')||{}).value)||1000;
+        // La boisson remplit les flasques (max = capacité) — pas plus d'eau que ce qu'on peut porter
+        var eauBoisson = Math.min(ravData.eauSection, flasqueCapLocal);
+        var glucBoisson = boissonCfg ? Math.round(boissonCfg.glucPer500 * (eauBoisson/500)) : 0;
+        var glucSolide  = Math.max(0, ravData.glucSection - glucBoisson);
+        unitsStr    = null;
+        if(product && product.glucides && glucSolide > 0){
+          var nSolide = Math.ceil(glucSolide/product.glucides);
+          unitsStr = nSolide+'&nbsp;×&nbsp;'+product.icon+' '+(product.label||'unité');
+        } else if(product && product.glucides && glucSolide === 0 && boissonCfg){
+          unitsStr = '✅ Boisson seule suffit';
+        }
+        if(unitsStr) glucLines+='<div class="rav-units-badge">'+unitsStr+'</div>';
+        if(boissonCfg && glucBoisson>0){
+          glucLines+='<div style="font-size:.68rem;color:#4a6478;margin-bottom:1px;">🥤 '+glucBoisson+'g boisson'+(glucSolide>0?' + 🎒 '+glucSolide+'g solide':'')+'</div>';
+          glucLines+='<div class="rav-gluc-section">= '+ravData.glucSection+'g total section</div>';
+        } else {
+          glucLines+='<div class="rav-gluc-section">'+ravData.glucSection+'g sur cette section</div>';
+        }
+        glucLines+='<span class="rav-cum">cum. '+ravData.gCum+'g · <span class="rav-ontrack">'+ravData.carbsH+'g/h ✓</span></span>';
+        gCell='<td>'+glucLines+'</td>';
+
+        // Colonne Eau
+        var eauLines='<div class="eau-section-val">'+ravData.eauSection+'ml</div>';
+        if(ravData.eauAlert){
+          eauLines+='<div class="rav-alert-eau">🚨 Dépasse ta capacité ('+flasqueCap+'ml) !</div>';
+        }
+        eauLines+='<span class="rav-cum">cum. '+(Math.round(ravData.eCum/100)/10)+'L · '+ravData.waterH+'ml/h</span>';
+        eCell='<td>'+eauLines+'</td>';
+
+      } else {
+        rCell='<td style="color:#9a9a9a;">—</td>';
+        gCell='<td style="color:#9a9a9a;">—</td>';
+        eCell='<td style="color:#9a9a9a;">—</td>';
+      }
+    }
+
+    var dc=Math.abs(diff)<5?'#9a9a9a':diff>0?'#8a4a4a':'#4a6e57';
+    var hb=isHalf?' <span style="font-size:.65rem;color:#4a6e57;">½ course</span>':'';
+    tr.innerHTML='<td><strong>'+(isLast?'Arrivée '+pt+' km':'Km '+pt)+'</strong>'+hb+'</td>'
+      +'<td>'+fmtPace(pace)+'</td><td>'+fmtTime(elapsed)+'</td>'
+      +'<td style="font-weight:700;color:#323232;">'+hp+'</td>'
+      +rCell+gCell+eCell
+      +'<td class="hide-mobile" style="font-size:.78rem;color:'+dc+';">'+diffStr+'</td>';
+    tbody.appendChild(tr);
+  });
+
+  if(halfTime)document.getElementById('rDemi').textContent=startTime?addTime(startTime,halfTime):fmtTime(halfTime);
+  if(showR&&totG>0){
+    document.getElementById('totGluc').textContent=totG+'g';
+    document.getElementById('totEau').textContent=Math.round(totE/100)/10+'L';
+    document.getElementById('totSod').textContent=totS+'mg';
+  }
+  if(heureArr){
+    var b=document.getElementById('arriveeBanner');
+    b.innerHTML='D\u00E9part <strong>'+startTime+'</strong> &nbsp;\u00B7&nbsp; Arriv\u00E9e estim\u00E9e <strong>'+heureArr+'</strong> &nbsp;\u00B7&nbsp; Dur\u00E9e <strong>'+fmtTime(totalSec)+'</strong>';
+    b.style.display='block';
+  }
+  lastMeta={dist:dist,totalSec:totalSec,avgPace:avgPace,startTime:startTime,heureArr:heureArr,showR:showR,totG:totG,totE:totE,totS:totS,dplus:dplus,kmEffort:kmEffort};
+  document.getElementById('output').style.display='block';
+  document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'});
+
+  // Résumé nutrition + poids sac
+  if (needs && showR) {
+    document.getElementById('nutritionSummaryWrap').style.display = 'block';
+    document.getElementById('nsEau').textContent = (needs.totalWater/1000).toFixed(1)+'L';
+    document.getElementById('nsGluc').textContent = needs.totalCarbs+'g';
+    document.getElementById('nsSod').textContent = needs.totalSodium+'mg';
+    document.getElementById('nsEauH').textContent = needs.waterH+'ml';
+    document.getElementById('nsGlucH').textContent = needs.carbsH+'g';
+    var nsCal = document.getElementById('nsCal');
+    if(nsCal) nsCal.textContent = Math.round(needs.totalCarbs*4)+' kcal';
+    // Conseil contextuel dynamique selon durée + source des données
+    // ── BLOC CAFÉINE ──────────────────────────────────────────────────────
+  var cafBloc = document.getElementById('caffeineBloc');
+  if(cafBloc){
+    if(cafWin && startTime){
+      var cafStartStr = addTime(startTime, cafWin.startSec);
+      var cafEndStr   = addTime(startTime, cafWin.endSec);
+      var sources     = getCafSources(cafDose);
+      var html = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'
+        +'<span style="font-size:1.3rem;">☕</span>'
+        +'<strong style="font-size:.85rem;color:#e0e7ff;">Protocole caféine — 2ème nuit</strong>'
+        +'</div>';
+      html += '<div class="caf-row">⏰ <span><strong>Fenêtre recommandée :</strong> '
+        +cafStartStr+' → '+cafEndStr
+        +' <span style="opacity:.6;font-size:.68rem;">(2ème nuit · pas la 1ère — adrénaline du départ)</span></span></div>';
+      html += '<div class="caf-row">💊 <span><strong>Dose :</strong> '
+        +cafDose.low+'–'+cafDose.high+'mg/h'
+        +' <span style="opacity:.6;font-size:.68rem;">(1–2mg/kg · poids '+(parseFloat((document.getElementById('userWeight')||{}).value)||70)+'kg)</span></span></div>';
+      html += '<div class="caf-row">📌 <span><strong>Stratégie :</strong> '
+        +'Garde la caféine pour cette fenêtre. Ne commence pas pendant la 1ère nuit — l\'adrénaline suffit et tu préserves l\'effet pour quand tu en auras vraiment besoin.</span></div>';
+      html += '<div style="margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.18);font-size:.7rem;color:rgba(255,255,255,.7);">'
+        +'<strong style="color:#fff;">Sources possibles :</strong><br>'
+        + sources.join(' &nbsp;·&nbsp; ')+'</div>';
+      html += '<div style="margin-top:8px;font-size:.65rem;color:rgba(255,255,255,.5);">'
+        +'⚠️ Teste ton protocole caféine à l\'entraînement — sensibilité et tolérance digestive varient selon les individus. (ISSN 2019 · Tiller et al.)</div>';
+      cafBloc.innerHTML = html;
+      cafBloc.style.display = 'block';
+    } else {
+      cafBloc.style.display = 'none';
+    }
+  }
+    var drinkForSummary = getDrinkConfig();
+    var totalDrinkGluc = 0;
+    if(drinkForSummary && needs){
+      var flasqueCapSummary = parseFloat((document.getElementById('userFlasque')||{}).value)||1000;
+      var nbRavTotal = ravitoMode==='custom' ? (customRavitoKms.length||1) : Math.floor(dist/ravitoFreq)||1;
+      // Par ravito : on remplit max flasqueCap ml de boisson
+      totalDrinkGluc = Math.round(drinkForSummary.glucPer500 * (flasqueCapSummary/500)) * nbRavTotal;
+      totalDrinkGluc = Math.min(totalDrinkGluc, needs.totalCarbs); // ne peut pas dépasser le besoin total
+    }
+    var nsConseil = document.getElementById('nsConseil');
+    if(nsConseil){
+      var hReal = totalSec/3600;
+      var conseil = '';
+      var sourceNote = '';
+      if(needs.isCustomCarbs || needs.isCustomWater || needs.isCustomSodium)
+        sourceNote = '⚙️ Valeurs <strong>personnalisées</strong> — basées sur tes saisies.';
+      else if(needs.isWeightBased)
+        sourceNote = '⚖️ Hydratation <strong>ajustée à ton poids</strong>. Glucides selon recommandations scientifiques.';
+      else
+        sourceNote = '📚 Valeurs <strong>automatiques</strong> (ACSM 2007 · Jeukendrup 2014). Personnalise dans la section ci-dessus.';
+
+      if(drinkForSummary && totalDrinkGluc > 0){
+        var solidGluc = Math.max(0, needs.totalCarbs - totalDrinkGluc);
+        sourceNote += '<br>🥤 <strong>'+drinkForSummary.label+'</strong> apporte ~'+totalDrinkGluc+'g de glucides sur la course → il te reste <strong>'+solidGluc+'g à prendre en solide</strong>.';
+      }
+
+      if(hReal >= 5) conseil = '💡 Ultra long : privilégiez gel + barre + solide salé (pommes de terre, riz). Ajoutez des protéines (~10g/h) après 4h pour limiter la dégradation musculaire. Testez votre plan alimentaire lors de vos sorties longues.';
+      else if(hReal >= 2.5) conseil = '💡 Effort moyen-long : combinez glucose + fructose (ratio 2:1) pour 60–90g/h sans saturation digestive. Alternez gels et boissons sucrées. Vérifiez votre tolérance lors des entraînements.';
+      else if(hReal >= 1.5) conseil = '💡 Effort court : les gels simples suffisent. Préférez une boisson légèrement sucrée et salée. L\'objectif principal est l\'hydratation, pas l\'apport calorique.';
+
+      nsConseil.innerHTML = (sourceNote ? sourceNote + '<br>' : '') + conseil;
+      nsConseil.style.display = 'block';
+    }
+    // Section ravito — ce qu'on porte entre 2 ravitos
+    var sr = document.getElementById('sectionRavito');
+    if(sr && needs){
+      sr.style.display='block';
+      // Distance et durée moyenne d'une section
+      var nbRav = ravitoMode==='custom' ? (customRavitoKms.length||1) : Math.floor(dist/ravitoFreq)||1;
+      var distSection = Math.round((dist/nbRav)*10)/10;
+      var dureeSecH = (totalSec/3600) / nbRav; // durée moyenne section en heures
+
+      // Glucides et eau basés sur la DURÉE réelle de la section (pas sur needs.gluc qui est par ravito fixe)
+      var glucSection = Math.round(needs.carbsH * dureeSecH);
+      var eauSection  = Math.round(needs.waterH  * dureeSecH);
+
+      // Décomposition boisson vs solide — cap à la capacité flasque
+      var boissonConfig = getDrinkConfig();
+      var eauBoissonSr = Math.min(eauSection, parseFloat((document.getElementById('userFlasque')||{}).value)||1000);
+      var glucBoisson = boissonConfig ? Math.round(boissonConfig.glucPer500 * (eauBoissonSr/500)) : 0;
+      var glucSolide  = Math.max(0, glucSection - glucBoisson);
+      product = getProductConfig();
+      var unitsNeeded = (product && product.glucides && glucSolide > 0) ? Math.ceil(glucSolide/product.glucides) : null;
+
+      // Poids à porter : eau (1kg/L) + solides (2.2g/g glucides) + boisson (poids liquide déjà dans eau)
+      var poidsSection = (eauSection/1000) + (glucSolide * 0.0022);
+      var eauAlert = eauSection > (parseFloat((document.getElementById('userFlasque')||{}).value)||1000);
+
+      document.getElementById('srEau').textContent = eauSection+'ml';
+      document.getElementById('srGluc').textContent = glucSection+'g';
+      document.getElementById('srPoids').textContent = (poidsSection*1000).toFixed(0)+'g';
+      document.getElementById('srDist').textContent = distSection+'km';
+
+      // Note détaillée
+      var noteLines = [];
+      noteLines.push('Entre chaque ravito (~'+distSection+' km · ~'+fmtTime(dureeSecH*3600)+') tu as besoin de '+glucSection+'g de glucides et '+eauSection+'ml d\'eau.');
+      if(boissonConfig && glucBoisson > 0)
+        noteLines.push('🥤 Ta boisson ('+boissonConfig.label+') t\'apporte ~'+glucBoisson+'g de glucides → il te reste '+glucSolide+'g à prendre en solide.');
+      if(unitsNeeded && product)
+        noteLines.push('🎒 Soit environ '+unitsNeeded+' × '+product.icon+' '+(product.label||'unité')+'(s) à emporter.');
+      if(eauAlert)
+        noteLines.push('🚨 '+eauSection+'ml dépasse ta capacité de flasques — prévois une source d\'eau intermédiaire ou augmente ta capacité.');
+      document.getElementById('srNote').textContent = noteLines.join(' ');
+    }
+    // Alertes
+    var alerts = getAlerts(needs);
+    var ab = document.getElementById('alertBox');
+    if (alerts.length > 0) {
+      var hasDanger = alerts.some(function(a){return a.type==='danger';});
+      ab.className = 'alert-box ' + (hasDanger ? 'alert-danger' : 'alert-warn');
+      ab.innerHTML = alerts.map(function(a){return '⚠️ '+a.msg;}).join('<br>');
+      ab.style.display = 'block';
+    } else ab.style.display = 'none';
+    lastMeta.dplus=dplus; lastMeta.kmEffort=kmEffort;
+  } else {
+    document.getElementById('nutritionSummaryWrap').style.display = 'none';
+    var sr2=document.getElementById('sectionRavito'); if(sr2)sr2.style.display='none';
+    document.getElementById('alertBox').style.display = 'none';
+  }
+}
+
+function exportPDF(){
+  var motto=document.getElementById('mottoInput').value.trim();
+  var m=lastMeta;
+  if(!m.dist){alert('Lance d\'abord le calcul avant de g\u00E9n\u00E9rer le PDF.');return;}
+  var thExtra=m.showR
+    ?'<th style="background:#323232;color:#fff;padding:5px 7px;">Ravitaillement</th><th style="background:#525252;color:#fff;padding:5px 7px;">Glucides</th><th style="background:#6b6b6b;color:#fff;padding:5px 7px;">Eau</th>'
+    :'';
+  var rows='';
+  lastRows.forEach(function(r){
+    var cls=r.isRav?'background:#eef2ef;':r.isHalf?'background:#e6ebe8;font-weight:700;':'';
+    var lborder=r.isRav?'border-left:3px solid #4a6e57;':'';
+    var rc='',gc='',ec='';
+    if(m.showR){
+      if(r.isLast){rc='<td>Arriv\u00E9e</td>';gc='<td>'+m.totG+'g total</td>';ec='<td>'+Math.round(m.totE/100)/10+'L total</td>';}
+      else if(r.ravData){
+        var rd=r.ravData;
+        var glucDisplay=rd.unitsStr ? rd.unitsStr.replace(/&nbsp;/g,' ') : (rd.glucSection+'g');
+        rc='<td style="color:#323232;font-weight:700;">'+rd.detail+(rd.prodVariant||'')+'<br><small style="color:#6b6b6b;font-weight:400;">⏱ '+rd.sectionDurStr+'</small></td>';
+        gc='<td><span style="background:#f3eee3;color:#8a6a3a;border:1px solid #e0d4b8;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;white-space:nowrap;">'+glucDisplay+'</span><br><small style="color:#6b6b6b;">'+rd.glucSection+'g · cum. '+rd.gCum+'g</small></td>';
+        ec='<td><span style="background:#eaeef2;color:#4a6478;border:1px solid #d4dde4;border-radius:6px;padding:1px 6px;font-size:9px;font-weight:700;white-space:nowrap;">'+rd.eauSection+'ml</span>'+(rd.eauAlert?'<br><small style="color:#8a4a4a;font-weight:700;">🚨 &gt; capacité</small>':'')+'<br><small style="color:#9a9a9a;">cum. '+Math.round(rd.eCum/100)/10+'L</small></td>';
+      } else {rc='<td>\u2014</td>';gc='<td>\u2014</td>';ec='<td>\u2014</td>';}
+    }
+    var dc=Math.abs(r.diff)<5?'#9a9a9a':r.diff>0?'#8a4a4a':'#4a6e57';
+    var fw=r.isLast?'font-weight:800;':'';
+    rows+='<tr style="'+cls+fw+'">'
+      +'<td style="'+lborder+fw+'"><strong>'+(r.isLast?'Arriv\u00E9e '+r.pt+' km':'Km '+r.pt)+'</strong>'+(r.isHalf?' <em style=\'font-size:9px;color:#4a6e57;\'>\u00BD course</em>':'')+'</td>'
+      +'<td>'+fmtPace(r.pace)+'</td><td>'+fmtTime(r.elapsed)+'</td>'
+      +'<td style="color:#323232;font-weight:700;">'+r.hp+'</td>'
+      +rc+gc+ec
+      +'<td style="color:'+dc+';">'+r.diffStr+'</td></tr>';
+  });
+  var tots=m.showR&&m.totG>0
+    ?'<div style="display:flex;gap:12px;margin:10px 0;flex-wrap:wrap;">'
+      +'<div style="border:1px solid #cfcfcf;border-radius:6px;padding:6px 14px;text-align:center;"><div style="font-size:14px;font-weight:800;color:#323232;">'+m.totG+'g</div><div style="font-size:9px;color:#6b6b6b;">Glucides totaux</div></div>'
+      +'<div style="border:1px solid #cfcfcf;border-radius:6px;padding:6px 14px;text-align:center;"><div style="font-size:14px;font-weight:800;color:#323232;">'+Math.round(m.totE/100)/10+'L</div><div style="font-size:9px;color:#6b6b6b;">Eau totale</div></div>'
+      +'<div style="border:1px solid #cfcfcf;border-radius:6px;padding:6px 14px;text-align:center;"><div style="font-size:14px;font-weight:800;color:#323232;">'+m.totS+'mg</div><div style="font-size:9px;color:#6b6b6b;">Sodium total</div></div>'
+      +'</div>'
+    :'';
+  var mottoH=motto?'<div style="margin-top:14px;padding:10px 14px;border:1px solid #cfcfcf;border-radius:8px;font-size:11px;font-style:italic;color:#525252;background:#fafafa;">"'+motto+'"</div>':'';
+  var arrH=m.heureArr?'<div style="background:#323232;border-radius:6px;padding:6px 14px;font-size:11px;font-weight:800;color:#ffffff;display:inline-block;margin:8px 0;">'+'D\u00E9part '+m.startTime+' &nbsp;\u00B7&nbsp; Arriv\u00E9e estim\u00E9e '+m.heureArr+' &nbsp;\u00B7&nbsp; Dur\u00E9e '+fmtTime(m.totalSec)+'</div><br>':'';
+  var sel=document.getElementById('dist');
+  var distLabel=sel.value==='custom'?m.dist+' km':sel.options[sel.selectedIndex].text;
+  var dplusLabel=m.dplus>0?' · D+ '+m.dplus+'m ('+m.kmEffort+' km-effort)':'';
+  var isBracelet=pdfFormat==='bracelet';
+  var orientation=pdfFormat==='landscape'?'landscape':'portrait';
+  var pageSize=isBracelet?'70mm 220mm':'A4 '+orientation;
+
+  // Nom de la course (préfixe du titre PDF si renseigné)
+  var raceName=(document.getElementById('raceName')||{}).value||'';
+  var raceTitle=raceName?raceName+' · ':'';
+
+  var html='<!DOCTYPE html><html lang="fr"><head><meta charset="UTF-8">'
+    +'<title>Temps de passage \u00B7 '+distLabel+'</title>'
+    +'<style>'
+    +'@page{size:'+pageSize+';margin:'+(isBracelet?'5mm':'1cm')+';}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}'
+    +'body{font-family:Arial,Helvetica,sans-serif;font-size:10px;color:#323232;padding:8px;}'
+    +'.ph{text-align:center;margin-bottom:12px;padding-bottom:8px;border-bottom:2px solid #323232;}'
+    +'.ph h1{font-size:16px;font-weight:800;color:#323232;margin-bottom:2px;}'
+    +'.ph p{font-size:9px;color:#6b6b6b;}'
+    +'.pc{display:flex;gap:10px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}'
+    +'.pc-item{border:1px solid #cfcfcf;border-radius:8px;padding:6px 14px;text-align:center;}'
+    +'.pc-val{font-size:13px;font-weight:800;color:#323232;}'
+    +'.pc-lbl{font-size:9px;color:#6b6b6b;text-transform:uppercase;}'
+    +'table{width:100%;border-collapse:collapse;font-size:9px;}'
+    +'th{background:#323232;color:#fafafa;padding:5px 6px;text-align:left;}'
+    +'td{padding:4px 6px;border-bottom:1px solid #e5e5e5;vertical-align:middle;}'
+    +'.pf{margin-top:12px;font-size:8px;color:#9a9a9a;text-align:center;padding-top:8px;border-top:1px solid #e5e5e5;}'
+    +'</style></head><body>'
+    +'<div class="ph"><h1>'+raceTitle+'Mes temps de passage · '+distLabel+dplusLabel+'</h1><p>Seb Run Nature · seb-run-nature.com</p></div>'
+    +arrH
+    +'<div class="pc">'
+    +'<div class="pc-item"><div class="pc-val">'+fmtPace(m.avgPace)+'</div><div class="pc-lbl">Allure moyenne</div></div>'
+    +'<div class="pc-item"><div class="pc-val">'+fmtTime(m.totalSec)+'</div><div class="pc-lbl">Chrono objectif</div></div>'
+    +'<div class="pc-item"><div class="pc-val">'+((3600/m.avgPace).toFixed(1))+' km/h</div><div class="pc-lbl">Vitesse</div></div>'
+    +'</div>'
+    +'<table><thead><tr>'
+    +'<th>Point de passage</th><th>Allure</th><th>Temps de course</th><th>Heure r\u00E9elle</th>'
+    +thExtra+'<th>\u00C9cart objectif</th>'
+    +'</tr></thead><tbody>'+rows+'</tbody></table>'
+    +tots+mottoH
+    +'<div class="pf">Ces temps sont des estimations \u00B7 ta forme, la m\u00E9t\u00E9o et le terrain peuvent influencer ton allure r\u00E9elle. Bonne course ! \u00B7 Seb Run Nature \u00B7 seb-run-nature.com</div>'
+    +'</body></html>';
+
+  var w=window.open('','_blank','width=800,height=600');
+  if(!w){alert('Le navigateur a bloqu\u00E9 la nouvelle fen\u00EAtre. Autorise les popups pour ce site puis r\u00E9essaie.');return;}
+  w.document.write(html);
+  w.document.close();
+  w.focus();
+  setTimeout(function(){w.print();},400);
+}
+
+onDistChange();
+</script>
+</body>
+</html>
