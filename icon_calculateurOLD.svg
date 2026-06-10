@@ -1,6 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="80" fill="#7c2d12"/>
-  <text x="256" y="200" font-family="Arial, sans-serif" font-weight="900" font-size="140" fill="#fed7aa" text-anchor="middle" dominant-baseline="middle">SRN</text>
-  <text x="256" y="320" font-family="Arial, sans-serif" font-weight="700" font-size="40" fill="rgba(254,215,170,0.7)" text-anchor="middle" dominant-baseline="middle">CALCULATEUR</text>
-  <path d="M140 400 L200 320 L240 360 L290 280 L340 340 L380 300 L420 400Z" fill="rgba(254,215,170,0.15)" stroke="#fed7aa" stroke-width="3" stroke-linejoin="round"/>
-</svg>
