@@ -540,14 +540,8 @@ function ic(name, cls){
       <select id="dist" onchange="onDistChange()">
         <option value="5">5 km</option>
         <option value="10" selected>10 km</option>
-        <option value="15">15 km</option>
-        <option value="18.7">Uelzechtdall 18,7 km</option>
         <option value="21.1">Semi-marathon 21,1 km</option>
         <option value="42.195">Marathon 42,195 km</option>
-        <option value="50">Ultra 50 km</option>
-        <option value="80">Ultra 80 km</option>
-        <option value="100">Ultra 100 km</option>
-        <option value="200">Ultra 200 km</option>
         <option value="custom">Distance personnalisée</option>
       </select>
     </div>
@@ -565,11 +559,14 @@ function ic(name, cls){
     </div>
     <div class="cw-field">
       <label class="cw-label" for="freq">Fréquence des points de passage</label>
-      <select id="freq">
-        <option value="1" selected>Tous les 1 km</option>
-        <option value="2">Tous les 2 km</option>
-        <option value="5">Tous les 5 km</option>
+      <select id="freq" onchange="onFreqChange()">
+        <option value="custom" selected>Distance personnalisée</option>
+        <option value="">Laisser vide (départ et arrivée seulement)</option>
       </select>
+      <div id="freqCustomField" style="margin-top:8px;">
+        <input type="number" id="freqCustom" min="0.5" max="50" step="0.5" value="1" placeholder="ex: 1" oninput="onFreqChange()">
+        <div style="font-size:.68rem;color:var(--c-ink-mute);margin-top:4px;">Un point de passage tous les <span id="freqCustomEcho">1</span> km.</div>
+      </div>
     </div>
     <div class="cw-field expert-only">
       <label class="cw-label" for="strat">Stratégie de course</label>
@@ -734,20 +731,8 @@ function ic(name, cls){
 <div class="cw-section expert-only">
   <div class="cw-section-title">Ravitaillement</div>
   <div class="radio-group">
-    <div class="radio-opt selected" id="opt-auto" onclick="setRavito('auto')">
-      <div class="radio-dot on" id="dot-auto"></div>
-      <div>
-        <div class="radio-label">Automatique</div>
-        <div class="radio-sub">Ravitos placés selon la durée de ton effort, glucides et eau dans le tableau</div>
-      </div>
-    </div>
-    <div class="freq-pills" id="freqPills">
-      <div class="freq-pill on" id="fp2" onclick="setFreq(2)">Tous les 2 km</div>
-      <div class="freq-pill" id="fp5" onclick="setFreq(5)">Tous les 5 km</div>
-      <div class="freq-pill" id="fp10" onclick="setFreq(10)">Tous les 10 km</div>
-    </div>
-    <div class="radio-opt" id="opt-custom" onclick="setRavito('custom')">
-      <div class="radio-dot" id="dot-custom"></div>
+    <div class="radio-opt selected" id="opt-custom" onclick="setRavito('custom')">
+      <div class="radio-dot on" id="dot-custom"></div>
       <div>
         <div class="radio-label"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Ravitaillements réels</div>
         <div class="radio-sub">Entre les km exacts des ravitos de ta course — nutrition groupée par section</div>
@@ -892,7 +877,7 @@ function ic(name, cls){
 
 
 <script>
-var ravitoMode='auto', ravitoFreq=2, pdfFormat='portrait';
+var ravitoMode='custom', ravitoFreq=2, pdfFormat='portrait';
 var currentWeather='moderate', currentTerrain='easy', currentFatigue=0;
 var customRavitoKms=[];
 var currentProduct='none'; // legacy - non utilisé
@@ -1008,7 +993,8 @@ function collectFormData(){
     customDist:  getVal('customDist'),
     targetTime:  getVal('targetTime'),
     startTime:   getVal('startTime'),
-    freq:        getVal('freq','1'),
+    freq:        getVal('freq','custom'),
+    freqCustom:  getVal('freqCustom','1'),
     strategy:    getVal('strat','constant'),
     fatigue:     getVal('fatigueSlider','0'),
     dplus:       getVal('dplus'),
@@ -1050,6 +1036,8 @@ function applyFormData(data){
   if(data.targetTime  !== undefined) setVal('targetTime',  data.targetTime);
   if(data.startTime   !== undefined) setVal('startTime',   data.startTime);
   if(data.freq        !== undefined) setVal('freq',        data.freq);
+  if(data.freqCustom  !== undefined) setVal('freqCustom',  data.freqCustom);
+  onFreqChange();
   if(data.strategy    !== undefined) setVal('strat',    data.strategy);
   if(data.fatigue     !== undefined){
     setVal('fatigueSlider', data.fatigue);
@@ -1068,7 +1056,7 @@ function applyFormData(data){
     var wb=document.querySelector('.weather-pill.'+data.weather); if(wb){wb.classList.add('on');wb.setAttribute('aria-pressed','true');}
   }
   // Ravito
-  if(data.ravitoMode  !== undefined) setRavito(data.ravitoMode);
+  if(data.ravitoMode  !== undefined) setRavito(data.ravitoMode==='auto'?'custom':data.ravitoMode);
   if(data.ravitoFreq  !== undefined) setFreq(data.ravitoFreq);
   if(data.customRavitoKms !== undefined){
     customRavitoKms = data.customRavitoKms.slice();
@@ -1614,6 +1602,27 @@ function updateNutritionPreview(){
   }
 }
 
+function onFreqChange(){
+  var sel=document.getElementById('freq');
+  var cf=document.getElementById('freqCustomField');
+  if(cf) cf.style.display = sel.value==='custom' ? 'block' : 'none';
+  var echo=document.getElementById('freqCustomEcho');
+  if(echo) echo.textContent=(document.getElementById('freqCustom')||{}).value||'1';
+}
+
+// Fréquence de splits effective :
+//   > 0  → un point de passage tous les N km
+//   0    → aucun point intermédiaire (départ + arrivée seulement)
+function getSplitFreq(){
+  var sel=document.getElementById('freq');
+  if(!sel) return 1;
+  if(sel.value==='custom'){
+    var v=parseFloat((document.getElementById('freqCustom')||{}).value);
+    return (v>0) ? v : 0;
+  }
+  return 0;
+}
+
 function onDistChange(){
   var sel=document.getElementById('dist').value;
   var cf=document.getElementById('customField');
@@ -1635,19 +1644,19 @@ function onDistChange(){
 
 function setRavito(m){
   ravitoMode=m;
-  ['auto','custom','none'].forEach(function(x){
+  ['custom','none'].forEach(function(x){
     var o=document.getElementById('opt-'+x);
     var d=document.getElementById('dot-'+x);
     if(o)o.classList.toggle('selected',x===m);
     if(d)d.classList.toggle('on',x===m);
   });
-  document.getElementById('freqPills').style.display=m==='auto'?'flex':'none';
-  document.getElementById('ravitoCustomWrap').style.display=m==='custom'?'block':'none';
+  var wrap=document.getElementById('ravitoCustomWrap');
+  if(wrap)wrap.style.display=m==='custom'?'block':'none';
 }
 
 function setFreq(f){
   ravitoFreq=f;
-  [2,5,10].forEach(function(v){document.getElementById('fp'+v).classList.toggle('on',v===f);});
+  [2,5,10].forEach(function(v){var el=document.getElementById('fp'+v);if(el)el.classList.toggle('on',v===f);});
 }
 
 function setFormat(f){
@@ -1718,7 +1727,7 @@ function calculate(){
   var dist=distSel==='custom'?parseFloat(document.getElementById('customDist').value):parseFloat(distSel);
   var totalSec=parseTime(document.getElementById('targetTime').value);
   var startTime=document.getElementById('startTime').value;
-  var splitFreq=parseInt(document.getElementById('freq').value);
+  var splitFreq=getSplitFreq();
   var strat=document.getElementById('strat').value;
   var dplus=parseInt(document.getElementById('dplus').value)||0;
   // Temps cible invalide : message explicite plutôt qu'un calcul silencieusement faux
@@ -1729,11 +1738,13 @@ function calculate(){
   }
   if(!dist||isNaN(dist)||isNaN(totalSec)||totalSec<=0)return;
 
-  // Garde-fou : éviter un tableau ingérable (ex. 200 km à 1 km de fréquence = 200 lignes)
-  var estLines=Math.ceil(dist/Math.max(splitFreq,0.1));
-  if(estLines>120){
-    alert('Cette combinaison distance / fréquence de splits générerait '+estLines+' lignes — c\'est trop pour rester lisible.\n\nAugmente la fréquence des temps de passage (ex. tous les 5 ou 10 km) ou réduis la distance.');
-    return;
+  // Garde-fou : éviter un tableau ingérable (seulement si une fréquence est définie)
+  if(splitFreq>0){
+    var estLines=Math.ceil(dist/splitFreq);
+    if(estLines>120){
+      alert('Cette combinaison distance / fréquence de splits générerait '+estLines+' lignes — c\'est trop pour rester lisible.\n\nAugmente la fréquence des temps de passage (ex. tous les 5 ou 10 km) ou réduis la distance.');
+      return;
+    }
   }
 
   // Affichage du nom de la course en haut des résultats (si renseigné)
@@ -1772,15 +1783,19 @@ function calculate(){
   var points=[];
   if(ravitoMode==='custom'&&customRavitoKms.length>0){
     var allPts=[];
-    var km0=splitFreq;
-    while(km0<dist-0.01){allPts.push(Math.round(km0*10)/10);km0+=splitFreq;}
+    if(splitFreq>0){
+      var km0=splitFreq;
+      while(km0<dist-0.01){allPts.push(Math.round(km0*10)/10);km0+=splitFreq;}
+    }
     allPts.push(Math.round(dist*10)/10);
     customRavitoKms.forEach(function(k){if(allPts.indexOf(k)===-1&&k<dist)allPts.push(k);});
     allPts.sort(function(a,b){return a-b;});
     points=allPts;
   } else {
-    var km=splitFreq;
-    while(km<dist-0.01){points.push(Math.round(km*10)/10);km+=splitFreq;}
+    if(splitFreq>0){
+      var km=splitFreq;
+      while(km<dist-0.01){points.push(Math.round(km*10)/10);km+=splitFreq;}
+    }
     points.push(Math.round(dist*10)/10);
   }
 
@@ -2190,6 +2205,8 @@ function exportPDF(){
 }
 
 onDistChange();
+onFreqChange();
+setRavito('custom');
 </script>
 </body>
 </html>
