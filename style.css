@@ -1,0 +1,355 @@
+/* ============================================
+   CHARTE GRAPHIQUE — Palette monochrome
+   Base : #323232 / #cfcfcf / #fafafa / #d5d5d5 / #ffffff / #fefefe
+   Accents sémantiques : conservés en tons désaturés
+   pour la lisibilité fonctionnelle (alertes, eau, glucides…)
+   ============================================ */
+:root{
+  /* ============================================
+     CHARTE « Seb Run Nature » — alignée sur l'app Trail
+     Crème chaud · accent vert unique · hero charbon forêt
+     ============================================ */
+
+  /* Polices */
+  --font-main:    'Inter', system-ui, sans-serif;
+  --font-display: 'Sora', 'Inter', sans-serif;
+  --font-mono:    'JetBrains Mono', ui-monospace, Menlo, monospace;
+
+  /* Accent unique (vert de marque) + dérivés */
+  --green:     #1d9e75;
+  --green-dk:  #0f6e56;
+  --green-lt:  #e1f5ee;
+
+  /* Texte & surfaces — crème chaud (corps de l'app) */
+  --c-ink:        #241f1a;   /* texte principal */
+  --c-ink-soft:   #5a5249;   /* texte secondaire */
+  --c-ink-mute:   #7d756a;   /* texte tertiaire, hints */
+  --c-line:       #e9e1d4;   /* bordures principales */
+  --c-line-soft:  #ded4c4;   /* bordures hover */
+  --c-line-faint: #f0e9dd;   /* séparateurs discrets */
+  --c-bg:         #faf5ef;   /* fond principal crème */
+  --c-bg-alt:     #fdfaf5;   /* fond alternatif */
+  --c-surface:    #ffffff;   /* cartes, sections */
+  --c-surface-2:  #f6f1e8;   /* inputs enfoncés */
+
+  /* Accent principal — boutons, états actifs, focus */
+  --c-accent:        #1d9e75; /* vert de marque */
+  --c-accent-soft:   #0f6e56;
+  --c-accent-bg:     #e1f5ee; /* fond pill/badge actif */
+  --c-accent-on:     #ffffff; /* texte sur accent */
+
+  /* Accents sémantiques — réservés à la DONNÉE (nutrition, alertes) */
+  --c-success:    #1d9e75;   /* "on track", glucides OK */
+  --c-success-bg: #e1f5ee;
+  --c-warning:    #ba7517;   /* glucides, attention */
+  --c-warning-bg: #faeeda;
+  --c-info:       #378add;   /* eau, hydratation */
+  --c-info-bg:    #e6f1fb;
+  --c-danger:     #e24b4a;   /* alertes critiques */
+  --c-danger-bg:  #fbe8e8;
+  --c-caf:        #6b5bbd;   /* caféine, nuit */
+  --c-caf-bg:     #ece9f7;
+
+  /* Ombres — quasi invisibles, chaleur dans la teinte */
+  --shadow-sm: 0 1px 2px rgba(40,30,15,.04), 0 2px 6px rgba(40,30,15,.04);
+  --shadow-md: 0 1px 2px rgba(40,30,15,.05), 0 4px 12px rgba(40,30,15,.06);
+  --shadow-lg: 0 2px 4px rgba(40,30,15,.06), 0 8px 24px rgba(40,30,15,.08);
+  --shadow-hover: 0 2px 4px rgba(40,30,15,.06), 0 12px 28px rgba(40,30,15,.10);
+
+  /* Hero sombre (charbon chaud teinté forêt) — signature de la suite */
+  --hero-bg-1: #0d1410;
+  --hero-bg-2: #16221b;
+  --hero-text: #f2ede4;
+  --hero-accent: #5dcaa5;
+  --hero-muted: #9fe1cb;
+  --gradient-dark: linear-gradient(160deg, #0d1410 0%, #16221b 100%);
+
+  /* Rayons */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--font-main);background:var(--c-bg);color:var(--c-ink);margin:0;padding:0;}
+
+/* ── ICÔNES SVG (sprite Tabler, MIT) — trait cohérent, hors ligne ── */
+.ic{width:1.05em;height:1.05em;display:inline-block;vertical-align:-0.16em;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;fill:none;flex-shrink:0;}
+.ic-lg{width:1.5em;height:1.5em;}
+/* Pastille colorée (technicité, niveaux) */
+.cdot{display:inline-block;width:.62em;height:.62em;border-radius:50%;vertical-align:.02em;margin-right:.15em;}
+.cw{max-width:900px;margin:0 auto;padding:0 16px 60px;}
+
+/* APP HEADER */
+.app-topbar{background:var(--gradient-dark);padding:8px 16px;display:flex;align-items:center;gap:10px;min-height:56px;box-shadow:0 1px 0 rgba(0,0,0,.04);flex-wrap:wrap;}
+.app-logo{display:flex;align-items:center;gap:10px;text-decoration:none;flex-shrink:0;}
+.app-logo-icon{width:34px;height:34px;background:rgba(255,255,255,.08);border-radius:50%;display:flex;align-items:center;justify-content:center;border:1.5px solid rgba(255,255,255,.18);}
+.app-logo-text{font-size:.78rem;font-weight:800;color:#fafafa;text-transform:uppercase;letter-spacing:1px;}
+.app-topbar-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.app-topbar-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;font-size:.75rem;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fafafa;font-family:var(--font-main);transition:all .18s;white-space:nowrap;}
+.app-topbar-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.32);}
+.app-hero{background:var(--gradient-dark);padding:30px 20px 34px;margin-bottom:0;position:relative;overflow:hidden;}
+.app-hero-massif{position:absolute;left:0;right:0;bottom:0;width:100%;height:58%;pointer-events:none;z-index:0;}
+.app-hero>*{position:relative;z-index:2;}
+.app-hero-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.7rem,4.5vw,2.4rem);color:var(--hero-text);letter-spacing:-.5px;line-height:1.08;margin-bottom:10px;}
+.app-hero-title span{color:var(--hero-accent);}
+.app-hero-sub{font-size:.85rem;color:rgba(242,237,228,.62);display:flex;gap:10px;flex-wrap:wrap;}
+.app-hero-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);color:var(--hero-muted);border-radius:14px;padding:4px 11px;font-size:.68rem;font-weight:600;}
+.app-content{background:var(--c-bg);padding-top:20px;}
+
+/* DARK MODE OVERRIDE — centralisé plus bas */
+.cw-section{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--radius-lg);padding:20px 22px;margin-bottom:12px;box-shadow:var(--shadow-md);transition:box-shadow .25s ease,transform .25s ease;}
+.cw-section:hover{box-shadow:var(--shadow-hover);}
+.cw-section-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--c-ink);border-left:3px solid var(--c-accent);padding-left:10px;margin-bottom:18px;}
+.cw-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.cw-field{display:flex;flex-direction:column;gap:5px;}
+.cw-label{font-size:.78rem;font-weight:700;color:var(--c-ink-soft);}
+input,select,textarea{width:100%;padding:10px 13px;border:1.5px solid var(--c-line);border-radius:9px;font-size:.88rem;font-family:var(--font-main);background:var(--c-surface-2);color:var(--c-ink);transition:all .18s;}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--c-ink);background:var(--c-surface);box-shadow:0 0 0 3px rgba(50,50,50,.10);}
+textarea{resize:none;}
+.dist-banner{background:var(--gradient-dark);border-radius:var(--radius-md);padding:11px 16px;margin-top:12px;display:none;align-items:center;gap:12px;box-shadow:var(--shadow-md);}
+.dist-banner-icon{font-size:1.3rem;flex-shrink:0;}
+.dist-banner-text{font-size:.88rem;font-weight:800;color:#fff;}
+.dist-banner-sub{font-size:.72rem;color:rgba(255,255,255,.75);margin-top:2px;}
+.radio-group{display:flex;flex-direction:column;gap:8px;}
+.radio-opt{display:flex;align-items:center;gap:12px;padding:11px 14px;border:1px solid var(--c-line);border-radius:var(--radius-md);cursor:pointer;background:var(--c-surface);transition:all .18s;}
+.radio-opt:hover{border-color:var(--c-line-soft);background:var(--c-bg-alt);}
+.radio-opt.selected{border-color:var(--c-ink);background:var(--c-accent-bg);}
+.radio-dot{width:20px;height:20px;border-radius:50%;border:2px solid var(--c-line);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.radio-dot.on{border-color:var(--c-accent);background:var(--c-accent);}
+.radio-dot.on::after{content:'';width:7px;height:7px;background:#fff;border-radius:50%;}
+.radio-label{font-size:.88rem;font-weight:700;color:var(--c-ink);}
+.radio-sub{font-size:.72rem;color:var(--c-ink-mute);margin-top:2px;}
+.cw-btn{width:100%;padding:14px;background:var(--c-accent);color:#fff;border:none;border-radius:11px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:4px;font-family:var(--font-main);box-shadow:var(--shadow-md);transition:all .2s;letter-spacing:.3px;}
+.cw-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-lg);background:#1f1f1f;}
+.res-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.res-card{background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px 8px;text-align:center;box-shadow:var(--shadow-sm);transition:box-shadow .2s ease,transform .2s ease;}
+.res-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.res-val{font-size:1rem;font-weight:800;color:var(--c-ink);line-height:1.2;font-family:var(--font-mono);font-variant-numeric:tabular-nums;}
+.res-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--c-ink-mute);margin-top:4px;}
+.arrivee-banner{background:var(--c-warning-bg);border:1px solid #e0d4b8;border-radius:var(--radius-md);padding:9px 14px;margin-bottom:14px;font-size:.85rem;font-weight:800;color:var(--c-warning);display:none;}
+.t-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:.8rem;}
+th{text-align:left;padding:8px 10px;font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.3px;background:var(--c-ink);color:#fafafa;white-space:nowrap;}
+th:first-child{border-radius:8px 0 0 0;}
+th:last-child{border-radius:0 8px 0 0;}
+td{padding:9px 11px;border-bottom:1px solid var(--c-line-faint);vertical-align:middle;font-family:var(--font-mono);font-size:.78rem;font-variant-numeric:tabular-nums;color:var(--c-ink);}
+tr:last-child td{border-bottom:none;font-weight:800;background:var(--c-accent-bg);}
+tr.is-ravito td{background:var(--c-success-bg);}
+tr.is-ravito td:first-child{border-left:3px solid var(--c-success);}
+tr.is-half td{background:#e6ebe8;font-weight:700;}
+tr:hover td{background:var(--c-bg)!important;}
+.rav-badge{display:inline-flex;align-items:center;gap:3px;background:var(--c-success);color:#fff;border-radius:10px;padding:2px 8px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.gluc-col{min-width:70px;}
+.eau-col{min-width:70px;}
+.gluc-pill{display:inline-block;background:var(--c-warning-bg);color:var(--c-warning);border:1px solid #e0d4b8;border-radius:8px;padding:1px 7px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.eau-pill{display:inline-block;background:var(--c-info-bg);color:var(--c-info);border:1px solid #d4dde4;border-radius:8px;padding:1px 7px;font-size:.72rem;font-weight:700;white-space:nowrap;}
+.cum-lbl{font-size:.65rem;color:var(--c-ink-mute);margin-top:2px;display:block;}
+.totals-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:14px;}
+.tot-card{background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px;text-align:center;box-shadow:var(--shadow-sm);transition:box-shadow .2s ease,transform .2s ease;}
+.tot-card:hover{box-shadow:var(--shadow-md);transform:translateY(-1px);}
+.tot-val{font-size:1.1rem;font-weight:800;color:var(--c-ink);font-family:var(--font-mono);}
+.tot-lbl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px;color:var(--c-ink-mute);margin-top:4px;}
+.disclaimer{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px 14px;font-size:.75rem;color:var(--c-ink-mute);line-height:1.7;margin-top:12px;}
+.disclaimer strong{color:var(--c-ink-soft);}
+.pdf-section{background:var(--c-surface);border:1px solid var(--c-line);border-radius:var(--radius-lg);padding:18px 20px;margin-top:12px;box-shadow:var(--shadow-md);transition:box-shadow .25s ease;}
+.pdf-section:hover{box-shadow:var(--shadow-hover);}
+.format-pills{display:flex;gap:8px;margin-bottom:14px;}
+.format-pill{padding:8px 20px;border:1px solid var(--c-line);border-radius:20px;font-size:.85rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);transition:all .15s;}
+.format-pill:hover{border-color:var(--c-line-soft);}
+/* .format-pill.on défini dans le bloc dark mode ci-dessous */
+.motto-count{font-size:.72rem;color:var(--c-ink-mute);margin-top:4px;}
+.btn-row{display:flex;gap:10px;margin-top:14px;}
+.btn-row .cw-btn{margin-top:0;}
+.btn-modifier{flex:0 0 auto;padding:13px 20px;background:var(--c-accent-bg);color:var(--c-ink);border:1px solid var(--c-line);border-radius:var(--radius-md);font-size:.88rem;font-weight:800;cursor:pointer;font-family:var(--font-main);transition:all .15s;}
+.btn-modifier:hover{background:#dcdcdc;border-color:var(--c-ink-soft);}
+.pdf-hint{font-size:.72rem;color:var(--c-ink-mute);margin-top:8px;line-height:1.6;}
+.cw-footer{text-align:center;font-size:.75rem;color:var(--c-ink-mute);margin-top:20px;line-height:1.8;}
+.cw-footer a{color:var(--c-ink);font-weight:700;text-decoration:underline;}
+.weather-pills{display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;}
+.weather-pill{padding:7px 16px;border:1.5px solid var(--c-line);border-radius:20px;font-size:.8rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);font-family:var(--font-main);transition:all .18s;}
+.weather-pill:hover{border-color:var(--c-line-soft);}
+.weather-pill.cold.on{background:var(--c-info-bg);color:var(--c-info);border-color:var(--c-info);}
+.weather-pill.moderate.on{background:var(--c-success-bg);color:var(--c-success);border-color:var(--c-success);}
+.weather-pill.hot.on{background:var(--c-danger-bg);color:var(--c-danger);border-color:var(--c-danger);}
+.alert-box{border-radius:var(--radius-md);padding:10px 14px;margin-top:12px;font-size:.82rem;font-weight:700;line-height:1.6;display:none;}
+.alert-danger{background:var(--c-danger-bg);border:1px solid #d4b8b8;color:var(--c-danger);}
+.alert-warn{background:var(--c-warning-bg);border:1px solid #e0d4b8;color:var(--c-warning);}
+.nutrition-summary{background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);padding:12px 16px;margin-top:12px;display:none;box-shadow:var(--shadow-sm);}
+.ns-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--c-ink);margin-bottom:8px;}
+.ns-grid{display:flex;gap:12px;flex-wrap:wrap;}
+.ns-item{text-align:center;flex:1;min-width:70px;}
+.ns-val{font-size:1rem;font-weight:800;color:var(--c-ink);font-family:var(--font-mono);}
+.ns-lbl{font-size:.62rem;color:var(--c-ink-mute);text-transform:uppercase;letter-spacing:.3px;margin-top:2px;}
+/* TERRAIN PILLS */
+.terrain-pills{display:flex;gap:7px;flex-wrap:wrap;margin-top:6px;}
+.terrain-pill{padding:7px 13px;border:1.5px solid var(--c-line);border-radius:20px;font-size:.78rem;font-weight:700;cursor:pointer;background:var(--c-surface);color:var(--c-ink-soft);font-family:var(--font-main);transition:all .18s;}
+.terrain-pill:hover{border-color:var(--c-line-soft);}
+.terrain-pill.on{background:var(--c-accent-bg);color:var(--c-ink);border-color:var(--c-ink);}
+/* KM EFFORT BANNER */
+.km-effort-banner{background:var(--c-ink);border-radius:var(--radius-lg);padding:12px 16px;margin-top:12px;display:none;align-items:center;gap:14px;box-shadow:var(--shadow-md);}
+.ke-val{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:#fafafa;}
+.ke-lbl{font-size:.7rem;color:rgba(250,250,250,.65);margin-top:2px;}
+.ke-detail{font-size:.72rem;color:rgba(250,250,250,.78);margin-top:4px;line-height:1.5;}
+/* FATIGUE SLIDER — vert (forme) → rouge (épuisé) */
+input[type=range]{-webkit-appearance:none;height:6px;border-radius:3px;background:linear-gradient(90deg, #4a9b6e 0%, #d4a04a 50%, #c45a4a 100%);padding:0;border:none;box-shadow:none;cursor:pointer;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--c-ink);box-shadow:0 2px 6px rgba(50,50,50,.20);}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:#fff;border:2.5px solid var(--c-ink);box-shadow:0 2px 6px rgba(50,50,50,.20);cursor:pointer;}
+.fatigue-labels{display:flex;justify-content:space-between;font-size:.62rem;color:var(--c-ink-mute);margin-top:3px;font-weight:600;}
+/* RAVITO NUTRITION — nouvelle présentation */
+.rav-section-info{font-size:.68rem;color:var(--c-ink-mute);margin-bottom:4px;font-style:italic;}
+.rav-units-badge{display:inline-flex;align-items:center;gap:4px;background:var(--c-accent);color:#fff;border-radius:8px;padding:2px 9px;font-size:.75rem;font-weight:800;white-space:nowrap;margin-bottom:3px;}
+.rav-gluc-section{font-size:.72rem;color:var(--c-warning);font-weight:700;}
+.rav-cum{font-size:.62rem;color:var(--c-ink-mute);margin-top:1px;display:block;}
+.rav-ontrack{color:var(--c-success);font-weight:700;}
+.rav-alert-eau{background:var(--c-danger-bg);color:var(--c-danger);border:1px solid #d4b8b8;border-radius:6px;padding:1px 7px;font-size:.68rem;font-weight:700;display:inline-block;margin-top:2px;}
+.eau-section-val{display:inline-block;background:var(--c-info-bg);color:var(--c-info);border:1px solid #d4dde4;border-radius:8px;padding:2px 9px;font-size:.75rem;font-weight:800;white-space:nowrap;margin-bottom:3px;}
+/* Légende tableau */
+.table-legend{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:8px;padding:10px 14px;margin-bottom:12px;font-size:.72rem;color:var(--c-ink-mute);line-height:1.8;}
+.table-legend strong{color:var(--c-ink-soft);}
+/* CAFÉINE */
+.caf-badge{display:inline-flex;align-items:center;gap:5px;background:var(--c-caf);color:#fff;border-radius:8px;padding:3px 10px;font-size:.72rem;font-weight:800;white-space:nowrap;}
+.caf-dose{font-size:.65rem;color:rgba(255,255,255,.78);display:block;margin-top:2px;}
+.caf-info-bloc{background:var(--c-caf);border-radius:var(--radius-lg);padding:14px 18px;margin-top:12px;color:#fafafa;font-size:.75rem;line-height:1.8;display:none;box-shadow:var(--shadow-md);}
+.caf-info-bloc strong{color:#fff;}
+.caf-info-bloc .caf-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:6px;}
+.caf-info-bloc .caf-row:last-child{margin-bottom:0;}
+.is-caf td{background:var(--c-caf-bg)!important;}
+.is-caf td:first-child{border-left:3px solid var(--c-caf)!important;}
+
+.ravito-custom-wrap{margin-top:10px;padding:14px;background:var(--c-bg);border:1px solid var(--c-line);border-radius:var(--radius-md);display:none;}
+.ravito-custom-title{font-size:.72rem;font-weight:700;color:var(--c-ink);margin-bottom:8px;}
+.ravito-km-input{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.ravito-km-input input{max-width:100px;flex:none;}
+.ravito-tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.ravito-tag{display:inline-flex;align-items:center;gap:4px;background:var(--c-accent);color:#fff;border-radius:6px;padding:3px 10px;font-size:.72rem;font-weight:700;cursor:pointer;transition:background .15s;}
+.ravito-tag:hover{background:#1f1f1f;}
+.btn-small{padding:7px 14px;background:var(--c-accent-bg);color:var(--c-ink);border:1px solid var(--c-line);border-radius:8px;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font-main);transition:all .15s;}
+.btn-small:hover{background:#dcdcdc;border-color:var(--c-ink-soft);}
+/* POIDS SAC */
+.section-ravito{background:var(--c-bg-alt);border:1px solid var(--c-line);border-radius:var(--radius-lg);padding:14px 18px;margin-top:10px;display:none;box-shadow:var(--shadow-md);}
+.sr-title{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:var(--c-ink);margin-bottom:10px;}
+.sr-grid{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.sr-item{text-align:center;flex:1;min-width:90px;background:var(--c-surface);border-radius:8px;padding:10px 8px;border:1px solid var(--c-line);box-shadow:var(--shadow-sm);}
+.sr-val{font-family:var(--font-mono);font-size:1rem;font-weight:800;color:var(--c-ink);}
+.sr-lbl{font-size:.62rem;color:var(--c-ink-mute);text-transform:uppercase;letter-spacing:.3px;margin-top:3px;font-weight:700;}
+.sr-note{font-size:.75rem;color:var(--c-ink-soft);line-height:1.6;background:var(--c-surface);border-radius:6px;padding:8px 12px;border-left:3px solid var(--c-line);}
+/* DARK MODE — charbon chaud teinté forêt, accent vert (famille Seb Run Nature) */
+body.dark{
+  --c-ink:        #ece7dd;
+  --c-ink-soft:   #b8b1a4;
+  --c-ink-mute:   #8c857a;
+  --c-line:       #2a342d;
+  --c-line-soft:  #34403a;
+  --c-line-faint: #1f2823;
+  --c-bg:         #11160f;
+  --c-bg-alt:     #161d16;
+  --c-surface:    #18211a;
+  --c-surface-2:  #11160f;
+  --c-accent:     #1d9e75;
+  --c-accent-soft:#5dcaa5;
+  --c-accent-bg:  #1a2a21;
+  --c-accent-on:  #ffffff;
+  --c-success:    #5dcaa5;
+  --c-success-bg: #16291f;
+  --c-warning:    #d9963a;
+  --c-warning-bg: #2a2113;
+  --c-info:       #5aa7e0;
+  --c-info-bg:    #16242e;
+  --c-danger:     #e87b7a;
+  --c-danger-bg:  #2c1a1a;
+  --c-caf:        #8c7fd6;
+  --c-caf-bg:     #1f1d2e;
+}
+body.dark{background:var(--c-bg);color:var(--c-ink);}
+/* Ombres adaptées au mode sombre */
+body.dark{
+  --shadow-sm: 0 1px 2px rgba(0,0,0,.30), 0 2px 6px rgba(0,0,0,.20);
+  --shadow-md: 0 1px 2px rgba(0,0,0,.35), 0 4px 12px rgba(0,0,0,.28);
+  --shadow-lg: 0 2px 4px rgba(0,0,0,.40), 0 8px 24px rgba(0,0,0,.35);
+  --shadow-hover: 0 2px 4px rgba(0,0,0,.40), 0 12px 28px rgba(0,0,0,.40);
+}
+body.dark .app-content{background:var(--c-bg);}
+body.dark .app-topbar,body.dark .app-hero{background:var(--gradient-dark);}
+body.dark .app-hero-title{color:var(--hero-text);}
+body.dark .app-hero-title span{color:var(--hero-accent);}
+body.dark .cw-section,body.dark .pdf-section{background:var(--c-surface);border-color:var(--c-line);}
+body.dark input,body.dark select,body.dark textarea{background:#0e130d;color:var(--c-ink);border-color:var(--c-line);}
+body.dark input:focus,body.dark select:focus{background:var(--c-surface);border-color:var(--c-accent);box-shadow:0 0 0 3px rgba(29,158,117,.18);}
+body.dark .radio-opt{background:var(--c-surface);border-color:var(--c-line);}
+body.dark .radio-opt.selected{background:var(--c-accent-bg);border-color:var(--c-accent);}
+body.dark .terrain-pill,body.dark .format-pill,body.dark .weather-pill{background:var(--c-surface);color:var(--c-ink-soft);border-color:var(--c-line);}
+body.dark .format-pill.on,body.dark .terrain-pill.on{background:var(--c-accent);color:#fff;border-color:var(--c-accent);}
+body.dark .res-card,body.dark .tot-card,body.dark .disclaimer{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .res-val,body.dark .tot-val,body.dark .ns-val,body.dark .sr-val{color:var(--c-ink);}
+body.dark .nutrition-summary{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .section-ravito{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .sr-item{background:var(--c-surface);border-color:var(--c-line);}
+body.dark .sr-note{background:var(--c-surface);color:var(--c-ink-soft);border-left-color:var(--c-line);}
+body.dark td{border-bottom-color:var(--c-line-faint);color:var(--c-ink);}
+body.dark th{background:#0c120e;color:var(--hero-muted);}
+body.dark tr:hover td{background:var(--c-bg-alt)!important;}
+body.dark tr:last-child td{background:var(--c-accent-bg);}
+body.dark tr.is-half td{background:#2a2a2a;}
+body.dark .table-legend{background:var(--c-bg-alt);border-color:var(--c-line);color:var(--c-ink-mute);}
+body.dark .ravito-custom-wrap{background:var(--c-bg-alt);border-color:var(--c-line);}
+body.dark .km-effort-banner{background:#0c120e;}
+body.dark .cw-btn{background:var(--c-accent);color:#fff;}
+body.dark .cw-btn:hover{background:#ffffff;}
+body.dark .btn-modifier{background:var(--c-accent-bg);color:var(--c-ink);border-color:var(--c-line);}
+body.dark .btn-small{background:var(--c-accent-bg);color:var(--c-ink);border-color:var(--c-line);}
+body.dark .dist-banner{background:#0c120e;}
+/* Format pill active (light) */
+.format-pill.on{background:var(--c-accent);color:#fff;border-color:var(--c-accent);}
+/* ISOL RAVITO CUSTOM */
+tr.is-ravito-custom td{background:var(--c-warning-bg);}
+tr.is-ravito-custom td:first-child{border-left:3px solid var(--c-warning);}
+.rav-badge-custom{background:var(--c-warning);color:#fff;}
+/* MODE SELECTOR */
+.mode-selector{display:flex;gap:0;background:var(--gradient-dark);padding:12px 20px;gap:10px;}
+.mode-btn{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:14px 10px;border-radius:var(--radius-lg);border:2px solid transparent;background:rgba(255,255,255,.06);cursor:pointer;transition:all .2s;font-family:var(--font-main);}
+.mode-btn:hover{background:rgba(255,255,255,.12);}
+.mode-btn.active{background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.32);box-shadow:0 2px 12px rgba(0,0,0,.20);}
+.mode-icon{display:flex;align-items:center;justify-content:center;line-height:1;color:var(--hero-muted);}
+.mode-icon .ic{width:26px;height:26px;}
+.mode-btn.active .mode-icon{color:var(--hero-accent);}
+.mode-label{font-size:.88rem;font-weight:800;color:#fff;letter-spacing:.3px;}
+.mode-sub{font-size:.65rem;color:rgba(250,250,250,.65);text-align:center;line-height:1.3;}
+/* Mode show/hide */
+body.mode-simple .expert-only{display:none!important;}
+body.mode-expert .simple-only{display:none!important;}
+body.mode-simple .simple-only{display:block;}
+/* Bouton "Calculer" — texte adaptatif selon le mode */
+.btn-label-simple,.btn-label-expert{display:none;}
+body.mode-simple .btn-label-simple{display:inline;}
+body.mode-expert .btn-label-expert{display:inline;}
+/* Fallback si aucune classe de mode n'est posée (chargement initial) */
+body:not(.mode-simple):not(.mode-expert) .btn-label-simple{display:inline;}
+/* SAVE BAR */
+.save-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--c-ink);border-radius:var(--radius-md);padding:10px 16px;margin-bottom:12px;}
+.save-bar-left{display:flex;align-items:center;gap:10px;}
+.save-bar-right{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.save-bar-label{font-size:.72rem;font-weight:800;color:#cfcfcf;text-transform:uppercase;letter-spacing:.5px;}
+.save-status{font-size:.7rem;color:#a8d4b9;font-weight:700;min-width:120px;}
+.save-status.error{color:#e0a0a0;}
+.save-btn{padding:6px 12px;border-radius:8px;font-size:.72rem;font-weight:700;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#cfcfcf;cursor:pointer;font-family:var(--font-main);transition:all .15s;white-space:nowrap;}
+.save-btn:hover{background:rgba(255,255,255,.14);color:#fafafa;border-color:rgba(255,255,255,.32);}
+.save-btn-danger{color:#e0a0a0;border-color:rgba(224,160,160,.4);}
+.save-btn-danger:hover{background:rgba(224,160,160,.18);color:#fff;}
+body.dark .save-bar{background:#0e0e0e;border:1px solid var(--c-line);}
+/* FORMAT PILLS */
+@media(max-width:600px){
+  #fsBtn{display:none;}
+  .app-topbar-btn{padding:6px 10px;font-size:.7rem;}
+  .cw-grid{grid-template-columns:1fr;}
+  .res-cards{grid-template-columns:1fr 1fr;}
+  .totals-row{grid-template-columns:1fr;}
+  .btn-row{flex-direction:column;}
+}
+@media(max-width:680px){
+  table{font-size:.72rem;}
+  th,td{padding:6px 6px;}
+  .hide-mobile{display:none;}
+  .t-wrap{border-radius:8px;border:1px solid var(--c-line);}
+}
+/* PDF géré via window.open() */
