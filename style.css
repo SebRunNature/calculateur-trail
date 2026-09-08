@@ -88,8 +88,11 @@ body{font-family:var(--font-main);background:var(--c-bg);color:var(--c-ink);marg
 .app-topbar-actions{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
 .app-topbar-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;border-radius:20px;font-size:.75rem;font-weight:700;cursor:pointer;border:1.5px solid rgba(255,255,255,.18);background:rgba(255,255,255,.06);color:#fafafa;font-family:var(--font-main);transition:all .18s;white-space:nowrap;}
 .app-topbar-btn:hover{background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.32);}
-.app-hero{background:var(--gradient-dark);padding:30px 20px 34px;margin-bottom:0;position:relative;overflow:hidden;}
-.app-hero-massif{position:absolute;left:0;right:0;bottom:0;width:100%;height:58%;pointer-events:none;z-index:0;}
+.app-hero{background:var(--gradient-dark);padding:34px 20px 30px;margin-bottom:0;position:relative;overflow:hidden;}
+/* Hauteur fixe (et non %) : le parent .app-hero n'a pas de hauteur explicite, donc un
+   height:% s'appuyait sur le ratio intrinsèque du viewBox et pouvait dépasser 400px de
+   haut sur un écran large — d'où le bandeau montagne disproportionné. */
+.app-hero-massif{position:absolute;left:0;right:0;bottom:0;width:100%;height:clamp(56px,14vw,120px);pointer-events:none;z-index:0;opacity:.9;}
 .app-hero>*{position:relative;z-index:2;}
 .app-hero-title{font-family:var(--font-display);font-weight:700;font-size:clamp(1.7rem,4.5vw,2.4rem);color:var(--hero-text);letter-spacing:-.5px;line-height:1.08;margin-bottom:10px;}
 .app-hero-title span{color:var(--hero-accent);}
