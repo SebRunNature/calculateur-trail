@@ -96,6 +96,24 @@ function ic(name, cls){
   </div>
 </div>
 
+<!-- HERO — adapté selon le mode -->
+<div class="app-hero" id="heroSimple">
+  <svg class="app-hero-massif" viewBox="0 0 400 130" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62 L400,130 L0,130 Z" fill="#1a2a21"/>
+    <path d="M0,110 L60,85 L140,100 L220,65 L300,90 L360,72 L400,88 L400,130 L0,130 Z" fill="#22372b"/>
+    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62" fill="none" stroke="#5dcaa5" stroke-width="1" opacity="0.5"/>
+  </svg>
+  <div class="app-hero-title">Calcule tes<br><span>temps de passage</span></div>
+</div>
+<div class="app-hero" id="heroExpert" style="display:none;">
+  <svg class="app-hero-massif" viewBox="0 0 400 130" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62 L400,130 L0,130 Z" fill="#1a2a21"/>
+    <path d="M0,110 L60,85 L140,100 L220,65 L300,90 L360,72 L400,88 L400,130 L0,130 Z" fill="#22372b"/>
+    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62" fill="none" stroke="#5dcaa5" stroke-width="1" opacity="0.5"/>
+  </svg>
+  <div class="app-hero-title">Assistant Stratégique<br><span>Ultra Trail</span></div>
+</div>
+
 <!-- SÉLECTEUR DE MODE -->
 <div class="mode-selector">
   <button class="mode-btn active" id="modeSimpleBtn" onclick="setMode('simple')">
@@ -108,38 +126,6 @@ function ic(name, cls){
     <span class="mode-label">Mode Expert</span>
     <span class="mode-sub">Assistant Stratégique Ultra Trail</span>
   </button>
-</div>
-
-<!-- HERO — adapté selon le mode -->
-<div class="app-hero" id="heroSimple">
-  <svg class="app-hero-massif" viewBox="0 0 400 130" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62 L400,130 L0,130 Z" fill="#1a2a21"/>
-    <path d="M0,110 L60,85 L140,100 L220,65 L300,90 L360,72 L400,88 L400,130 L0,130 Z" fill="#22372b"/>
-    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62" fill="none" stroke="#5dcaa5" stroke-width="1" opacity="0.5"/>
-  </svg>
-  <div class="app-hero-title">Calcule tes<br><span>temps de passage</span></div>
-  <div class="app-hero-sub">
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Splits km par km</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Heures réelles</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-mountain"/></svg> Dénivelé D+</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg> Export PDF</span>
-  </div>
-</div>
-<div class="app-hero" id="heroExpert" style="display:none;">
-  <svg class="app-hero-massif" viewBox="0 0 400 130" preserveAspectRatio="none" aria-hidden="true">
-    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62 L400,130 L0,130 Z" fill="#1a2a21"/>
-    <path d="M0,110 L60,85 L140,100 L220,65 L300,90 L360,72 L400,88 L400,130 L0,130 Z" fill="#22372b"/>
-    <path d="M0,90 L70,55 L130,75 L210,30 L280,60 L340,40 L400,62" fill="none" stroke="#5dcaa5" stroke-width="1" opacity="0.5"/>
-  </svg>
-  <div class="app-hero-title">Assistant Stratégique<br><span>Ultra Trail</span></div>
-  <div class="app-hero-sub">
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> Splits km par km</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Nutrition intelligente</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-mountain"/></svg> Dénivelé D+</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Poids du sac</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-coffee"/></svg> Protocole caféine</span>
-    <span class="app-hero-badge"><svg class="ic" aria-hidden="true"><use href="#i-file"/></svg> Export PDF</span>
-  </div>
 </div>
 
 <div class="app-content">
@@ -201,7 +187,7 @@ function ic(name, cls){
 
   <div class="cw-grid">
     <div id="wizStep0" class="wiz-contents">
-      <div class="cw-field">
+      <div class="cw-field expert-only">
         <label class="cw-label" for="dist">Distance</label>
         <select id="dist" onchange="onDistChange()">
           <option value="5">5 km</option>
@@ -210,6 +196,15 @@ function ic(name, cls){
           <option value="42.195">Marathon 42,195 km</option>
           <option value="custom">Distance personnalisée</option>
         </select>
+      </div>
+      <div class="cw-field simple-only" id="wizDistChipsField" style="grid-column:1/-1;">
+        <div class="wiz-dist-chips" id="wizDistChips" role="group" aria-label="Distance">
+          <div class="wiz-chip" data-dist="5" onclick="pickSimpleDist('5',this)"><div class="wiz-chip-val">5</div><div class="wiz-chip-lbl">5 km</div></div>
+          <div class="wiz-chip on" data-dist="10" onclick="pickSimpleDist('10',this)"><div class="wiz-chip-val">10</div><div class="wiz-chip-lbl">10 km</div></div>
+          <div class="wiz-chip" data-dist="21.1" onclick="pickSimpleDist('21.1',this)"><div class="wiz-chip-val">21,1</div><div class="wiz-chip-lbl">Semi</div></div>
+          <div class="wiz-chip" data-dist="42.195" onclick="pickSimpleDist('42.195',this)"><div class="wiz-chip-val">42,2</div><div class="wiz-chip-lbl">Marathon</div></div>
+          <div class="wiz-chip" data-dist="custom" onclick="pickSimpleDist('custom',this)"><div class="wiz-chip-val">—</div><div class="wiz-chip-lbl">Autre</div></div>
+        </div>
       </div>
       <div class="cw-field" id="customField" style="display:none;">
         <label class="cw-label" for="customDist">Distance (km)</label>

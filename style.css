@@ -358,6 +358,18 @@ body.mode-simple .wiz-actions{display:flex;gap:10px;margin-top:6px;}
 body.mode-simple #wizResultHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
 .wiz-btn-modifier{flex:0 0 auto;padding:8px 16px;font-size:.78rem;}
 
+/* Pastilles de distance (Mode Simple, étape 1) */
+.wiz-dist-chips{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.wiz-chip{padding:16px 12px;border-radius:var(--radius-md);cursor:pointer;text-align:center;transition:all .15s;}
+.wiz-chip-val{font-family:var(--font-mono);font-weight:700;font-size:1.1rem;}
+.wiz-chip-lbl{font-size:.68rem;margin-top:4px;}
+body.mode-simple .wiz-chip{background:rgba(255,255,255,.05);border:1.5px solid rgba(242,237,228,.18);}
+body.mode-simple .wiz-chip:hover{border-color:rgba(242,237,228,.32);}
+body.mode-simple .wiz-chip.on{border-color:var(--hero-accent);background:rgba(93,202,165,.14);}
+body.mode-simple .wiz-chip-val{color:var(--hero-text);}
+body.mode-simple .wiz-chip.on .wiz-chip-val{color:var(--hero-accent);}
+body.mode-simple .wiz-chip-lbl{color:rgba(242,237,228,.55);}
+
 /* Habillage sombre "Outdoor Premium" du parcours découverte — fiche technique
    plutôt qu'app utilitaire (fond charbon-forêt, lignes fines, mono pour les chiffres) */
 body.mode-simple #maCourseSection,
