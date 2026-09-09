@@ -11,71 +11,22 @@ var state = {
   terrain:    'easy',     // 'easy' | 'tech' | 'expert'
   fatigue:    0,          // 0-30, dérive de fatigue en %
   customRavitoKms:  [],   // km des ravitos officiels saisis
-  selectedProducts: [],   // clés des produits nutrition sélectionnés (multi-sélection)
-  ravIndex:   0,          // rotation des produits aux ravitos (réinitialisé dans calculate())
-  drink:      'water',    // boisson dans les flasques
-  mode:       'simple'    // 'simple' | 'expert'
+  drink:      'water',    // boisson dans les flasques : 'water' | 'custom'
+  mode:       'simple',   // 'simple' | 'expert'
+  simpleStep: 0           // 0=distance, 1=objectif, 2=résultat (parcours découverte, mode simple)
 };
 
-var PRODUCTS={
-  naak_sucre:  {label:'Naak Purée sucrée',   glucides:26, sodium:500, icon:'🟢', sweet:true,  brand:'naak'},
-  naak_sale:   {label:'Naak Purée salée',     glucides:26, sodium:500, icon:'🟤', sweet:false, brand:'naak'},
-  deca:        {label:'Decathlon Fruit Mix',  glucides:25, sodium:0,   icon:'🔶', sweet:true,  brand:'deca'},
-  gel:         {label:'Gel',                  glucides:25, sodium:0,   icon:'💊', sweet:true,  brand:'generic'},
-  barre:       {label:'Barre',                glucides:35, sodium:0,   icon:'🍫', sweet:true,  brand:'generic'},
-  perso:       {label:'',                     glucides:0,  sodium:0,   icon:'⚙️', sweet:true,  brand:'custom'}
-};
-
-// Plages horaires sucrée/salée (rythme circadien)
-// Retourne 'sweet' ou 'salty' selon l'heure réelle
-function getSweetSaltyByHour(heureStr){
-  // heureStr format HH:MM
-  if(!heureStr||heureStr==='--:--') return 'sweet';
-  var parts=heureStr.split(':');
-  var h=parseInt(parts[0])||0;
-  // 06–12 : sucré | 12–15 : salé | 15–19 : sucré | 19–23 : salé | 23–06 : sucré
-  if(h>=6  && h<12) return 'sweet';
-  if(h>=12 && h<15) return 'salty';
-  if(h>=15 && h<19) return 'sweet';
-  if(h>=19 && h<23) return 'salty';
-  return 'sweet'; // 23h–06h : sucré (nuit)
+// Produit solide — plus de marques imposées : un seul produit, le tien.
+function getCustomProduct(){
+  var carbs=parseFloat((document.getElementById('productCarbs')||{}).value)||0;
+  if(carbs<=0) return null;
+  return {
+    label:  (document.getElementById('productName')||{}).value || 'Mon produit',
+    glucides: carbs,
+    sodium: parseFloat((document.getElementById('productSodium')||{}).value)||0,
+    icon: '⚙️'
+  };
 }
-
-function toggleProduct(key){
-  var idx=state.selectedProducts.indexOf(key);
-  if(idx===-1) state.selectedProducts.push(key);
-  else state.selectedProducts.splice(idx,1);
-  var el=document.getElementById('pp-'+key);
-  if(el) el.classList.toggle('on', state.selectedProducts.indexOf(key)!==-1);
-  var wrap=document.getElementById('productCustomWrap');
-  if(wrap) wrap.style.display=state.selectedProducts.indexOf('perso')!==-1?'block':'none';
-  updateNutritionPreview();
-}
-
-// Retourne le produit à utiliser à un ravito donné selon heure réelle + préférences
-function getProductForRavito(heureStr){
-  if(!state.selectedProducts.length) return null;
-  var preference=getSweetSaltyByHour(heureStr); // 'sweet' ou 'salty'
-  // Filtrer les produits compatibles avec la préférence horaire
-  var sweetOpts=state.selectedProducts.filter(function(k){return PRODUCTS[k]&&PRODUCTS[k].sweet;});
-  var saltyOpts=state.selectedProducts.filter(function(k){return PRODUCTS[k]&&!PRODUCTS[k].sweet;});
-  var pool;
-  if(preference==='salty' && saltyOpts.length>0) pool=saltyOpts;
-  else pool=sweetOpts.length>0 ? sweetOpts : state.selectedProducts;
-  // Choisir dans le pool (rotation simple)
-  var key=pool[state.ravIndex % pool.length];
-  state.ravIndex++;
-  var cfg=Object.assign({},PRODUCTS[key]);
-  // Si perso, lire les champs
-  if(key==='perso'){
-    cfg.label=(document.getElementById('productName')||{}).value||'Mon produit';
-    cfg.glucides=parseFloat((document.getElementById('productCarbs')||{}).value)||0;
-    cfg.sodium=parseFloat((document.getElementById('productSodium')||{}).value)||0;
-  }
-  return cfg.glucides>0 ? cfg : null;
-}
-
-function getProductConfig(){ return state.selectedProducts.length ? getProductForRavito('--:--') : null; }
 
 function fmtUnits(glucSection, product){
   if(!product||!product.glucides) return null;
@@ -84,15 +35,7 @@ function fmtUnits(glucSection, product){
   return n+'&nbsp;×&nbsp;'+product.icon+' '+label;
 }
 
-// state.drink : 'water','maurten160','maurten320','isostar','custom'
-var DRINKS={
-  water:      {label:'Eau pure',          glucPer500:0,   sodPer500:0,   icon:'💧'},
-  maurten160: {label:'Maurten Mix 160',   glucPer500:40,  sodPer500:325, icon:'🟡'},
-  maurten320: {label:'Maurten Mix 320',   glucPer500:80,  sodPer500:650, icon:'🟠'},
-  isostar:    {label:'Isostar',           glucPer500:18,  sodPer500:250, icon:'🔵'},
-  custom:     {label:'Boisson perso',     glucPer500:0,   sodPer500:0,   icon:'🧪'}
-};
-
+// state.drink : 'water' | 'custom' — plus de marques imposées (Maurten, Isostar…)
 function setDrink(d){
   state.drink=d;
   document.querySelectorAll('#drinkPills .terrain-pill').forEach(function(b){b.classList.remove('on');});
@@ -103,8 +46,7 @@ function setDrink(d){
 }
 
 function getDrinkConfig(){
-  if(state.drink==='water') return null;
-  if(state.drink!=='custom') return DRINKS[state.drink];
+  if(state.drink!=='custom') return null;
   var name=(document.getElementById('drinkName')||{}).value||'Boisson perso';
   var gluc=parseFloat((document.getElementById('drinkCarbs500')||{}).value)||0;
   if(gluc>0) return {label:name, glucPer500:gluc, icon:'🧪'};
@@ -145,12 +87,10 @@ function collectFormData(){
     currentDrink: state.drink,
     drinkName:   getVal('drinkName'),
     drinkCarbs500:getVal('drinkCarbs500'),
-    // Produits
-    selectedProducts: state.selectedProducts.slice(),
+    // Produit perso (plus de marques imposées)
     productName: getVal('productName'),
     productCarbs:getVal('productCarbs'),
     productSodium:getVal('productSodium'),
-    productSweet:getVal('productSweet','sweet'),
     // PDF
     pdfFormat:   state.pdfFormat,
     motivation:  getVal('mottoInput')
@@ -203,16 +143,11 @@ function applyFormData(data){
   if(data.currentDrink !== undefined) setDrink(data.currentDrink);
   if(data.drinkName   !== undefined) setVal('drinkName',   data.drinkName);
   if(data.drinkCarbs500 !== undefined) setVal('drinkCarbs500', data.drinkCarbs500);
-  // Produits
-  if(data.selectedProducts !== undefined){
-    state.selectedProducts = [];
-    document.querySelectorAll('#productPills .terrain-pill').forEach(function(b){b.classList.remove('on');});
-    data.selectedProducts.forEach(function(k){ toggleProduct(k); });
-  }
+  // Produit perso (data.selectedProducts d'anciens exports .json est ignoré : le
+  // multi-sélecteur de marques a été retiré, il ne reste qu'un produit personnalisé)
   if(data.productName  !== undefined) setVal('productName',  data.productName);
   if(data.productCarbs !== undefined) setVal('productCarbs', data.productCarbs);
   if(data.productSodium!== undefined) setVal('productSodium',data.productSodium);
-  if(data.productSweet !== undefined) setVal('productSweet', data.productSweet);
   // PDF
   if(data.pdfFormat !== undefined){
     state.pdfFormat = data.pdfFormat;
@@ -341,6 +276,56 @@ function setMode(mode){
   }
   // Mémoriser le choix
   try{ localStorage.setItem('seb_trail_mode', mode); }catch(e){}
+  renderSimpleStep();
+}
+
+// ── PARCOURS DÉCOUVERTE (Mode Simple) — une question à la fois ─────────────
+// state.simpleStep : 0 = distance, 1 = objectif (chrono+départ), 2 = résultat
+function goSimpleStep(n){
+  state.simpleStep = Math.max(0, Math.min(2, n));
+  renderSimpleStep();
+}
+
+function simpleNext(){
+  if(state.simpleStep===1){ calculate(); return; } // calculate() amène déjà à l'étape 3
+  goSimpleStep(state.simpleStep+1);
+}
+
+function simplePrev(){ goSimpleStep(state.simpleStep-1); }
+
+function simpleRestart(){
+  var out=document.getElementById('output');
+  if(out) out.style.display='none';
+  goSimpleStep(0);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function renderSimpleStep(){
+  var isSimple = state.mode==='simple';
+  var w0=document.getElementById('wizStep0'), w1=document.getElementById('wizStep1');
+  var p0=document.getElementById('wizPanel0'), p1=document.getElementById('wizPanel1');
+  var a0=document.getElementById('wizActions0'), a1=document.getElementById('wizActions1');
+  var mc=document.getElementById('maCourseSection');
+  if(!isSimple){
+    // Mode Expert : tout est toujours visible, l'étape n'a aucun effet
+    [w0,w1,p0,p1,a0,a1].forEach(function(el){ if(el) el.classList.remove('wiz-hidden'); });
+    if(mc) mc.style.display='';
+    return;
+  }
+  var s=state.simpleStep;
+  if(w0) w0.classList.toggle('wiz-hidden', s!==0);
+  if(p0) p0.classList.toggle('wiz-hidden', s!==0);
+  if(a0) a0.classList.toggle('wiz-hidden', s!==0);
+  if(w1) w1.classList.toggle('wiz-hidden', s!==1);
+  if(p1) p1.classList.toggle('wiz-hidden', s!==1);
+  if(a1) a1.classList.toggle('wiz-hidden', s!==1);
+  if(mc) mc.style.display = s<2 ? '' : 'none';
+  [0,1,2].forEach(function(i){
+    var dot=document.getElementById('wizDot'+i);
+    if(!dot) return;
+    dot.classList.toggle('current', i===s);
+    dot.classList.toggle('done', i<s);
+  });
 }
 
 // Initialisation mode au démarrage
@@ -702,9 +687,10 @@ function updateNutritionPreview(){
   var weight  = parseFloat(document.getElementById('userWeight').value)||0;
   var flasque = parseFloat(document.getElementById('userFlasque').value)||1000;
   var drink   = getDrinkConfig();
+  var product = getCustomProduct();
   var el = document.getElementById('nutritionPreview');
   if(!el) return;
-  var hasInput = carbsH||waterH||sodiumH||weight||drink||state.selectedProducts.length;
+  var hasInput = carbsH||waterH||sodiumH||weight||drink||product;
   if(!hasInput){el.style.display='none';}
   else{
     var lines = [];
@@ -718,17 +704,11 @@ function updateNutritionPreview(){
     el.innerHTML = lines.join('<br>');
     el.style.display = 'block';
   }
-  // Récap produits sélectionnés
+  // Récap du produit perso
   var info = document.getElementById('productSelectionInfo');
   if(info){
-    if(!state.selectedProducts.length){ info.style.display='none'; return; }
-    var sweetList=state.selectedProducts.filter(function(k){return PRODUCTS[k]&&PRODUCTS[k].sweet;}).map(function(k){return PRODUCTS[k].icon+' '+PRODUCTS[k].label;});
-    var saltyList=state.selectedProducts.filter(function(k){return PRODUCTS[k]&&!PRODUCTS[k].sweet;}).map(function(k){return PRODUCTS[k].icon+' '+PRODUCTS[k].label;});
-    var html='<strong>✓ Produits sélectionnés :</strong><br>';
-    if(sweetList.length) html+='🟡 <strong>Sucré</strong> (matin / après-midi / nuit) : '+sweetList.join(', ')+'<br>';
-    if(saltyList.length) html+='🔴 <strong>Salé</strong> (midi 12-15h / soir 19-23h) : '+saltyList.join(', ');
-    if(!saltyList.length) html+='<svg class="ic" aria-hidden="true"><use href="#i-bulb"/></svg> Ajoute <strong>Naak Purée salée</strong> pour le rythme midi/soir';
-    info.innerHTML=html;
+    if(!product){ info.style.display='none'; return; }
+    info.innerHTML = '<strong>✓ Ton produit :</strong> '+product.icon+' '+product.label+' · '+product.glucides+'g glucides/unité'+(product.sodium?' · '+product.sodium+'mg sodium/unité':'');
     info.style.display='block';
   }
 }
@@ -949,7 +929,6 @@ function calculate(){
 
   var prevKm=0;
   var prevElapsed=0;
-  state.ravIndex=0; // reset index global pour la rotation produits
 
   points.forEach(function(pt,idx){
     var unitsStr; // partagée entre la collecte (isRav) et le rendu HTML — déclarée une seule fois
@@ -977,9 +956,8 @@ function calculate(){
       if(ns){
         gCum+=ns.gluc; eCum+=ns.eau; totG+=ns.gluc; totE+=ns.eau; totS+=ns.sod;
 
-        // Produit choisi selon heure réelle (rythme circadien)
-        var ravHp=startTime?addTime(startTime,elapsed):'--:--';
-        product=getProductForRavito(ravHp);
+        // Produit perso, le même à chaque ravito (plus de rotation par marque/heure)
+        product=getCustomProduct();
 
         // Nombre d'unités produit (sur la part solide si boisson présente)
         var boissonForCalc = getDrinkConfig();
@@ -1114,6 +1092,7 @@ function calculate(){
   }
   lastMeta={dist:dist,totalSec:totalSec,finalElapsed:finalElapsed,avgPace:avgPace,startTime:startTime,heureArr:heureArr,showR:showR,totG:totG,totE:totE,totS:totS,dplus:dplus,kmEffort:kmEffort};
   document.getElementById('output').style.display='block';
+  if(state.mode==='simple'){ state.simpleStep=2; renderSimpleStep(); }
   document.getElementById('output').scrollIntoView({behavior:'smooth',block:'start'});
 
   // Résumé nutrition + poids sac
@@ -1208,7 +1187,7 @@ function calculate(){
       var eauBoissonSr = Math.min(eauSection, parseFloat((document.getElementById('userFlasque')||{}).value)||1000);
       var glucBoisson = boissonConfig ? Math.round(boissonConfig.glucPer500 * (eauBoissonSr/500)) : 0;
       var glucSolide  = Math.max(0, glucSection - glucBoisson);
-      product = getProductConfig();
+      product = getCustomProduct();
       var unitsNeeded = (product && product.glucides && glucSolide > 0) ? Math.ceil(glucSolide/product.glucides) : null;
 
       // Poids à porter : eau (1kg/L) + solides (2.2g/g glucides) + boisson (poids liquide déjà dans eau)

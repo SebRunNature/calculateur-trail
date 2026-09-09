@@ -328,6 +328,75 @@ body.mode-simple .btn-label-simple{display:inline;}
 body.mode-expert .btn-label-expert{display:inline;}
 /* Fallback si aucune classe de mode n'est posée (chargement initial) */
 body:not(.mode-simple):not(.mode-expert) .btn-label-simple{display:inline;}
+/* ── PARCOURS DÉCOUVERTE (Mode Simple) — une question à la fois ─────────── */
+.wiz-contents{display:contents;}
+.wiz-hidden{display:none!important;}
+
+.wiz-chrome{background:var(--gradient-dark);padding:16px 20px;border-radius:var(--radius-lg);margin-bottom:12px;}
+.wiz-stepper{display:flex;align-items:flex-start;gap:0;max-width:420px;margin:0 auto;}
+.wiz-step-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;position:relative;}
+.wiz-step-item:not(:last-child)::after{content:'';position:absolute;top:13px;left:calc(50% + 18px);right:calc(-50% + 18px);height:2px;background:rgba(255,255,255,.16);}
+.wiz-step-item.done:not(:last-child)::after{background:var(--hero-accent);}
+#wizDot0,#wizDot1{cursor:pointer;}
+.wiz-dot{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.72rem;font-weight:700;background:rgba(255,255,255,.10);color:rgba(255,255,255,.5);border:2px solid rgba(255,255,255,.18);position:relative;z-index:1;}
+.wiz-step-item.current .wiz-dot{background:var(--hero-accent);color:#0d1410;border-color:var(--hero-accent);}
+.wiz-step-item.done .wiz-dot{background:transparent;color:var(--hero-accent);border-color:var(--hero-accent);}
+.wiz-step-label{font-size:.66rem;font-weight:700;color:rgba(255,255,255,.5);}
+.wiz-step-item.current .wiz-step-label{color:#fff;}
+.wiz-step-item.done .wiz-step-label{color:var(--hero-accent);}
+
+.wiz-panel{margin-bottom:18px;}
+.wiz-eyebrow{font-size:.66rem;font-weight:700;color:var(--c-accent);text-transform:uppercase;letter-spacing:.14em;margin-bottom:8px;}
+.wiz-title{font-family:var(--font-display);font-weight:700;font-size:1.35rem;letter-spacing:-.02em;line-height:1.2;margin-bottom:6px;color:var(--c-ink);}
+.wiz-sub{font-size:.85rem;color:var(--c-ink-mute);line-height:1.5;}
+body.mode-simple .wiz-actions{display:flex;gap:10px;margin-top:6px;}
+.wiz-btn-primary,.wiz-btn-ghost{flex:1;padding:14px;border-radius:10px;font-size:.9rem;font-weight:800;letter-spacing:.2px;cursor:pointer;text-align:center;transition:all .15s;}
+.wiz-btn-primary{background:var(--c-accent);color:#fff;box-shadow:var(--shadow-md);}
+.wiz-btn-primary:hover{box-shadow:var(--shadow-lg);transform:translateY(-1px);}
+.wiz-btn-ghost{flex:0 0 auto;padding:14px 20px;background:var(--c-surface);color:var(--c-ink-soft);border:1.5px solid var(--c-line);}
+.wiz-btn-ghost:hover{border-color:var(--c-line-soft);}
+body.mode-simple #wizResultHead{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.wiz-btn-modifier{flex:0 0 auto;padding:8px 16px;font-size:.78rem;}
+
+/* Habillage sombre "Outdoor Premium" du parcours découverte — fiche technique
+   plutôt qu'app utilitaire (fond charbon-forêt, lignes fines, mono pour les chiffres) */
+body.mode-simple #maCourseSection,
+body.mode-simple #output>.cw-section{
+  background:var(--gradient-dark);
+  border-color:rgba(242,237,228,.14);
+}
+body.mode-simple #maCourseSection .cw-label{color:rgba(242,237,228,.68);}
+body.mode-simple #maCourseSection input,
+body.mode-simple #maCourseSection select{
+  background:rgba(255,255,255,.06);
+  border-color:rgba(242,237,228,.22);
+  color:var(--hero-text);
+}
+body.mode-simple #maCourseSection input:focus,
+body.mode-simple #maCourseSection select:focus{
+  border-color:var(--hero-accent);
+  background:rgba(255,255,255,.10);
+  box-shadow:0 0 0 3px rgba(93,202,165,.18);
+}
+body.mode-simple #maCourseSection .wiz-title{color:var(--hero-text);}
+body.mode-simple #maCourseSection .wiz-sub{color:rgba(242,237,228,.6);}
+body.mode-simple #distBanner{background:rgba(255,255,255,.07);}
+body.mode-simple .wiz-btn-ghost{background:rgba(255,255,255,.07);color:rgba(242,237,228,.75);border-color:rgba(242,237,228,.22);}
+body.mode-simple .wiz-btn-ghost:hover{border-color:rgba(242,237,228,.4);}
+
+/* Étape 3 (résultat), même habillage sombre */
+body.mode-simple #output>.cw-section .res-card{background:rgba(255,255,255,.05);border-color:rgba(242,237,228,.14);}
+body.mode-simple #output>.cw-section .res-val{color:var(--hero-text);}
+body.mode-simple #output>.cw-section .res-lbl{color:rgba(242,237,228,.55);}
+body.mode-simple #output>.cw-section th{background:rgba(255,255,255,.08);color:var(--hero-text);}
+body.mode-simple #output>.cw-section td{color:var(--hero-text);border-bottom-color:rgba(242,237,228,.10);}
+body.mode-simple #output>.cw-section tr:hover td{background:rgba(255,255,255,.04)!important;}
+body.mode-simple #output>.cw-section tr:last-child td{background:rgba(93,202,165,.16);}
+body.mode-simple #output>.cw-section tr.is-half td{background:rgba(255,255,255,.06);}
+body.mode-simple #arriveeBanner{background:rgba(255,255,255,.08);color:var(--hero-text);}
+body.mode-simple #output>.cw-section .disclaimer{background:rgba(255,255,255,.05);border-color:rgba(242,237,228,.14);color:rgba(242,237,228,.6);}
+body.mode-simple #output>.cw-section .disclaimer strong{color:rgba(242,237,228,.85);}
+
 /* SAVE BAR */
 .save-bar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;background:var(--c-ink);border-radius:var(--radius-md);padding:10px 16px;margin-bottom:12px;}
 .save-bar-left{display:flex;align-items:center;gap:10px;}

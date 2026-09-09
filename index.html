@@ -162,8 +162,23 @@ function ic(name, cls){
   </div>
 </div>
 
-<div class="cw-section">
-  <div class="cw-section-title">Ma course</div>
+<!-- PARCOURS DÉCOUVERTE — Mode Simple uniquement : une question à la fois -->
+<div class="simple-only wiz-chrome">
+  <div class="wiz-stepper">
+    <div class="wiz-step-item" id="wizDot0" onclick="goSimpleStep(0)">
+      <div class="wiz-dot">1</div><div class="wiz-step-label">Distance</div>
+    </div>
+    <div class="wiz-step-item" id="wizDot1" onclick="goSimpleStep(1)">
+      <div class="wiz-dot">2</div><div class="wiz-step-label">Objectif</div>
+    </div>
+    <div class="wiz-step-item" id="wizDot2">
+      <div class="wiz-dot">3</div><div class="wiz-step-label">Résultat</div>
+    </div>
+  </div>
+</div>
+
+<div class="cw-section" id="maCourseSection">
+  <div class="cw-section-title expert-only">Ma course</div>
 
   <!-- NOM DE LA COURSE -->
   <div class="cw-field expert-only" style="margin-bottom:14px;">
@@ -171,30 +186,47 @@ function ic(name, cls){
     <input type="text" id="raceName" placeholder="ex: Ultra Trail des Ardennes 2025" maxlength="60" style="font-size:.95rem;font-weight:600;">
   </div>
 
+  <!-- Intro Étape 1 (mode simple uniquement) -->
+  <div class="simple-only wiz-panel" id="wizPanel0">
+    <div class="wiz-eyebrow">Étape 1 / 3</div>
+    <div class="wiz-title">Quelle distance vas-tu courir&nbsp;?</div>
+    <div class="wiz-sub">Choisis une distance, ou entre la tienne si ta course n'y est pas.</div>
+  </div>
+  <!-- Intro Étape 2 (mode simple uniquement) -->
+  <div class="simple-only wiz-panel wiz-hidden" id="wizPanel1">
+    <div class="wiz-eyebrow">Étape 2 / 3</div>
+    <div class="wiz-title">Ton objectif pour cette course</div>
+    <div class="wiz-sub">Deux infos suffisent pour calculer tes temps de passage.</div>
+  </div>
+
   <div class="cw-grid">
-    <div class="cw-field">
-      <label class="cw-label" for="dist">Distance</label>
-      <select id="dist" onchange="onDistChange()">
-        <option value="5">5 km</option>
-        <option value="10" selected>10 km</option>
-        <option value="21.1">Semi-marathon 21,1 km</option>
-        <option value="42.195">Marathon 42,195 km</option>
-        <option value="custom">Distance personnalisée</option>
-      </select>
+    <div id="wizStep0" class="wiz-contents">
+      <div class="cw-field">
+        <label class="cw-label" for="dist">Distance</label>
+        <select id="dist" onchange="onDistChange()">
+          <option value="5">5 km</option>
+          <option value="10" selected>10 km</option>
+          <option value="21.1">Semi-marathon 21,1 km</option>
+          <option value="42.195">Marathon 42,195 km</option>
+          <option value="custom">Distance personnalisée</option>
+        </select>
+      </div>
+      <div class="cw-field" id="customField" style="display:none;">
+        <label class="cw-label" for="customDist">Distance (km)</label>
+        <input type="number" id="customDist" min="1" max="200" step="0.1" placeholder="ex: 18.5" oninput="onDistChange()">
+      </div>
     </div>
-    <div class="cw-field" id="customField" style="display:none;">
-      <label class="cw-label" for="customDist">Distance (km)</label>
-      <input type="number" id="customDist" min="1" max="200" step="0.1" placeholder="ex: 18.5" oninput="onDistChange()">
+    <div id="wizStep1" class="wiz-contents wiz-hidden">
+      <div class="cw-field">
+        <label class="cw-label" for="targetTime">Chrono objectif (h:mm:ss)</label>
+        <input type="text" id="targetTime" placeholder="1:26:00" value="1:26:00">
+      </div>
+      <div class="cw-field">
+        <label class="cw-label" for="startTime">Heure de départ</label>
+        <input type="time" id="startTime" value="09:00">
+      </div>
     </div>
-    <div class="cw-field">
-      <label class="cw-label" for="targetTime">Chrono objectif (h:mm:ss)</label>
-      <input type="text" id="targetTime" placeholder="1:26:00" value="1:26:00">
-    </div>
-    <div class="cw-field">
-      <label class="cw-label" for="startTime">Heure de départ</label>
-      <input type="time" id="startTime" value="09:00">
-    </div>
-    <div class="cw-field">
+    <div class="cw-field expert-only">
       <label class="cw-label" for="freq">Fréquence des points de passage</label>
       <select id="freq" onchange="onFreqChange()">
         <option value="custom" selected>Distance personnalisée</option>
@@ -213,11 +245,11 @@ function ic(name, cls){
         <option value="pos">Départ rapide (gestion en fin de course)</option>
       </select>
     </div>
-    <div class="cw-field">
+    <div class="cw-field expert-only">
       <label class="cw-label" for="dplus">Dénivelé positif D+ <span style="font-size:.65rem;color:#9a9a9a;">(optionnel)</span></label>
       <input type="number" id="dplus" min="0" max="20000" step="50" placeholder="ex: 2500" oninput="onDplusChange()">
     </div>
-    <div class="cw-field" id="terrainField" style="display:none;grid-column:1/-1;">
+    <div class="cw-field expert-only" id="terrainField" style="display:none;grid-column:1/-1;">
       <div class="cw-label" id="terrainLabel"><svg class="ic" aria-hidden="true"><use href="#i-mountain"/></svg> Technicité du terrain</div>
       <div class="terrain-pills" role="group" aria-labelledby="terrainLabel">
         <button class="terrain-pill on" onclick="setTerrain('easy',this)"><span class="cdot" style="background:#1d9e75"></span>Facile (×1.0)</button>
@@ -226,7 +258,7 @@ function ic(name, cls){
       </div>
       <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Pierriers, racines, dévers — ajuste le temps d'effort réel sur le D+</div>
     </div>
-    <div class="cw-field" style="grid-column:1/-1;">
+    <div class="cw-field expert-only" style="grid-column:1/-1;">
       <div class="cw-label" id="weatherLabel">Conditions météo le jour de la course</div>
       <div class="weather-pills" role="group" aria-labelledby="weatherLabel">
         <button class="weather-pill cold" onclick="setWeather('cold',this)" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg> Froid (&lt;10°C)</button>
@@ -242,6 +274,17 @@ function ic(name, cls){
       <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ralentit progressivement l'allure sur les 30 derniers km — rend les temps de passage réalistes</div>
     </div>
   </div>
+
+  <!-- Navigation Étape 1 (mode simple uniquement) -->
+  <div class="simple-only wiz-panel wiz-actions" id="wizActions0">
+    <div class="wiz-btn-primary" onclick="simpleNext()">Suivant</div>
+  </div>
+  <!-- Navigation Étape 2 (mode simple uniquement) -->
+  <div class="simple-only wiz-panel wiz-hidden wiz-actions" id="wizActions1">
+    <div class="wiz-btn-ghost" onclick="simplePrev()">Précédent</div>
+    <div class="wiz-btn-primary" onclick="simpleNext()">Voir mes temps de passage</div>
+  </div>
+
   <div id="kmEffortBanner" class="km-effort-banner">
     <div style="flex-shrink:0;display:flex;"><svg class="ic ic-lg" aria-hidden="true" style="color:var(--hero-accent)"><use href="#i-bolt"/></svg></div>
     <div>
@@ -293,17 +336,14 @@ function ic(name, cls){
     <div class="cw-label" id="drinkLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Boisson dans tes flasques <span style="font-size:.65rem;color:#9a9a9a;">— glucides liquides déduits des solides à emporter</span></div>
     <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Si tu mets autre chose que de l'eau dans tes flasques, l'app calcule les glucides apportés par la boisson et te dit combien de solides tu dois encore prendre.</div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="drinkPills" role="group" aria-labelledby="drinkLabel">
-      <button class="terrain-pill on" id="dp-water"      onclick="setDrink('water')"      ><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Eau pure</button>
-      <button class="terrain-pill"    id="dp-maurten160" onclick="setDrink('maurten160')" >🟡 Maurten 160 (40g/500ml)</button>
-      <button class="terrain-pill"    id="dp-maurten320" onclick="setDrink('maurten320')" >🟠 Maurten 320 (80g/500ml)</button>
-      <button class="terrain-pill"    id="dp-isostar"    onclick="setDrink('isostar')"    >🔵 Isostar (~18g/500ml)</button>
-      <button class="terrain-pill"    id="dp-custom"     onclick="setDrink('custom')"     ><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Autre</button>
+      <button class="terrain-pill on" id="dp-water"  onclick="setDrink('water')"  ><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Eau pure</button>
+      <button class="terrain-pill"    id="dp-custom" onclick="setDrink('custom')" ><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Perso</button>
     </div>
     <div id="drinkCustomWrap" style="display:none;">
       <div class="cw-grid">
         <div class="cw-field">
           <label class="cw-label" for="drinkName">Nom de la boisson</label>
-          <input type="text" id="drinkName" placeholder="ex: High5 Zero, SIS Beta Fuel…" maxlength="30" oninput="updateNutritionPreview()">
+          <input type="text" id="drinkName" placeholder="ex: ma boisson d'effort" maxlength="30" oninput="updateNutritionPreview()">
         </div>
         <div class="cw-field">
           <label class="cw-label" for="drinkCarbs500">Glucides pour 500ml (g)</label>
@@ -315,50 +355,24 @@ function ic(name, cls){
 
   <!-- PRODUIT NUTRITION -->
   <div style="margin-top:14px;border-top:1px solid #cfcfcf;padding-top:14px;">
-    <div class="cw-label" id="productsLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Produits solides <span style="font-size:.65rem;color:#9a9a9a;">— sélection multiple possible · l'app alterne selon l'heure de la journée</span></div>
-
-    <!-- Info rythme circadien -->
-    <div style="font-size:.7rem;color:#6b6b6b;background:#fafafa;border:1px solid #cfcfcf;border-radius:8px;padding:8px 12px;margin-bottom:10px;border-left:3px solid #323232;line-height:1.7;">
-      <svg class="ic" aria-hidden="true"><use href="#i-clock"/></svg> <strong style="color:var(--c-ink);">Rythme circadien automatique :</strong>
-      Matin/Après-midi <span style="color:#4a6e57;font-weight:700;">🟡 Sucré</span> ·
-      Midi &amp; Soir <span style="color:#8a6a3a;font-weight:700;">🔴 Salé</span> ·
-      Nuit <span style="color:#4a6e57;font-weight:700;">🟡 Sucré</span>
-    </div>
-
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="productPills" role="group" aria-labelledby="productsLabel">
-      <button class="terrain-pill" id="pp-naak_sucre" onclick="toggleProduct('naak_sucre')">🟢 Naak Purée sucrée <span style="font-size:.65rem;opacity:.7;">26g</span></button>
-      <button class="terrain-pill" id="pp-naak_sale"  onclick="toggleProduct('naak_sale')" >🟤 Naak Purée salée <span style="font-size:.65rem;opacity:.7;">26g</span></button>
-      <button class="terrain-pill" id="pp-deca"       onclick="toggleProduct('deca')"      >🔶 Decathlon Fruit Mix <span style="font-size:.65rem;opacity:.7;">25g</span></button>
-      <button class="terrain-pill" id="pp-gel"        onclick="toggleProduct('gel')"       ><svg class="ic" aria-hidden="true"><use href="#i-pill"/></svg> Gel <span style="font-size:.65rem;opacity:.7;">25g</span></button>
-      <button class="terrain-pill" id="pp-barre"      onclick="toggleProduct('barre')"     ><svg class="ic" aria-hidden="true"><use href="#i-pill"/></svg> Barre <span style="font-size:.65rem;opacity:.7;">35g</span></button>
-      <button class="terrain-pill" id="pp-perso"      onclick="toggleProduct('perso')"     ><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Perso</button>
-    </div>
-
-    <div id="productCustomWrap" style="display:none;">
-      <div class="cw-grid">
-        <div class="cw-field">
-          <label class="cw-label" for="productName">Nom du produit</label>
-          <input type="text" id="productName" placeholder="ex: SIS Go, High5…" maxlength="30" oninput="updateNutritionPreview()">
-        </div>
-        <div class="cw-field">
-          <label class="cw-label" for="productCarbs">Glucides / unité (g)</label>
-          <input type="number" id="productCarbs" min="5" max="100" step="1" placeholder="ex: 22" oninput="updateNutritionPreview()">
-        </div>
-        <div class="cw-field">
-          <label class="cw-label" for="productSodium">Sodium / unité (mg) <span style="font-size:.65rem;color:#9a9a9a;">optionnel</span></label>
-          <input type="number" id="productSodium" min="0" max="2000" step="10" placeholder="ex: 200" oninput="updateNutritionPreview()">
-        </div>
-        <div class="cw-field">
-          <label class="cw-label" for="productSweet">Sucré ou salé ?</label>
-          <select id="productSweet" oninput="updateNutritionPreview()" style="width:100%;padding:8px;border-radius:8px;border:1px solid #cfcfcf;">
-            <option value="sweet">🟡 Sucré</option>
-            <option value="salty">🔴 Salé</option>
-          </select>
-        </div>
+    <div class="cw-label" id="productsLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Ton produit solide <span style="font-size:.65rem;color:#9a9a9a;">— optionnel, pas de marque imposée</span></div>
+    <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Laisse vide si tu ne sais pas encore quoi emporter — l'app affiche juste les grammes de glucides à couvrir. Remplis si tu veux voir combien d'unités de TON produit ça représente.</div>
+    <div class="cw-grid">
+      <div class="cw-field">
+        <label class="cw-label" for="productName">Nom du produit</label>
+        <input type="text" id="productName" placeholder="ex: mes gels maison" maxlength="30" oninput="updateNutritionPreview()">
+      </div>
+      <div class="cw-field">
+        <label class="cw-label" for="productCarbs">Glucides / unité (g)</label>
+        <input type="number" id="productCarbs" min="5" max="100" step="1" placeholder="ex: 22" oninput="updateNutritionPreview()">
+      </div>
+      <div class="cw-field">
+        <label class="cw-label" for="productSodium">Sodium / unité (mg) <span style="font-size:.65rem;color:#9a9a9a;">optionnel</span></label>
+        <input type="number" id="productSodium" min="0" max="2000" step="10" placeholder="ex: 200" oninput="updateNutritionPreview()">
       </div>
     </div>
 
-    <!-- Récap sélection -->
+    <!-- Récap produit -->
     <div id="productSelectionInfo" style="display:none;font-size:.7rem;color:var(--c-ink);background:var(--c-bg);border-radius:8px;padding:8px 12px;margin-top:8px;border:1px solid var(--c-line);line-height:1.8;"></div>
   </div>
 
@@ -394,11 +408,15 @@ function ic(name, cls){
   </div>
 </div>
 
-<button class="cw-btn" onclick="calculate()" aria-label="Calculer mes temps de passage et mon plan de ravitaillement"><span class="btn-label-simple">Calculer mes temps de passage</span><span class="btn-label-expert">Calculer mes temps de passage + mes ravitos</span></button>
+<button class="cw-btn expert-only" onclick="calculate()" aria-label="Calculer mes temps de passage et mon plan de ravitaillement"><span class="btn-label-simple">Calculer mes temps de passage</span><span class="btn-label-expert">Calculer mes temps de passage + mes ravitos</span></button>
 
 <div id="output" style="display:none;">
 
   <div class="cw-section" style="margin-top:12px;">
+    <div class="simple-only wiz-panel" id="wizResultHead">
+      <div class="wiz-eyebrow">Étape 3 / 3</div>
+      <div class="wiz-btn-ghost wiz-btn-modifier" onclick="simpleRestart()">Modifier mes réponses</div>
+    </div>
     <div id="raceNameDisplay" style="display:none;font-family:var(--font-display);font-weight:700;font-size:1.15rem;letter-spacing:-.3px;color:var(--c-ink);margin-bottom:10px;"></div>
     <div class="res-cards">
       <div class="res-card"><div class="res-val" id="rAllure">—</div><div class="res-lbl">Allure moyenne</div></div>
