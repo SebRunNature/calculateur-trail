@@ -13,7 +13,8 @@ var state = {
   customRavitoKms:  [],   // km des ravitos officiels saisis
   drink:      'water',    // boisson dans les flasques : 'water' | 'custom'
   mode:       'simple',   // 'simple' | 'expert'
-  simpleStep: 0           // 0=distance, 1=objectif, 2=résultat (parcours découverte, mode simple)
+  simpleStep: 0,          // 0=distance, 1=objectif, 2=résultat (parcours découverte, mode simple)
+  expertOpen: null        // null | 'terrain' | 'profil' | 'nutrition' (accordéon Mode Expert)
 };
 
 // Produit solide — plus de marques imposées : un seul produit, le tien.
@@ -66,7 +67,6 @@ function collectFormData(){
     customDist:  getVal('customDist'),
     targetTime:  getVal('targetTime'),
     startTime:   getVal('startTime'),
-    freq:        getVal('freq','custom'),
     freqCustom:  getVal('freqCustom','1'),
     strategy:    getVal('strat','constant'),
     fatigue:     getVal('fatigueSlider','0'),
@@ -106,15 +106,10 @@ function applyFormData(data){
   if(data.customDist  !== undefined) setVal('customDist',  data.customDist);
   if(data.targetTime  !== undefined) setVal('targetTime',  data.targetTime);
   if(data.startTime   !== undefined) setVal('startTime',   data.startTime);
-  if(data.freq        !== undefined) setVal('freq',        data.freq);
   if(data.freqCustom  !== undefined) setVal('freqCustom',  data.freqCustom);
-  onFreqChange();
   if(data.strategy    !== undefined) setVal('strat',    data.strategy);
-  if(data.fatigue     !== undefined){
-    setVal('fatigueSlider', data.fatigue);
-    var lbl=document.getElementById('fatigueVal');
-    if(lbl) lbl.textContent=data.fatigue+'%';
-  }
+  onStratProfileChange();
+  if(data.fatigue     !== undefined) onFatigueChange(data.fatigue);
   if(data.dplus       !== undefined){ setVal('dplus', data.dplus); onDplusChange&&onDplusChange(); }
   if(data.terrain     !== undefined){
     state.terrain=data.terrain;
@@ -342,6 +337,36 @@ function syncSimpleDistChips(val){
   });
 }
 
+// ── OPTIONS AVANCÉES (Mode Expert) — accordéon replié par défaut ───────────
+function toggleExpertSection(key){
+  state.expertOpen = (state.expertOpen === key) ? null : key;
+  ['terrain','profil','nutrition'].forEach(function(k){
+    var item = document.getElementById('accItem' + k.charAt(0).toUpperCase() + k.slice(1));
+    var body = document.getElementById('accBody' + k.charAt(0).toUpperCase() + k.slice(1));
+    var isOpen = state.expertOpen === k;
+    if(item) item.classList.toggle('open', isOpen);
+    if(body) body.style.display = isOpen ? 'block' : 'none';
+  });
+}
+
+// Profil d'allure — remplace les anciens contrôles séparés "Stratégie de course"
+// et "Dérive de fatigue" par un seul menu : la dérive n'est réglable qu'en
+// choisissant le profil "Réaliste", ce qui évite deux curseurs qui se recoupent.
+function onStratProfileChange(){
+  var v = document.getElementById('strat').value;
+  var reveal = document.getElementById('fatigueRevealField');
+  if(v === 'realistic'){
+    if(reveal) reveal.style.display = 'block';
+    var cur = parseInt(document.getElementById('fatigueSlider').value) || 0;
+    onFatigueChange(cur > 0 ? cur : 15);
+    if(cur <= 0) document.getElementById('fatigueSlider').value = 15;
+  } else {
+    if(reveal) reveal.style.display = 'none';
+    document.getElementById('fatigueSlider').value = 0;
+    onFatigueChange(0);
+  }
+}
+
 // Initialisation mode au démarrage
 window.addEventListener('DOMContentLoaded', function(){
   var savedMode = 'simple';
@@ -453,13 +478,6 @@ function setWeather(w, btn) {
   });
   btn.classList.add('on');
   btn.setAttribute('aria-pressed','true');
-}
-
-function toggleDark(){
-  document.body.classList.toggle('dark');
-  var isDark=document.body.classList.contains('dark');
-  var btn=document.getElementById('darkBtn');
-  if(btn)btn.innerHTML=isDark?ic('sun')+' Mode clair':ic('moon')+' Mode sombre';
 }
 
 function toggleFullscreen(){
@@ -727,25 +745,12 @@ function updateNutritionPreview(){
   }
 }
 
-function onFreqChange(){
-  var sel=document.getElementById('freq');
-  var cf=document.getElementById('freqCustomField');
-  if(cf) cf.style.display = sel.value==='custom' ? 'block' : 'none';
-  var echo=document.getElementById('freqCustomEcho');
-  if(echo) echo.textContent=(document.getElementById('freqCustom')||{}).value||'1';
-}
-
 // Fréquence de splits effective :
 //   > 0  → un point de passage tous les N km
 //   0    → aucun point intermédiaire (départ + arrivée seulement)
 function getSplitFreq(){
-  var sel=document.getElementById('freq');
-  if(!sel) return 1;
-  if(sel.value==='custom'){
-    var v=parseFloat((document.getElementById('freqCustom')||{}).value);
-    return (v>0) ? v : 0;
-  }
-  return 0;
+  var v=parseFloat((document.getElementById('freqCustom')||{}).value);
+  return (v>0) ? v : 0;
 }
 
 function onDistChange(){
@@ -1335,5 +1340,4 @@ function exportPDF(){
 }
 
 onDistChange();
-onFreqChange();
 setRavito('custom');
