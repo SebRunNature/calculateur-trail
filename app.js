@@ -1300,7 +1300,7 @@ function exportPDF(){
     +'td{padding:4px 6px;border-bottom:1px solid #e5e5e5;vertical-align:middle;}'
     +'.pf{margin-top:12px;font-size:8px;color:#9a9a9a;text-align:center;padding-top:8px;border-top:1px solid #e5e5e5;}'
     +'</style></head><body>'
-    +'<div class="ph"><h1>'+raceTitle+'Mes temps de passage · '+distLabel+dplusLabel+'</h1><p>Seb Run Nature · seb-run-nature.com</p></div>'
+    +'<div class="ph"><h1>'+raceTitle+'Mes temps de passage · '+distLabel+dplusLabel+'</h1><p>Run Nature · run-nature.com</p></div>'
     +arrH
     +'<div class="pc">'
     +'<div class="pc-item"><div class="pc-val">'+fmtPace(m.avgPace)+'</div><div class="pc-lbl">Allure moyenne</div></div>'
@@ -1312,7 +1312,7 @@ function exportPDF(){
     +thExtra+'<th>\u00C9cart objectif</th>'
     +'</tr></thead><tbody>'+rows+'</tbody></table>'
     +tots+mottoH
-    +'<div class="pf">Ces temps sont des estimations \u00B7 ta forme, la m\u00E9t\u00E9o et le terrain peuvent influencer ton allure r\u00E9elle. Bonne course ! \u00B7 Seb Run Nature \u00B7 seb-run-nature.com</div>'
+    +'<div class="pf">Ces temps sont des estimations \u00B7 ta forme, la m\u00E9t\u00E9o et le terrain peuvent influencer ton allure r\u00E9elle. Bonne course ! \u00B7 Run Nature \u00B7 run-nature.com</div>'
     +'</body></html>';
 
   var w=window.open('','_blank','width=800,height=600');

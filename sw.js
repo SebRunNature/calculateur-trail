@@ -1,7 +1,7 @@
-// Service Worker — Calculateur Temps de Passage Trail · Seb Run Nature
+// Service Worker — Calculateur Temps de Passage Trail · Run Nature
 // Stratégie network-first : les mises à jour déployées apparaissent immédiatement,
 // avec repli sur le cache hors ligne. Nettoyage automatique des anciennes versions.
-const CACHE = 'srn-calculateur-trail-v22';
+const CACHE = 'srn-calculateur-trail-v23';
 const FILES = [
   '/calculateur-trail/',
   '/calculateur-trail/index.html',
