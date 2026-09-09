@@ -76,6 +76,7 @@ function ic(name, cls){
 <g id="i-expand"><path d="M4 8v-2a2 2 0 0 1 2 -2h2M4 16v2a2 2 0 0 0 2 2h2M16 4h2a2 2 0 0 1 2 2v2M16 20h2a2 2 0 0 0 2 -2v-2"/></g>
 <g id="i-arrow-right"><path d="M5 12h14"/><path d="M13 6l6 6l-6 6"/></g>
 <g id="i-dot"><circle cx="12" cy="12" r="4" fill="currentColor" stroke="none"/></g>
+<g id="i-chevron"><path d="M6 9l6 6l6 -6"/></g>
 </defs></svg>
 <!-- TOPBAR -->
 <div class="app-topbar">
@@ -91,7 +92,6 @@ function ic(name, cls){
   </a>
   <div class="app-topbar-actions">
     <a href="https://www.seb-run-nature.com" target="_blank" rel="noopener" class="app-topbar-btn"><svg class="ic" aria-hidden="true"><use href="#i-leaf"/></svg> Mon Blog Trail</a>
-    <button class="app-topbar-btn" onclick="toggleDark()" id="darkBtn"><svg class="ic" aria-hidden="true"><use href="#i-moon"/></svg> Mode sombre</button>
     <button class="app-topbar-btn" onclick="toggleFullscreen()" id="fsBtn"><svg class="ic" aria-hidden="true"><use href="#i-expand"/></svg> Fullscreen</button>
   </div>
 </div>
@@ -222,51 +222,9 @@ function ic(name, cls){
       </div>
     </div>
     <div class="cw-field expert-only">
-      <label class="cw-label" for="freq">Fréquence des points de passage</label>
-      <select id="freq" onchange="onFreqChange()">
-        <option value="custom" selected>Distance personnalisée</option>
-        <option value="">Laisser vide (départ et arrivée seulement)</option>
-      </select>
-      <div id="freqCustomField" style="margin-top:8px;">
-        <input type="number" id="freqCustom" min="0.5" max="50" step="0.5" value="1" placeholder="ex: 1" oninput="onFreqChange()">
-        <div style="font-size:.68rem;color:var(--c-ink-mute);margin-top:4px;">Un point de passage tous les <span id="freqCustomEcho">1</span> km.</div>
-      </div>
-    </div>
-    <div class="cw-field expert-only">
-      <label class="cw-label" for="strat">Stratégie de course</label>
-      <select id="strat">
-        <option value="even">Allure régulière</option>
-        <option value="neg">Départ conservateur (accélération finale)</option>
-        <option value="pos">Départ rapide (gestion en fin de course)</option>
-      </select>
-    </div>
-    <div class="cw-field expert-only">
-      <label class="cw-label" for="dplus">Dénivelé positif D+ <span style="font-size:.65rem;color:#9a9a9a;">(optionnel)</span></label>
-      <input type="number" id="dplus" min="0" max="20000" step="50" placeholder="ex: 2500" oninput="onDplusChange()">
-    </div>
-    <div class="cw-field expert-only" id="terrainField" style="display:none;grid-column:1/-1;">
-      <div class="cw-label" id="terrainLabel"><svg class="ic" aria-hidden="true"><use href="#i-mountain"/></svg> Technicité du terrain</div>
-      <div class="terrain-pills" role="group" aria-labelledby="terrainLabel">
-        <button class="terrain-pill on" onclick="setTerrain('easy',this)"><span class="cdot" style="background:#1d9e75"></span>Facile (×1.0)</button>
-        <button class="terrain-pill" onclick="setTerrain('tech',this)"><span class="cdot" style="background:#ba7517"></span>Technique (×1.2)</button>
-        <button class="terrain-pill" onclick="setTerrain('expert',this)"><span class="cdot" style="background:#e24b4a"></span>Expert / Skyrunning (×1.5)</button>
-      </div>
-      <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Pierriers, racines, dévers — ajuste le temps d'effort réel sur le D+</div>
-    </div>
-    <div class="cw-field expert-only" style="grid-column:1/-1;">
-      <div class="cw-label" id="weatherLabel">Conditions météo le jour de la course</div>
-      <div class="weather-pills" role="group" aria-labelledby="weatherLabel">
-        <button class="weather-pill cold" onclick="setWeather('cold',this)" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg> Froid (&lt;10°C)</button>
-        <button class="weather-pill moderate on" onclick="setWeather('moderate',this)" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg> Tempéré (10-20°C)</button>
-        <button class="weather-pill hot" onclick="setWeather('hot',this)" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg> Chaud (&gt;20°C)</button>
-      </div>
-      <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ajuste automatiquement les besoins en eau et sodium</div>
-    </div>
-    <div class="cw-field expert-only" style="grid-column:1/-1;">
-      <label class="cw-label" for="fatigueSlider"><svg class="ic" aria-hidden="true"><use href="#i-trend-down"/></svg> Dérive de fatigue <span id="fatigueVal" style="font-weight:500;">0% — Allure constante</span></label>
-      <input type="range" id="fatigueSlider" min="0" max="30" value="0" step="5" oninput="onFatigueChange(this.value)">
-      <div class="fatigue-labels"><span>Constant</span><span>−10%</span><span>−20%</span><span>−30%</span></div>
-      <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ralentit progressivement l'allure sur les 30 derniers km — rend les temps de passage réalistes</div>
+      <label class="cw-label" for="freqCustom">Un point de passage tous les combien de km ?</label>
+      <input type="number" id="freqCustom" min="0" max="50" step="0.5" value="1" placeholder="ex: 1">
+      <div style="font-size:.68rem;color:var(--c-ink-mute);margin-top:4px;">0 ou vide = uniquement départ et arrivée.</div>
     </div>
   </div>
 
@@ -280,14 +238,6 @@ function ic(name, cls){
     <div class="wiz-btn-primary" onclick="simpleNext()">Voir mes temps de passage</div>
   </div>
 
-  <div id="kmEffortBanner" class="km-effort-banner">
-    <div style="flex-shrink:0;display:flex;"><svg class="ic ic-lg" aria-hidden="true" style="color:var(--hero-accent)"><use href="#i-bolt"/></svg></div>
-    <div>
-      <div class="ke-val" id="kmEffortVal">— km-effort</div>
-      <div class="ke-lbl">Distance effort réelle (D+ intégré)</div>
-      <div class="ke-detail" id="kmEffortDetail"></div>
-    </div>
-  </div>
   <div id="distBanner" class="dist-banner">
     <div class="dist-banner-icon" style="display:flex;align-items:center;"><svg class="ic ic-lg" aria-hidden="true" style="color:var(--hero-accent)"><use href="#i-mountain"/></svg></div>
     <div>
@@ -297,107 +247,195 @@ function ic(name, cls){
   </div>
 </div>
 
-<!-- SECTION NUTRITION PERSONNALISÉE -->
+<!-- OPTIONS AVANCÉES (Mode Expert) — repliées par défaut, à la carte -->
 <div class="cw-section expert-only">
-  <div class="cw-section-title"><svg class="ic" aria-hidden="true"><use href="#i-cup"/></svg> Nutrition — personnalisation</div>
-  <div style="font-size:.75rem;color:#6b6b6b;margin-bottom:12px;line-height:1.6;">
-    Laisse vide pour utiliser les valeurs scientifiques recommandées. Remplis si tu connais tes besoins réels à l'entraînement.
-  </div>
-  <div class="cw-grid">
-    <div class="cw-field">
-      <label class="cw-label" for="userWeight"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> Poids corporel (kg) <span style="font-size:.65rem;color:#9a9a9a;">— pour affiner l'hydratation</span></label>
-      <input type="number" id="userWeight" min="40" max="130" step="1" placeholder="ex: 70 (optionnel)" oninput="updateNutritionPreview()">
+  <div class="cw-section-title">Options avancées</div>
+
+  <!-- ACCORDÉON — Terrain & météo -->
+  <div class="accordion-item" id="accItemTerrain">
+    <div class="accordion-head" onclick="toggleExpertSection('terrain')">
+      <div class="accordion-icon"><svg class="ic" aria-hidden="true"><use href="#i-mountain"/></svg></div>
+      <div class="accordion-txt">
+        <div class="accordion-title">Terrain &amp; météo</div>
+        <div class="accordion-desc">Dénivelé, technicité, conditions du jour</div>
+      </div>
+      <svg class="ic accordion-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
     </div>
-    <div class="cw-field">
-      <label class="cw-label" for="userCarbsH"><svg class="ic" aria-hidden="true"><use href="#i-pill"/></svg> Glucides / heure (g/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
-      <input type="number" id="userCarbsH" min="20" max="120" step="5" placeholder="ex: 60 (laisse vide = auto)" oninput="updateNutritionPreview()">
-    </div>
-    <div class="cw-field">
-      <label class="cw-label" for="userWaterH"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Eau / heure (ml/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
-      <input type="number" id="userWaterH" min="200" max="1200" step="50" placeholder="ex: 600 (laisse vide = auto)" oninput="updateNutritionPreview()">
-    </div>
-    <div class="cw-field">
-      <label class="cw-label" for="userSodiumH"><svg class="ic" aria-hidden="true"><use href="#i-salt"/></svg> Sodium / heure (mg/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
-      <input type="number" id="userSodiumH" min="100" max="1500" step="50" placeholder="ex: 500 (laisse vide = auto)" oninput="updateNutritionPreview()">
-    </div>
-    <div class="cw-field">
-      <label class="cw-label" for="userFlasque"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Capacité flasques / poche eau (ml) <span style="font-size:.65rem;color:#9a9a9a;">— alerte si dépassé</span></label>
-      <input type="number" id="userFlasque" min="250" max="3000" step="250" placeholder="ex: 1000" value="1000" oninput="updateNutritionPreview()">
+    <div class="accordion-body" id="accBodyTerrain" style="display:none;">
+      <div class="cw-field" style="margin-bottom:12px;">
+        <label class="cw-label" for="dplus">Dénivelé positif D+ <span style="font-size:.65rem;color:#9a9a9a;">(optionnel)</span></label>
+        <input type="number" id="dplus" min="0" max="20000" step="50" placeholder="ex: 2500" oninput="onDplusChange()">
+      </div>
+      <div id="kmEffortBanner" class="km-effort-banner" style="margin-top:0;margin-bottom:12px;">
+        <div style="flex-shrink:0;display:flex;"><svg class="ic ic-lg" aria-hidden="true" style="color:var(--hero-accent)"><use href="#i-bolt"/></svg></div>
+        <div>
+          <div class="ke-val" id="kmEffortVal">— km-effort</div>
+          <div class="ke-lbl">Distance effort réelle (D+ intégré)</div>
+          <div class="ke-detail" id="kmEffortDetail"></div>
+        </div>
+      </div>
+      <div class="cw-field" id="terrainField" style="display:none;">
+        <div class="cw-label" id="terrainLabel"><svg class="ic" aria-hidden="true"><use href="#i-mountain"/></svg> Technicité du terrain</div>
+        <div class="terrain-pills" role="group" aria-labelledby="terrainLabel">
+          <button class="terrain-pill on" onclick="setTerrain('easy',this)"><span class="cdot" style="background:#1d9e75"></span>Facile (×1.0)</button>
+          <button class="terrain-pill" onclick="setTerrain('tech',this)"><span class="cdot" style="background:#ba7517"></span>Technique (×1.2)</button>
+          <button class="terrain-pill" onclick="setTerrain('expert',this)"><span class="cdot" style="background:#e24b4a"></span>Expert / Skyrunning (×1.5)</button>
+        </div>
+        <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Pierriers, racines, dévers — ajuste le temps d'effort réel sur le D+</div>
+      </div>
+      <div class="cw-field">
+        <div class="cw-label" id="weatherLabel">Conditions météo le jour de la course</div>
+        <div class="weather-pills" role="group" aria-labelledby="weatherLabel">
+          <button class="weather-pill cold" onclick="setWeather('cold',this)" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-snow"/></svg> Froid (&lt;10°C)</button>
+          <button class="weather-pill moderate on" onclick="setWeather('moderate',this)" aria-pressed="true"><svg class="ic" aria-hidden="true"><use href="#i-cloud"/></svg> Tempéré (10-20°C)</button>
+          <button class="weather-pill hot" onclick="setWeather('hot',this)" aria-pressed="false"><svg class="ic" aria-hidden="true"><use href="#i-sun"/></svg> Chaud (&gt;20°C)</button>
+        </div>
+        <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ajuste automatiquement les besoins en eau et sodium</div>
+      </div>
     </div>
   </div>
 
-  <!-- BOISSON DANS LES FLASQUES -->
-  <div style="margin-top:14px;border-top:1px solid #cfcfcf;padding-top:14px;">
-    <div class="cw-label" id="drinkLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Boisson dans tes flasques <span style="font-size:.65rem;color:#9a9a9a;">— glucides liquides déduits des solides à emporter</span></div>
-    <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Si tu mets autre chose que de l'eau dans tes flasques, l'app calcule les glucides apportés par la boisson et te dit combien de solides tu dois encore prendre.</div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="drinkPills" role="group" aria-labelledby="drinkLabel">
-      <button class="terrain-pill on" id="dp-water"  onclick="setDrink('water')"  ><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Eau pure</button>
-      <button class="terrain-pill"    id="dp-custom" onclick="setDrink('custom')" ><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Perso</button>
+  <!-- ACCORDÉON — Profil d'allure -->
+  <div class="accordion-item" id="accItemProfil">
+    <div class="accordion-head" onclick="toggleExpertSection('profil')">
+      <div class="accordion-icon"><svg class="ic" aria-hidden="true"><use href="#i-trend-down"/></svg></div>
+      <div class="accordion-txt">
+        <div class="accordion-title">Profil d'allure</div>
+        <div class="accordion-desc">Régulière, prudente, rapide, ou avec baisse de régime</div>
+      </div>
+      <svg class="ic accordion-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
     </div>
-    <div id="drinkCustomWrap" style="display:none;">
+    <div class="accordion-body" id="accBodyProfil" style="display:none;">
+      <div class="cw-field">
+        <label class="cw-label" for="strat">Profil d'allure</label>
+        <select id="strat" onchange="onStratProfileChange()">
+          <option value="even">Régulière</option>
+          <option value="neg">Départ prudent (accélération finale)</option>
+          <option value="pos">Départ rapide (gestion en fin de course)</option>
+          <option value="realistic">Réaliste (baisse de régime en fin de course)</option>
+        </select>
+      </div>
+      <div class="cw-field" id="fatigueRevealField" style="display:none;margin-top:12px;">
+        <label class="cw-label" for="fatigueSlider"><svg class="ic" aria-hidden="true"><use href="#i-trend-down"/></svg> Baisse de régime <span id="fatigueVal" style="font-weight:500;">15% sur les 30 derniers km</span></label>
+        <input type="range" id="fatigueSlider" min="5" max="30" value="15" step="5" oninput="onFatigueChange(this.value)">
+        <div class="fatigue-labels"><span>−5%</span><span>−30%</span></div>
+        <div style="font-size:.68rem;color:#9a9a9a;margin-top:4px;">Ralentit progressivement l'allure sur les 30 derniers km — rend les temps de passage réalistes</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACCORDÉON — Nutrition & ravitaillement -->
+  <div class="accordion-item" id="accItemNutrition">
+    <div class="accordion-head" onclick="toggleExpertSection('nutrition')">
+      <div class="accordion-icon"><svg class="ic" aria-hidden="true"><use href="#i-cup"/></svg></div>
+      <div class="accordion-txt">
+        <div class="accordion-title">Nutrition &amp; ravitaillement</div>
+        <div class="accordion-desc">Eau, glucides, sodium — calculés pour toi ou personnalisés</div>
+      </div>
+      <svg class="ic accordion-chevron" aria-hidden="true"><use href="#i-chevron"/></svg>
+    </div>
+    <div class="accordion-body" id="accBodyNutrition" style="display:none;">
+      <div style="font-size:.75rem;color:#6b6b6b;margin-bottom:12px;line-height:1.6;">
+        Laisse vide pour utiliser les valeurs scientifiques recommandées. Remplis si tu connais tes besoins réels à l'entraînement.
+      </div>
       <div class="cw-grid">
         <div class="cw-field">
-          <label class="cw-label" for="drinkName">Nom de la boisson</label>
-          <input type="text" id="drinkName" placeholder="ex: ma boisson d'effort" maxlength="30" oninput="updateNutritionPreview()">
+          <label class="cw-label" for="userWeight"><svg class="ic" aria-hidden="true"><use href="#i-scale"/></svg> Poids corporel (kg) <span style="font-size:.65rem;color:#9a9a9a;">— pour affiner l'hydratation</span></label>
+          <input type="number" id="userWeight" min="40" max="130" step="1" placeholder="ex: 70 (optionnel)" oninput="updateNutritionPreview()">
         </div>
         <div class="cw-field">
-          <label class="cw-label" for="drinkCarbs500">Glucides pour 500ml (g)</label>
-          <input type="number" id="drinkCarbs500" min="0" max="150" step="1" placeholder="ex: 45" oninput="updateNutritionPreview()">
+          <label class="cw-label" for="userCarbsH"><svg class="ic" aria-hidden="true"><use href="#i-pill"/></svg> Glucides / heure (g/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
+          <input type="number" id="userCarbsH" min="20" max="120" step="5" placeholder="ex: 60 (laisse vide = auto)" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="userWaterH"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Eau / heure (ml/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
+          <input type="number" id="userWaterH" min="200" max="1200" step="50" placeholder="ex: 600 (laisse vide = auto)" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="userSodiumH"><svg class="ic" aria-hidden="true"><use href="#i-salt"/></svg> Sodium / heure (mg/h) <span style="font-size:.65rem;color:#9a9a9a;">— personnalisé ou auto</span></label>
+          <input type="number" id="userSodiumH" min="100" max="1500" step="50" placeholder="ex: 500 (laisse vide = auto)" oninput="updateNutritionPreview()">
+        </div>
+        <div class="cw-field">
+          <label class="cw-label" for="userFlasque"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Capacité flasques / poche eau (ml) <span style="font-size:.65rem;color:#9a9a9a;">— alerte si dépassé</span></label>
+          <input type="number" id="userFlasque" min="250" max="3000" step="250" placeholder="ex: 1000" value="1000" oninput="updateNutritionPreview()">
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- PRODUIT NUTRITION -->
-  <div style="margin-top:14px;border-top:1px solid #cfcfcf;padding-top:14px;">
-    <div class="cw-label" id="productsLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Ton produit solide <span style="font-size:.65rem;color:#9a9a9a;">— optionnel, pas de marque imposée</span></div>
-    <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Laisse vide si tu ne sais pas encore quoi emporter — l'app affiche juste les grammes de glucides à couvrir. Remplis si tu veux voir combien d'unités de TON produit ça représente.</div>
-    <div class="cw-grid">
-      <div class="cw-field">
-        <label class="cw-label" for="productName">Nom du produit</label>
-        <input type="text" id="productName" placeholder="ex: mes gels maison" maxlength="30" oninput="updateNutritionPreview()">
+      <!-- BOISSON DANS LES FLASQUES -->
+      <div style="margin-top:14px;border-top:1px solid var(--c-line);padding-top:14px;">
+        <div class="cw-label" id="drinkLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Boisson dans tes flasques <span style="font-size:.65rem;color:#9a9a9a;">— glucides liquides déduits des solides à emporter</span></div>
+        <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Si tu mets autre chose que de l'eau dans tes flasques, l'app calcule les glucides apportés par la boisson et te dit combien de solides tu dois encore prendre.</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;" id="drinkPills" role="group" aria-labelledby="drinkLabel">
+          <button class="terrain-pill on" id="dp-water"  onclick="setDrink('water')"  ><svg class="ic" aria-hidden="true"><use href="#i-droplet"/></svg> Eau pure</button>
+          <button class="terrain-pill"    id="dp-custom" onclick="setDrink('custom')" ><svg class="ic" aria-hidden="true"><use href="#i-settings"/></svg> Perso</button>
+        </div>
+        <div id="drinkCustomWrap" style="display:none;">
+          <div class="cw-grid">
+            <div class="cw-field">
+              <label class="cw-label" for="drinkName">Nom de la boisson</label>
+              <input type="text" id="drinkName" placeholder="ex: ma boisson d'effort" maxlength="30" oninput="updateNutritionPreview()">
+            </div>
+            <div class="cw-field">
+              <label class="cw-label" for="drinkCarbs500">Glucides pour 500ml (g)</label>
+              <input type="number" id="drinkCarbs500" min="0" max="150" step="1" placeholder="ex: 45" oninput="updateNutritionPreview()">
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="cw-field">
-        <label class="cw-label" for="productCarbs">Glucides / unité (g)</label>
-        <input type="number" id="productCarbs" min="5" max="100" step="1" placeholder="ex: 22" oninput="updateNutritionPreview()">
-      </div>
-      <div class="cw-field">
-        <label class="cw-label" for="productSodium">Sodium / unité (mg) <span style="font-size:.65rem;color:#9a9a9a;">optionnel</span></label>
-        <input type="number" id="productSodium" min="0" max="2000" step="10" placeholder="ex: 200" oninput="updateNutritionPreview()">
-      </div>
-    </div>
 
-    <!-- Récap produit -->
-    <div id="productSelectionInfo" style="display:none;font-size:.7rem;color:var(--c-ink);background:var(--c-bg);border-radius:8px;padding:8px 12px;margin-top:8px;border:1px solid var(--c-line);line-height:1.8;"></div>
-  </div>
+      <!-- PRODUIT NUTRITION -->
+      <div style="margin-top:14px;border-top:1px solid var(--c-line);padding-top:14px;">
+        <div class="cw-label" id="productsLabel" style="display:block;margin-bottom:6px;"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Ton produit solide <span style="font-size:.65rem;color:#9a9a9a;">— optionnel, pas de marque imposée</span></div>
+        <div style="font-size:.72rem;color:#6b6b6b;margin-bottom:10px;line-height:1.5;">Laisse vide si tu ne sais pas encore quoi emporter — l'app affiche juste les grammes de glucides à couvrir. Remplis si tu veux voir combien d'unités de TON produit ça représente.</div>
+        <div class="cw-grid">
+          <div class="cw-field">
+            <label class="cw-label" for="productName">Nom du produit</label>
+            <input type="text" id="productName" placeholder="ex: mes gels maison" maxlength="30" oninput="updateNutritionPreview()">
+          </div>
+          <div class="cw-field">
+            <label class="cw-label" for="productCarbs">Glucides / unité (g)</label>
+            <input type="number" id="productCarbs" min="5" max="100" step="1" placeholder="ex: 22" oninput="updateNutritionPreview()">
+          </div>
+          <div class="cw-field">
+            <label class="cw-label" for="productSodium">Sodium / unité (mg) <span style="font-size:.65rem;color:#9a9a9a;">optionnel</span></label>
+            <input type="number" id="productSodium" min="0" max="2000" step="10" placeholder="ex: 200" oninput="updateNutritionPreview()">
+          </div>
+        </div>
 
-  <div id="nutritionPreview" style="display:none;margin-top:12px;padding:10px 14px;background:var(--c-bg);border:1px solid var(--c-line);border-radius:8px;font-size:.75rem;color:var(--c-ink);line-height:1.8;"></div>
-</div>
+        <!-- Récap produit -->
+        <div id="productSelectionInfo" style="display:none;font-size:.7rem;color:var(--c-ink);background:var(--c-bg);border-radius:8px;padding:8px 12px;margin-top:8px;border:1px solid var(--c-line);line-height:1.8;"></div>
+      </div>
 
-<div class="cw-section expert-only">
-  <div class="cw-section-title">Ravitaillement</div>
-  <div class="radio-group">
-    <div class="radio-opt selected" id="opt-custom" onclick="setRavito('custom')">
-      <div class="radio-dot on" id="dot-custom"></div>
-      <div>
-        <div class="radio-label"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Ravitaillements réels</div>
-        <div class="radio-sub">Entre les km exacts des ravitos de ta course — nutrition groupée par section</div>
-      </div>
-    </div>
-    <div class="ravito-custom-wrap" id="ravitoCustomWrap">
-      <div class="ravito-custom-title">Km des ravitaillements officiels</div>
-      <div class="ravito-km-input">
-        <input type="number" id="ravitoKmInput" min="1" max="300" step="0.5" placeholder="ex: 15">
-        <button class="btn-small" onclick="addRavitoKm()">+ Ajouter</button>
-      </div>
-      <div class="ravito-tags" id="ravitoTags"></div>
-      <div style="font-size:.68rem;color:#9a9a9a;margin-top:6px;">Clique sur un km pour le supprimer</div>
-    </div>
-    <div class="radio-opt" id="opt-none" onclick="setRavito('none')">
-      <div class="radio-dot" id="dot-none"></div>
-      <div>
-        <div class="radio-label">Ne pas inclure les ravitaillements</div>
-        <div class="radio-sub">Afficher uniquement les temps de passage</div>
+      <div id="nutritionPreview" style="display:none;margin-top:12px;padding:10px 14px;background:var(--c-bg);border:1px solid var(--c-line);border-radius:8px;font-size:.75rem;color:var(--c-ink);line-height:1.8;"></div>
+
+      <!-- RAVITAILLEMENT -->
+      <div style="margin-top:14px;border-top:1px solid var(--c-line);padding-top:14px;">
+        <div class="cw-label" style="display:block;margin-bottom:10px;">Ravitaillement</div>
+        <div class="radio-group">
+          <div class="radio-opt selected" id="opt-custom" onclick="setRavito('custom')">
+            <div class="radio-dot on" id="dot-custom"></div>
+            <div>
+              <div class="radio-label"><svg class="ic" aria-hidden="true"><use href="#i-backpack"/></svg> Ravitaillements réels</div>
+              <div class="radio-sub">Entre les km exacts des ravitos de ta course — nutrition groupée par section</div>
+            </div>
+          </div>
+          <div class="ravito-custom-wrap" id="ravitoCustomWrap">
+            <div class="ravito-custom-title">Km des ravitaillements officiels</div>
+            <div class="ravito-km-input">
+              <input type="number" id="ravitoKmInput" min="1" max="300" step="0.5" placeholder="ex: 15">
+              <button class="btn-small" onclick="addRavitoKm()">+ Ajouter</button>
+            </div>
+            <div class="ravito-tags" id="ravitoTags"></div>
+            <div style="font-size:.68rem;color:#9a9a9a;margin-top:6px;">Clique sur un km pour le supprimer</div>
+          </div>
+          <div class="radio-opt" id="opt-none" onclick="setRavito('none')">
+            <div class="radio-dot" id="dot-none"></div>
+            <div>
+              <div class="radio-label">Ne pas inclure les ravitaillements</div>
+              <div class="radio-sub">Afficher uniquement les temps de passage</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
