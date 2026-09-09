@@ -328,6 +328,20 @@ function renderSimpleStep(){
   });
 }
 
+// Choix de distance par pastille (Mode Simple) — pilote le même <select id="dist">
+// que le Mode Expert, donc aucune divergence possible entre les deux vues.
+function pickSimpleDist(val){
+  var sel=document.getElementById('dist');
+  sel.value=val;
+  onDistChange();
+}
+
+function syncSimpleDistChips(val){
+  document.querySelectorAll('#wizDistChips .wiz-chip').forEach(function(c){
+    c.classList.toggle('on', c.getAttribute('data-dist')===val);
+  });
+}
+
 // Initialisation mode au démarrage
 window.addEventListener('DOMContentLoaded', function(){
   var savedMode = 'simple';
@@ -738,6 +752,7 @@ function onDistChange(){
   var sel=document.getElementById('dist').value;
   var cf=document.getElementById('customField');
   cf.style.display=sel==='custom'?'block':'none';
+  syncSimpleDistChips(sel);
   var banner=document.getElementById('distBanner');
   if(sel!=='custom'&&DIST_INFO[sel]){
     document.getElementById('distBannerText').textContent=DIST_INFO[sel].label;
