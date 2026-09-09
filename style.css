@@ -329,7 +329,6 @@ body.mode-simple #wizResultHead{display:flex;align-items:center;justify-content:
 .save-btn-danger:hover{background:rgba(224,160,160,.18);color:#fff;}
 /* FORMAT PILLS */
 @media(max-width:600px){
-  #fsBtn{display:none;}
   .app-topbar-btn{padding:6px 10px;font-size:.7rem;}
   .cw-grid{grid-template-columns:1fr;}
   .res-cards{grid-template-columns:1fr 1fr;}

@@ -480,22 +480,6 @@ function setWeather(w, btn) {
   btn.setAttribute('aria-pressed','true');
 }
 
-function toggleFullscreen(){
-  var btn=document.getElementById('fsBtn');
-  if(!document.fullscreenElement){
-    document.documentElement.requestFullscreen().catch(function(){});
-    if(btn)btn.innerHTML=ic('x')+' Quitter';
-  } else {
-    document.exitFullscreen();
-    if(btn)btn.innerHTML=ic('expand')+' Fullscreen';
-  }
-}
-// Listener unique — évite les fuites mémoire dues aux ajouts répétés
-document.addEventListener('fullscreenchange',function(){
-  var btn=document.getElementById('fsBtn');
-  if(!document.fullscreenElement&&btn)btn.innerHTML=ic('expand')+' Fullscreen';
-});
-
 function setTerrain(t,btn){
   state.terrain=t;
   document.querySelectorAll('.terrain-pill').forEach(function(b){b.classList.remove('on');});
