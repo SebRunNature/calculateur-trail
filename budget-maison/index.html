@@ -517,7 +517,7 @@ select.fuel-sel option { background: #1a2030; }
       <div class="panel-head">
         <div>
           <div class="panel-title" id="ess-panel-title"></div>
-          <div class="panel-sub">Budget mensuel : 200 €</div>
+          <div class="panel-sub" id="ess-budget-sub">Budget mensuel : 200 €</div>
         </div>
         <div style="min-width:200px">
           <div id="ess-prog-label" style="font-size:11px;color:var(--muted);margin-bottom:6px;text-align:right"></div>
@@ -594,11 +594,21 @@ select.fuel-sel option { background: #1a2030; }
         <div class="param-row">
           <div class="param-info">
             <div class="param-name">Budget mensuel courses</div>
-            <div class="param-desc" id="proj-budget-desc">Limite fixée (défaut : 550 €)</div>
+            <div class="param-desc" id="proj-budget-desc">Limite mensuelle (défaut : 550 €)</div>
           </div>
           <div class="param-ctrl">
-            <input type="range" id="s-budget" min="400" max="900" step="10" value="550" oninput="updateProj()">
+            <input type="range" id="s-budget" min="400" max="900" step="10" value="550" oninput="onBudgetInput()">
             <div class="param-val-badge" id="v-budget">550 €</div>
+          </div>
+        </div>
+        <div class="param-row">
+          <div class="param-info">
+            <div class="param-name">Budget mensuel essence</div>
+            <div class="param-desc">Limite de l'onglet Essence (défaut : 200 €)</div>
+          </div>
+          <div class="param-ctrl">
+            <input type="range" id="s-budget-ess" min="50" max="500" step="10" value="200" oninput="onBudgetInput()">
+            <div class="param-val-badge" id="v-budget-ess">200 €</div>
           </div>
         </div>
         <div class="param-row">
@@ -658,8 +668,11 @@ select.fuel-sel option { background: #1a2030; }
 // ═══════════════════════════════════════════════
 const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
 const MONTHS_SHORT = ['Janv.','Févr.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
-const BUDGET_COURSES = 550;
-const BUDGET_ESSENCE = 200;
+const DEFAULT_BUDGET_COURSES = 550;
+const DEFAULT_BUDGET_ESSENCE = 200;
+// Budgets mensuels modifiables (curseurs de l'onglet Inflation), sauvegardés avec les données
+let budgetCourses = DEFAULT_BUDGET_COURSES;
+let budgetEssence = DEFAULT_BUDGET_ESSENCE;
 const STORES = ['LIDL','Cactus','Delhaize','Auchan','Autre'];
 const STATIONS = ['Q8','Shell','Total','Esso','Aral','Autre'];
 const FUELS = ['Essence 95','Essence 98','Diesel','E10'];
@@ -671,6 +684,7 @@ const LEGACY_STORAGE_KEY = 'budget_maison_2026'; // ancien format {DATA26, ESS26
 const FIRST_HIST_YEAR = 2022;
 const FIRST_ENTRY_YEAR = 2026;
 const REAL_YEAR = Math.max(FIRST_ENTRY_YEAR, new Date().getFullYear());
+const REAL_MONTH = new Date().getMonth();
 
 // ═══════════════════════════════════════════════
 //  DONNÉES HISTORIQUES COURSES
@@ -763,6 +777,20 @@ function seriesStats(s){
   const tot = vals.reduce((a,b)=>a+b,0);
   return { tot, n: vals.length, avg: vals.length ? tot/vals.length : 0 };
 }
+// Comparaison équitable avec l'année précédente : uniquement les mois TERMINÉS
+// (le mois en cours est exclu) et présents dans les deux années.
+function compareWithPrev(seriesFn){
+  const cur = seriesFn(curYear), prev = seriesFn(curYear-1);
+  const lastDone = curYear===REAL_YEAR ? REAL_MONTH-1 : 11;
+  const idx = [];
+  for(let m=0; m<=lastDone; m++) if(cur[m]!==null && prev[m]!==null) idx.push(m);
+  if(!idx.length) return {n:0, curAvg:0, prevAvg:0, diff:null, label:''};
+  const avg = a => idx.reduce((s,m)=>s+a[m],0)/idx.length;
+  const curAvg = avg(cur), prevAvg = avg(prev);
+  const label = idx.length===1 ? MONTHS_SHORT[idx[0]]
+    : (idx.length===idx[idx.length-1]-idx[0]+1 ? MONTHS_SHORT[idx[0]]+'–'+MONTHS_SHORT[idx[idx.length-1]] : idx.length+' mois');
+  return {n:idx.length, curAvg, prevAvg, diff: prevAvg>0 ? (curAvg-prevAvg)/prevAvg*100 : null, label};
+}
 // Palette : années passées en bleu dégradé, dernière année en vert
 function yearColors(years){
   const n = years.length;
@@ -775,7 +803,7 @@ function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,
 // ═══════════════════════════════════════════════
 function saveData(){
   try {
-    const payload = JSON.stringify({version:2, DATA, ESS, savedAt: new Date().toISOString()});
+    const payload = JSON.stringify({version:2, DATA, ESS, budgetCourses, budgetEssence, savedAt: new Date().toISOString()});
     localStorage.setItem(STORAGE_KEY, payload);
     showStatus('✓ Sauvegardé ' + new Date().toLocaleTimeString('fr-LU'), 'ok');
   } catch(e) {
@@ -789,6 +817,8 @@ function applyPayload(d){
   if(d.ESS)  ESS  = d.ESS;
   if(d.DATA26) DATA[2026] = d.DATA26; // ancien format
   if(d.ESS26)  ESS[2026]  = d.ESS26;
+  if(isFinite(d.budgetCourses) && d.budgetCourses>0) budgetCourses = +d.budgetCourses;
+  if(isFinite(d.budgetEssence) && d.budgetEssence>0) budgetEssence = +d.budgetEssence;
 }
 
 function loadData(){
@@ -808,13 +838,14 @@ function resetData(){
   if(!confirm('Réinitialiser toutes les données saisies (toutes années) ? Cette action est irréversible.')) return;
   DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
   ESS  = JSON.parse(JSON.stringify(DEFAULT_ESS));
+  budgetCourses = DEFAULT_BUDGET_COURSES; budgetEssence = DEFAULT_BUDGET_ESSENCE;
   try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(LEGACY_STORAGE_KEY); } catch(e) {}
   refreshAll();
   showStatus('Données réinitialisées', '');
 }
 
 function exportJSON(){
-  const data = JSON.stringify({version:2, DATA, ESS}, null, 2);
+  const data = JSON.stringify({version:2, DATA, ESS, budgetCourses, budgetEssence}, null, 2);
   const blob = new Blob([data], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -873,6 +904,18 @@ function fmt(n){ return (parseFloat(n)||0).toFixed(2).replace('.',',') + ' €';
 function fmtR(n){ return Math.round(n).toLocaleString('fr-LU') + ' €'; }
 function setText(id, txt){ const el = document.getElementById(id); if(el) el.textContent = txt; }
 
+// Curseurs budget : la valeur pilote les écrans Courses, Essence et les projections
+function onBudgetInput(){
+  budgetCourses = parseFloat(document.getElementById('s-budget').value) || DEFAULT_BUDGET_COURSES;
+  budgetEssence = parseFloat(document.getElementById('s-budget-ess').value) || DEFAULT_BUDGET_ESSENCE;
+  setText('v-budget', budgetCourses+' €');
+  setText('v-budget-ess', budgetEssence+' €');
+  setText('ess-budget-sub', 'Budget mensuel : '+budgetEssence+' €');
+  renderTable(); buildMetrics(); renderEssTable(); buildEssMetrics();
+  updateProj();
+  autosave();
+}
+
 // ═══════════════════════════════════════════════
 //  ANNÉE COURANTE & LIBELLÉS
 // ═══════════════════════════════════════════════
@@ -895,7 +938,12 @@ function updateYearLabels(){
   setText('ess-hist-title', 'Historique carburant '+first+'–'+last);
   setText('hist-title', 'Évolution mensuelle '+first+'–'+last);
   setText('proj-title', 'Budget nécessaire '+curYear+'–'+(curYear+9));
-  setText('proj-budget-desc', 'Limite fixée pour '+curYear+' (défaut : 550 €)');
+  setText('proj-budget-desc', 'Limite mensuelle des Courses (défaut : 550 €)');
+  setText('ess-budget-sub', 'Budget mensuel : '+budgetEssence+' €');
+  document.getElementById('s-budget').value = budgetCourses;
+  document.getElementById('s-budget-ess').value = budgetEssence;
+  setText('v-budget', budgetCourses+' €');
+  setText('v-budget-ess', budgetEssence+' €');
   setText('proj-real-opt', 'Moy. réelle '+(curYear-1));
 }
 
@@ -927,16 +975,16 @@ function switchTab(name, btn){
 // ═══════════════════════════════════════════════
 function buildMetrics(){
   const cur = monthTotal(curMonth);
-  const remain = BUDGET_COURSES - cur;
+  const remain = budgetCourses - cur;
   const ytd = seriesStats(courseSeries(curYear));
-  const prev = seriesStats(courseSeries(curYear-1));
-  const diff = prev.avg > 0 ? ((ytd.avg-prev.avg)/prev.avg*100) : null;
+  const cmp = compareWithPrev(courseSeries);
+  const diff = cmp.diff;
   const remainStr = remain < 0 ? '-'+fmt(Math.abs(remain)) : fmt(remain);
   const cards = [
-    {label: MONTHS_SHORT[curMonth]+' '+curYear, val: fmt(cur), cls: cur>BUDGET_COURSES?'red':cur>BUDGET_COURSES*0.85?'amber':'green', sub: 'Budget : '+BUDGET_COURSES+' €/mois', accent:'#c8f060'},
+    {label: MONTHS_SHORT[curMonth]+' '+curYear, val: fmt(cur), cls: cur>budgetCourses?'red':cur>budgetCourses*0.85?'amber':'green', sub: 'Budget : '+budgetCourses+' €/mois', accent:'#c8f060'},
     {label: 'Reste budget courses', val: remainStr, cls: remain<0?'red':remain<80?'amber':'green', sub: remain<0?'Dépassement ⚠':'Encore disponible', accent:'#4ea8ff'},
     {label: 'Total '+curYear+(curYear===REAL_YEAR?' (YTD)':''), val: fmtR(ytd.tot), cls: 'blue', sub: 'Moy. '+Math.round(ytd.avg)+' €/mois', accent:'#4ea8ff'},
-    {label: 'vs Moy. '+(curYear-1), val: diff===null?'n/a':(diff>0?'+':'')+diff.toFixed(1)+' %', cls: diff!==null&&diff>0?'red':'green', sub: prev.n ? 'Moy. '+(curYear-1)+' : '+Math.round(prev.avg)+' €/mois' : 'Pas de données '+(curYear-1), accent: diff!==null&&diff>0?'#ff4a6e':'#c8f060'}
+    {label: 'vs '+(curYear-1)+' (même période)', val: diff===null?'n/a':(diff>0?'+':'')+diff.toFixed(1)+' %', cls: diff!==null&&diff>0?'red':'green', sub: cmp.n ? cmp.label+' : '+Math.round(cmp.curAvg)+' vs '+Math.round(cmp.prevAvg)+' €/mois' : (curYear===REAL_YEAR ? 'Dès le 1er mois terminé' : 'Pas de données '+(curYear-1)), accent: diff!==null&&diff>0?'#ff4a6e':'#c8f060'}
   ];
   document.getElementById('metrics').innerHTML = cards.map(c=>`
     <div class="mcard">
@@ -971,11 +1019,11 @@ function renderTable(){
   const rows = list;
   document.getElementById('panel-month-title').textContent = MONTHS[curMonth]+' '+curYear;
   const total = sumRows(rows);
-  const pct = Math.min(100,(total/BUDGET_COURSES)*100);
+  const pct = Math.min(100,(total/budgetCourses)*100);
   document.getElementById('prog-fill').style.width = pct+'%';
   document.getElementById('prog-fill').style.background = pct>=100?'var(--red)':pct>85?'var(--gold)':'var(--accent)';
-  document.getElementById('prog-pct').textContent = Math.round(total/BUDGET_COURSES*100)+'%';
-  document.getElementById('prog-label').textContent = fmt(total)+' / '+BUDGET_COURSES+' €';
+  document.getElementById('prog-pct').textContent = Math.round(total/budgetCourses*100)+'%';
+  document.getElementById('prog-label').textContent = fmt(total)+' / '+budgetCourses+' €';
   const maxDay = daysIn(curMonth);
   document.getElementById('ct-body').innerHTML = rows.map((r,i)=>`
     <tr>
@@ -1035,24 +1083,19 @@ function addRow(){
 // ═══════════════════════════════════════════════
 function buildEssMetrics(){
   const cur = essTotal(curEssMonth);
-  const remain = BUDGET_ESSENCE - cur;
+  const remain = budgetEssence - cur;
   const ytd = seriesStats(essSeries(curYear));
-  const prev = seriesStats(essSeries(curYear-1));
+  const cmp = compareWithPrev(essSeries);
   const remainStr = remain < 0 ? '-'+fmt(Math.abs(remain)) : fmt(remain);
   const cards = [
-    {label: MONTHS_SHORT[curEssMonth]+' '+curYear, val: fmt(cur), cls: cur>BUDGET_ESSENCE?'red':cur>BUDGET_ESSENCE*0.85?'amber':'purple', sub: 'Budget : '+BUDGET_ESSENCE+' €/mois', accent:'#b48aff'},
+    {label: MONTHS_SHORT[curEssMonth]+' '+curYear, val: fmt(cur), cls: cur>budgetEssence?'red':cur>budgetEssence*0.85?'amber':'purple', sub: 'Budget : '+budgetEssence+' €/mois', accent:'#b48aff'},
     {label: 'Reste budget essence', val: remainStr, cls: remain<0?'red':remain<40?'amber':'green', sub: remain<0?'Dépassement ⚠':'Encore disponible', accent:'#4ea8ff'},
     {label: 'Total carburant '+curYear, val: fmtR(ytd.tot), cls: 'blue', sub: 'Moy. '+Math.round(ytd.avg)+' €/mois', accent:'#4ea8ff'},
     (() => {
-      let val, cls;
-      if (prev.avg <= 0)     { val = 'n/a';      cls = 'green'; }
-      else if (ytd.avg === 0){ val = 'En cours'; cls = 'green'; }
-      else {
-        const diffE = (ytd.avg - prev.avg) / prev.avg * 100;
-        val = (diffE > 0 ? '+' : '') + diffE.toFixed(1) + ' %';
-        cls = diffE > 0 ? 'red' : 'green';
-      }
-      return { label: 'vs Moy. Ess. '+(curYear-1), val, cls, sub: prev.n ? 'Moy. '+(curYear-1)+' : '+Math.round(prev.avg)+' €/mois' : 'Pas de données '+(curYear-1), accent: cls==='red'?'#ff4a6e':'#c8f060' };
+      const diffE = cmp.diff;
+      const val = diffE===null ? 'n/a' : (diffE>0?'+':'')+diffE.toFixed(1)+' %';
+      const cls = diffE!==null && diffE>0 ? 'red' : 'green';
+      return { label: 'vs '+(curYear-1)+' (même période)', val, cls, sub: cmp.n ? cmp.label+' : '+Math.round(cmp.curAvg)+' vs '+Math.round(cmp.prevAvg)+' €/mois' : (curYear===REAL_YEAR ? 'Dès le 1er mois terminé' : 'Pas de données '+(curYear-1)), accent: cls==='red'?'#ff4a6e':'#c8f060' };
     })()
   ];
   document.getElementById('ess-metrics').innerHTML = cards.map(c=>`
@@ -1087,11 +1130,11 @@ function renderEssTable(){
   rows.sort((a,b)=>a.day-b.day);
   document.getElementById('ess-panel-title').textContent = 'Essence · '+MONTHS[curEssMonth]+' '+curYear;
   const total = sumRows(rows);
-  const pct = Math.min(100,(total/BUDGET_ESSENCE)*100);
+  const pct = Math.min(100,(total/budgetEssence)*100);
   document.getElementById('ess-prog-fill').style.width = pct+'%';
   document.getElementById('ess-prog-fill').style.background = pct>=100?'var(--red)':pct>85?'var(--gold)':'var(--purple)';
-  document.getElementById('ess-prog-pct').textContent = Math.round(total/BUDGET_ESSENCE*100)+'%';
-  document.getElementById('ess-prog-label').textContent = fmt(total)+' / '+BUDGET_ESSENCE+' €';
+  document.getElementById('ess-prog-pct').textContent = Math.round(total/budgetEssence*100)+'%';
+  document.getElementById('ess-prog-label').textContent = fmt(total)+' / '+budgetEssence+' €';
   const maxDay = daysIn(curEssMonth);
   document.getElementById('ess-body').innerHTML = rows.map((r,i)=>`
     <tr>
@@ -1179,6 +1222,15 @@ function buildEssHistorique(){
 // ═══════════════════════════════════════════════
 //  HISTORIQUE COURSES
 // ═══════════════════════════════════════════════
+// Évolution moyenne vs année précédente, sur les mois terminés présents dans les deux années
+function samePeriodDiff(cur, prev, y){
+  const lastDone = y===REAL_YEAR ? REAL_MONTH-1 : 11;
+  const idx = [];
+  for(let m=0; m<=lastDone; m++) if(cur[m]!==null && prev[m]!==null) idx.push(m);
+  if(!idx.length) return null;
+  const c = idx.reduce((t,m)=>t+cur[m],0), p = idx.reduce((t,m)=>t+prev[m],0);
+  return p>0 ? (c-p)/p*100 : null;
+}
 function buildHistorique(){
   const years = historyYears();
   const colors = yearColors(years);
@@ -1186,8 +1238,7 @@ function buildHistorique(){
   const stats = years.map(y=>seriesStats(courseSeries(y)));
   document.getElementById('year-cards').innerHTML = years.map((y,i)=>{
     const st = stats[i];
-    const prev = i>0 ? stats[i-1] : null;
-    const diff = prev && prev.avg>0 && st.n>0 ? ((st.avg-prev.avg)/prev.avg*100) : null;
+    const diff = i>0 ? samePeriodDiff(courseSeries(y), courseSeries(y-1), y) : null;
     return `<div class="ycard">
       <div class="ycard-year">${y}</div>
       <div class="ycard-val" style="color:${i===lastIdx?'var(--accent)':'var(--text)'}">${Math.round(st.tot).toLocaleString('fr-LU')} €</div>
@@ -1238,7 +1289,7 @@ function buildHistorique(){
 //  PROJECTIONS
 // ═══════════════════════════════════════════════
 function updateProj(){
-  const budget = parseFloat(document.getElementById('s-budget').value);
+  const budget = budgetCourses;
   const infl   = parseFloat(document.getElementById('s-infl').value)/100;
   const shock  = parseFloat(document.getElementById('s-shock').value)/100;
   // Base de projection : "budget" cible (slider) ou moyenne réelle de l'année précédente
