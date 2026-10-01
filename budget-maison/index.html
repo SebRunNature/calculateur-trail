@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Budget Maison — Luxembourg 2026</title>
+<title>Budget Maison — Luxembourg</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -73,6 +73,15 @@ body {
   font-family: 'Syne', sans-serif; font-size: 13px; font-weight: 700;
   color: var(--accent); letter-spacing: 1px;
 }
+
+.year-nav { display: flex; align-items: center; gap: 8px; }
+.year-arrow {
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  border: 1px solid var(--border2); background: var(--surface2); color: var(--text);
+  font-size: 16px; line-height: 1; transition: all 0.2s;
+}
+.year-arrow:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.year-arrow:disabled { opacity: 0.25; cursor: default; }
 
 /* SAVE BAR */
 .save-bar {
@@ -286,7 +295,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .add-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(200,240,96,0.04); }
 
 /* YEAR CARDS */
-.year-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+.year-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
 .ycard {
   background: var(--surface); border: 1px solid var(--border);
   border-radius: var(--r2); padding: 18px; text-align: center;
@@ -345,7 +354,7 @@ input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); }
 
 /* ESSENCE SPECIFIC */
 .essence-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
-.ess-hist-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 12px; margin-bottom: 24px; }
+.ess-hist-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 24px; }
 table.ct-ess thead th:nth-child(2) { text-align: center; }
 select.fuel-sel {
   padding: 7px 10px; background: #1a2030;
@@ -421,10 +430,14 @@ select.fuel-sel option { background: #1a2030; }
         <div class="logo-icon">🏠</div>
         <div>
           <div class="app-title">Budget Maison</div>
-          <div class="app-sub">Courses &amp; Essence · Luxembourg 2026</div>
+          <div class="app-sub" id="app-sub">Courses &amp; Essence · Luxembourg</div>
         </div>
       </div>
-      <div class="year-badge">2026</div>
+      <div class="year-nav">
+        <button class="year-arrow" id="yr-prev" onclick="changeYear(-1)" aria-label="Année précédente">‹</button>
+        <div class="year-badge" id="year-badge"></div>
+        <button class="year-arrow" id="yr-next" onclick="changeYear(1)" aria-label="Année suivante">›</button>
+      </div>
     </div>
   </header>
 
@@ -453,7 +466,7 @@ select.fuel-sel option { background: #1a2030; }
     <div class="panel">
       <div class="panel-head">
         <div>
-          <div class="panel-title" id="panel-month-title">Janvier 2026</div>
+          <div class="panel-title" id="panel-month-title"></div>
           <div class="panel-sub">Entrez vos achats par date</div>
         </div>
         <div style="min-width:200px">
@@ -503,7 +516,7 @@ select.fuel-sel option { background: #1a2030; }
     <div class="panel">
       <div class="panel-head">
         <div>
-          <div class="panel-title" id="ess-panel-title">Essence · Janvier 2026</div>
+          <div class="panel-title" id="ess-panel-title"></div>
           <div class="panel-sub">Budget mensuel : 200 €</div>
         </div>
         <div style="min-width:200px">
@@ -545,7 +558,7 @@ select.fuel-sel option { background: #1a2030; }
     <!-- Historique essence -->
     <div class="panel">
       <div class="panel-head">
-        <div class="panel-title">Historique carburant 2022–2026</div>
+        <div class="panel-title" id="ess-hist-title">Historique carburant</div>
         <div class="panel-sub">Gazoil → Électrique → Essence</div>
       </div>
       <div class="ess-hist-grid" id="ess-year-cards"></div>
@@ -560,7 +573,7 @@ select.fuel-sel option { background: #1a2030; }
     <div class="panel">
       <div class="panel-head">
         <div>
-          <div class="panel-title">Évolution mensuelle 2022–2026</div>
+          <div class="panel-title" id="hist-title">Évolution mensuelle</div>
           <div class="panel-sub">Comparaison toutes années</div>
         </div>
         <div class="legend-row" id="chart-legend"></div>
@@ -581,7 +594,7 @@ select.fuel-sel option { background: #1a2030; }
         <div class="param-row">
           <div class="param-info">
             <div class="param-name">Budget mensuel courses</div>
-            <div class="param-desc">Limite fixée pour 2026 (défaut : 550 €)</div>
+            <div class="param-desc" id="proj-budget-desc">Limite fixée (défaut : 550 €)</div>
           </div>
           <div class="param-ctrl">
             <input type="range" id="s-budget" min="400" max="900" step="10" value="550" oninput="updateProj()">
@@ -613,12 +626,12 @@ select.fuel-sel option { background: #1a2030; }
     <div class="panel">
       <div class="panel-head">
         <div>
-          <div class="panel-title">Budget nécessaire 2026–2035</div>
+          <div class="panel-title" id="proj-title">Budget nécessaire</div>
           <div class="panel-sub" id="proj-base-label">Base : budget cible (550 €/mois)</div>
         </div>
         <div class="seg">
           <label class="seg-opt"><input type="radio" name="proj-base" value="budget" checked onchange="updateProj()"><span>Budget cible</span></label>
-          <label class="seg-opt"><input type="radio" name="proj-base" value="real" onchange="updateProj()"><span>Moy. réelle 2025</span></label>
+          <label class="seg-opt"><input type="radio" name="proj-base" value="real" onchange="updateProj()"><span id="proj-real-opt">Moy. réelle</span></label>
         </div>
       </div>
       <div class="infl-row head">
@@ -644,12 +657,20 @@ select.fuel-sel option { background: #1a2030; }
 //  CONSTANTES
 // ═══════════════════════════════════════════════
 const MONTHS = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+const MONTHS_SHORT = ['Janv.','Févr.','Mars','Avr.','Mai','Juin','Juil.','Août','Sept.','Oct.','Nov.','Déc.'];
 const BUDGET_COURSES = 550;
 const BUDGET_ESSENCE = 200;
 const STORES = ['LIDL','Cactus','Delhaize','Auchan','Autre'];
 const STATIONS = ['Q8','Shell','Total','Esso','Aral','Autre'];
 const FUELS = ['Essence 95','Essence 98','Diesel','E10'];
-const STORAGE_KEY = 'budget_maison_2026';
+const STORAGE_KEY = 'budget_maison_v2';
+const LEGACY_STORAGE_KEY = 'budget_maison_2026'; // ancien format {DATA26, ESS26}
+
+// Années : l'historique figé commence en 2022, la saisie détaillée en 2026.
+// L'année courante vient de la date du jour : plus rien à modifier au 1er janvier.
+const FIRST_HIST_YEAR = 2022;
+const FIRST_ENTRY_YEAR = 2026;
+const REAL_YEAR = Math.max(FIRST_ENTRY_YEAR, new Date().getFullYear());
 
 // ═══════════════════════════════════════════════
 //  DONNÉES HISTORIQUES COURSES
@@ -688,21 +709,73 @@ const DEFAULT_ESS26 = {
   3:[{day:4,amount:60.30,fuel:'Essence 95',station:'Q8'}]
 };
 
+// Données saisies : { année: { mois(0-11): [lignes] } }
+const DEFAULT_DATA = { 2026: DEFAULT_DATA26 };
+const DEFAULT_ESS  = { 2026: DEFAULT_ESS26 };
+
 // ═══════════════════════════════════════════════
 //  ÉTAT DE L'APP
 // ═══════════════════════════════════════════════
-let DATA26 = JSON.parse(JSON.stringify(DEFAULT_DATA26));
-let ESS26  = JSON.parse(JSON.stringify(DEFAULT_ESS26));
-let curMonth = 2;
-let curEssMonth = 2;
+let DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+let ESS  = JSON.parse(JSON.stringify(DEFAULT_ESS));
+let curYear = REAL_YEAR;
+let curMonth = new Date().getMonth();
+let curEssMonth = curMonth;
 let lineChart, barChart, projChart, essLineChart;
+
+// ═══════════════════════════════════════════════
+//  ACCÈS AUX DONNÉES (par année)
+// ═══════════════════════════════════════════════
+function rowsOf(store, y, m){ return (store[y] && store[y][m]) || []; }
+function rowsEdit(store, y, m){
+  if(!store[y]) store[y] = {};
+  if(!store[y][m]) store[y][m] = [];
+  return store[y][m];
+}
+function sumRows(rows){ return rows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0); }
+function monthTotal(m){ return sumRows(rowsOf(DATA, curYear, m)); }
+function essTotal(m){ return sumRows(rowsOf(ESS, curYear, m)); }
+function daysIn(m){ return new Date(curYear, m+1, 0).getDate(); }
+
+// Dernière année connue (saisie ou calendrier)
+function lastYear(){
+  const ys = [REAL_YEAR, ...Object.keys(DATA).map(Number), ...Object.keys(ESS).map(Number)].filter(y=>!isNaN(y));
+  return Math.max(...ys);
+}
+// Toutes les années de l'historique : 2022 → dernière année
+function historyYears(){
+  const out = [];
+  for(let y=FIRST_HIST_YEAR; y<=lastYear(); y++) out.push(y);
+  return out;
+}
+// Série de 12 mois (null = mois sans donnée → la courbe s'arrête au lieu de tomber à 0)
+function courseSeries(y){
+  if(HIST[y]) return HIST[y].slice();
+  return MONTHS.map((_,m)=>{ const r = rowsOf(DATA,y,m); return r.length ? sumRows(r) : null; });
+}
+function essSeries(y){
+  if(HIST_ESS[y]) return HIST_ESS[y].data.map(v=>v>0?v:null);
+  return MONTHS.map((_,m)=>{ const r = rowsOf(ESS,y,m); return r.length ? sumRows(r) : null; });
+}
+function essLabel(y){ return HIST_ESS[y] ? HIST_ESS[y].label : 'Essence'; }
+function seriesStats(s){
+  const vals = s.filter(v=>v!==null);
+  const tot = vals.reduce((a,b)=>a+b,0);
+  return { tot, n: vals.length, avg: vals.length ? tot/vals.length : 0 };
+}
+// Palette : années passées en bleu dégradé, dernière année en vert
+function yearColors(years){
+  const n = years.length;
+  return years.map((y,i)=> i===n-1 ? '#c8f060' : 'rgba(78,168,255,'+(n>2 ? (0.35+0.5*i/(n-2)) : 0.6).toFixed(2)+')');
+}
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 // ═══════════════════════════════════════════════
 //  SAUVEGARDE LOCALE
 // ═══════════════════════════════════════════════
 function saveData(){
   try {
-    const payload = JSON.stringify({DATA26, ESS26, savedAt: new Date().toISOString()});
+    const payload = JSON.stringify({version:2, DATA, ESS, savedAt: new Date().toISOString()});
     localStorage.setItem(STORAGE_KEY, payload);
     showStatus('✓ Sauvegardé ' + new Date().toLocaleTimeString('fr-LU'), 'ok');
   } catch(e) {
@@ -710,13 +783,20 @@ function saveData(){
   }
 }
 
+// Applique un objet sauvegardé/importé (nouveau format ou ancien format 2026)
+function applyPayload(d){
+  if(d.DATA) DATA = d.DATA;
+  if(d.ESS)  ESS  = d.ESS;
+  if(d.DATA26) DATA[2026] = d.DATA26; // ancien format
+  if(d.ESS26)  ESS[2026]  = d.ESS26;
+}
+
 function loadData(){
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY) || localStorage.getItem(LEGACY_STORAGE_KEY);
     if(!raw){ showStatus('Données par défaut chargées', ''); return; }
     const d = JSON.parse(raw);
-    if(d.DATA26) DATA26 = d.DATA26;
-    if(d.ESS26)  ESS26  = d.ESS26;
+    applyPayload(d);
     const dt = d.savedAt ? new Date(d.savedAt).toLocaleDateString('fr-LU') : '?';
     showStatus('✓ Chargé (sauvegarde du '+dt+')', 'ok');
   } catch(e) {
@@ -725,21 +805,22 @@ function loadData(){
 }
 
 function resetData(){
-  if(!confirm('Réinitialiser toutes les données 2026 ? Cette action est irréversible.')) return;
-  DATA26 = JSON.parse(JSON.stringify(DEFAULT_DATA26));
-  ESS26  = JSON.parse(JSON.stringify(DEFAULT_ESS26));
-  localStorage.removeItem(STORAGE_KEY);
-  renderTable(); buildMetrics(); renderEssTable(); buildEssMetrics();
+  if(!confirm('Réinitialiser toutes les données saisies (toutes années) ? Cette action est irréversible.')) return;
+  DATA = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  ESS  = JSON.parse(JSON.stringify(DEFAULT_ESS));
+  try { localStorage.removeItem(STORAGE_KEY); localStorage.removeItem(LEGACY_STORAGE_KEY); } catch(e) {}
+  refreshAll();
   showStatus('Données réinitialisées', '');
 }
 
 function exportJSON(){
-  const data = JSON.stringify({DATA26, ESS26}, null, 2);
+  const data = JSON.stringify({version:2, DATA, ESS}, null, 2);
   const blob = new Blob([data], {type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'budget_maison_2026_'+new Date().toISOString().slice(0,10)+'.json';
+  a.download = 'budget_maison_'+new Date().toISOString().slice(0,10)+'.json';
   a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1000);
   showStatus('✓ Fichier JSON exporté', 'ok');
 }
 
@@ -752,10 +833,8 @@ function importJSON(){
     const reader = new FileReader();
     reader.onload = ev => {
       try {
-        const d = JSON.parse(ev.target.result);
-        if(d.DATA26) DATA26 = d.DATA26;
-        if(d.ESS26)  ESS26  = d.ESS26;
-        renderTable(); buildMetrics(); renderEssTable(); buildEssMetrics();
+        applyPayload(JSON.parse(ev.target.result));
+        refreshAll();
         saveData();
         showStatus('✓ Import réussi', 'ok');
       } catch { showStatus('✗ Fichier invalide', 'err'); }
@@ -792,8 +871,43 @@ document.addEventListener('keydown', e => {
 // ═══════════════════════════════════════════════
 function fmt(n){ return (parseFloat(n)||0).toFixed(2).replace('.',',') + ' €'; }
 function fmtR(n){ return Math.round(n).toLocaleString('fr-LU') + ' €'; }
-function monthTotal(m){ return (DATA26[m]||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0); }
-function essTotal(m){ return (ESS26[m]||[]).reduce((s,r)=>s+(parseFloat(r.amount)||0),0); }
+function setText(id, txt){ const el = document.getElementById(id); if(el) el.textContent = txt; }
+
+// ═══════════════════════════════════════════════
+//  ANNÉE COURANTE & LIBELLÉS
+// ═══════════════════════════════════════════════
+function changeYear(delta){
+  const y = curYear + delta;
+  if(y < FIRST_ENTRY_YEAR || y > lastYear()) return;
+  curYear = y;
+  // Année en cours : on se place sur le mois en cours ; sinon on garde le mois choisi
+  if(y === REAL_YEAR){ curMonth = curEssMonth = new Date().getMonth(); }
+  refreshAll();
+}
+
+function updateYearLabels(){
+  document.title = 'Budget Maison — Luxembourg '+curYear;
+  setText('app-sub', 'Courses & Essence · Luxembourg '+curYear);
+  setText('year-badge', curYear);
+  document.getElementById('yr-prev').disabled = curYear <= FIRST_ENTRY_YEAR;
+  document.getElementById('yr-next').disabled = curYear >= lastYear();
+  const first = FIRST_HIST_YEAR, last = lastYear();
+  setText('ess-hist-title', 'Historique carburant '+first+'–'+last);
+  setText('hist-title', 'Évolution mensuelle '+first+'–'+last);
+  setText('proj-title', 'Budget nécessaire '+curYear+'–'+(curYear+9));
+  setText('proj-budget-desc', 'Limite fixée pour '+curYear+' (défaut : 550 €)');
+  setText('proj-real-opt', 'Moy. réelle '+(curYear-1));
+}
+
+// Reconstruit tout ce qui dépend de l'année / des données
+function refreshAll(){
+  updateYearLabels();
+  buildStrip(); renderTable(); buildMetrics();
+  buildEssStrip(); renderEssTable(); buildEssMetrics();
+  if(document.getElementById('tab-historique').classList.contains('active')) buildHistorique();
+  if(document.getElementById('tab-essence').classList.contains('active')) buildEssHistorique();
+  if(document.getElementById('tab-projections').classList.contains('active')) updateProj();
+}
 
 // ═══════════════════════════════════════════════
 //  TABS
@@ -814,17 +928,15 @@ function switchTab(name, btn){
 function buildMetrics(){
   const cur = monthTotal(curMonth);
   const remain = BUDGET_COURSES - cur;
-  const months2026 = Object.keys(DATA26).filter(m=>DATA26[m]&&DATA26[m].length>0);
-  const ytd = months2026.reduce((s,m)=>s+monthTotal(parseInt(m)),0);
-  const avg26 = months2026.length > 0 ? ytd/months2026.length : 0;
-  const avg25 = HIST[2025].reduce((a,b)=>a+b,0)/12;
-  const diff = avg25 > 0 ? ((avg26-avg25)/avg25*100) : 0;
+  const ytd = seriesStats(courseSeries(curYear));
+  const prev = seriesStats(courseSeries(curYear-1));
+  const diff = prev.avg > 0 ? ((ytd.avg-prev.avg)/prev.avg*100) : null;
   const remainStr = remain < 0 ? '-'+fmt(Math.abs(remain)) : fmt(remain);
   const cards = [
-    {label: MONTHS[curMonth].slice(0,3)+'. 2026', val: fmt(cur), cls: cur>BUDGET_COURSES?'red':cur>BUDGET_COURSES*0.85?'amber':'green', sub: 'Budget : '+BUDGET_COURSES+' €/mois', accent:'#c8f060'},
+    {label: MONTHS_SHORT[curMonth]+' '+curYear, val: fmt(cur), cls: cur>BUDGET_COURSES?'red':cur>BUDGET_COURSES*0.85?'amber':'green', sub: 'Budget : '+BUDGET_COURSES+' €/mois', accent:'#c8f060'},
     {label: 'Reste budget courses', val: remainStr, cls: remain<0?'red':remain<80?'amber':'green', sub: remain<0?'Dépassement ⚠':'Encore disponible', accent:'#4ea8ff'},
-    {label: 'Total 2026 (YTD)', val: fmtR(ytd), cls: 'blue', sub: 'Moy. '+Math.round(avg26)+' €/mois', accent:'#4ea8ff'},
-    {label: 'vs Moy. 2025', val: (diff>0?'+':'')+diff.toFixed(1)+' %', cls: diff>0?'red':'green', sub: 'Moy. 2025 : '+Math.round(avg25)+' €/mois', accent: diff>0?'#ff4a6e':'#c8f060'}
+    {label: 'Total '+curYear+(curYear===REAL_YEAR?' (YTD)':''), val: fmtR(ytd.tot), cls: 'blue', sub: 'Moy. '+Math.round(ytd.avg)+' €/mois', accent:'#4ea8ff'},
+    {label: 'vs Moy. '+(curYear-1), val: diff===null?'n/a':(diff>0?'+':'')+diff.toFixed(1)+' %', cls: diff!==null&&diff>0?'red':'green', sub: prev.n ? 'Moy. '+(curYear-1)+' : '+Math.round(prev.avg)+' €/mois' : 'Pas de données '+(curYear-1), accent: diff!==null&&diff>0?'#ff4a6e':'#c8f060'}
   ];
   document.getElementById('metrics').innerHTML = cards.map(c=>`
     <div class="mcard">
@@ -841,7 +953,7 @@ function buildMetrics(){
 // ═══════════════════════════════════════════════
 function buildStrip(){
   document.getElementById('month-strip').innerHTML = MONTHS.map((m,i)=>{
-    const has = DATA26[i]&&DATA26[i].length>0;
+    const has = rowsOf(DATA,curYear,i).length>0;
     return `<button class="mpill${i===curMonth?' active':''} ${has?'has-data':''}" onclick="selectMonth(${i})">${m.slice(0,4)}</button>`;
   }).join('');
 }
@@ -854,27 +966,25 @@ function selectMonth(m){
 //  TABLE COURSES
 // ═══════════════════════════════════════════════
 function renderTable(){
-  if(DATA26[curMonth]) DATA26[curMonth].sort((a,b)=>a.day-b.day);
-  const rows = DATA26[curMonth]||[];
-  document.getElementById('panel-month-title').textContent = MONTHS[curMonth]+' 2026';
-  const total = rows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const list = rowsOf(DATA,curYear,curMonth);
+  list.sort((a,b)=>a.day-b.day);
+  const rows = list;
+  document.getElementById('panel-month-title').textContent = MONTHS[curMonth]+' '+curYear;
+  const total = sumRows(rows);
   const pct = Math.min(100,(total/BUDGET_COURSES)*100);
   document.getElementById('prog-fill').style.width = pct+'%';
-  document.getElementById('prog-fill').style.background = pct>100?'var(--red)':pct>85?'var(--gold)':'var(--accent)';
-  document.getElementById('prog-pct').textContent = Math.round(pct)+'%';
+  document.getElementById('prog-fill').style.background = pct>=100?'var(--red)':pct>85?'var(--gold)':'var(--accent)';
+  document.getElementById('prog-pct').textContent = Math.round(total/BUDGET_COURSES*100)+'%';
   document.getElementById('prog-label').textContent = fmt(total)+' / '+BUDGET_COURSES+' €';
-  document.getElementById('ct-body').innerHTML = rows.map((r,i)=>{
-    const noteSafe = (r.note||'').replace(/"/g,'&quot;');
-    const maxDay = new Date(2026,curMonth+1,0).getDate();
-    return `
+  const maxDay = daysIn(curMonth);
+  document.getElementById('ct-body').innerHTML = rows.map((r,i)=>`
     <tr>
       <td class="day-cell"><input class="day-in" type="number" min="1" max="${maxDay}" value="${r.day}" onchange="upDay(${i},this.value);renderTable()" aria-label="Jour"></td>
       <td style="text-align:center"><input class="amount-in" type="number" value="${r.amount}" step="0.01" min="0" onchange="upAmount(${i},this.value)" aria-label="Montant en euros"></td>
-      <td><input class="note-in" type="text" value="${noteSafe}" placeholder="hebdo, bio, promo…" onchange="upNote(${i},this.value)" aria-label="Note"></td>
+      <td><input class="note-in" type="text" value="${esc(r.note)}" placeholder="hebdo, bio, promo…" onchange="upNote(${i},this.value)" aria-label="Note"></td>
       <td><select class="store-sel" onchange="upStore(${i},this.value)" aria-label="Magasin">${STORES.map(s=>`<option${s===r.store?' selected':''}>${s}</option>`).join('')}</select></td>
       <td style="text-align:center"><button onclick="delRow(${i})" aria-label="Supprimer la ligne" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:4px;transition:color 0.2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
   document.getElementById('total-val').textContent = fmt(total);
   document.getElementById('total-sub').textContent = rows.length+' course'+(rows.length>1?'s':'');
   renderStoreBreakdown(rows, total);
@@ -890,7 +1000,7 @@ function renderStoreBreakdown(rows, total){
     byStore[s] = (byStore[s]||0) + (parseFloat(r.amount)||0);
   });
   const sorted = Object.entries(byStore).sort((a,b)=>b[1]-a[1]);
-  const max = sorted[0][1];
+  const max = sorted[0][1] || 1;
   const colors = {LIDL:'#c8f060', Cactus:'#4ea8ff', Delhaize:'#ff7a4a', Auchan:'#b48aff', Autre:'#f0c040'};
   el.className = 'store-breakdown';
   el.innerHTML = '<div class="sb-title">Répartition par magasin</div>' +
@@ -898,28 +1008,26 @@ function renderStoreBreakdown(rows, total){
       const pct = (val/max)*100;
       const pctTot = total>0 ? (val/total*100).toFixed(0) : 0;
       return `<div class="sb-row">
-        <span class="sb-name">${name}</span>
+        <span class="sb-name">${esc(name)}</span>
         <div class="sb-track"><div class="sb-fill" style="width:${pct}%;background:${colors[name]||'#888'}"></div></div>
         <span class="sb-val">${fmt(val)} <span style="color:var(--muted);font-weight:400">·${pctTot}%</span></span>
       </div>`;
     }).join('');
 }
-function upAmount(i,v){ if(!DATA26[curMonth])DATA26[curMonth]=[]; DATA26[curMonth][i].amount=parseFloat(v)||0; renderTable(); buildMetrics(); autosave(); }
-function upNote(i,v){ DATA26[curMonth][i].note=v; autosave(); }
-function upStore(i,v){ DATA26[curMonth][i].store=v; autosave(); }
+function upAmount(i,v){ rowsEdit(DATA,curYear,curMonth)[i].amount=parseFloat(v)||0; renderTable(); buildMetrics(); autosave(); }
+function upNote(i,v){ rowsEdit(DATA,curYear,curMonth)[i].note=v; autosave(); }
+function upStore(i,v){ rowsEdit(DATA,curYear,curMonth)[i].store=v; renderTable(); autosave(); }
 function upDay(i,v){
   const d = parseInt(v)||1;
-  const max = new Date(2026,curMonth+1,0).getDate();
-  DATA26[curMonth][i].day = Math.min(Math.max(1,d), max);
+  rowsEdit(DATA,curYear,curMonth)[i].day = Math.min(Math.max(1,d), daysIn(curMonth));
   autosave();
 }
-function delRow(i){ DATA26[curMonth].splice(i,1); renderTable(); buildMetrics(); autosave(); }
+function delRow(i){ rowsEdit(DATA,curYear,curMonth).splice(i,1); buildStrip(); renderTable(); buildMetrics(); autosave(); }
 function addRow(){
-  if(!DATA26[curMonth])DATA26[curMonth]=[];
-  const last = DATA26[curMonth].length>0?DATA26[curMonth][DATA26[curMonth].length-1].day+1:1;
-  const days = new Date(2026,curMonth+1,0).getDate();
-  DATA26[curMonth].push({day:Math.min(last,days),amount:0,note:'',store:'LIDL'});
-  renderTable(); buildMetrics(); autosave();
+  const list = rowsEdit(DATA,curYear,curMonth);
+  const last = list.length>0 ? Math.max(...list.map(r=>r.day))+1 : 1;
+  list.push({day:Math.min(last,daysIn(curMonth)),amount:0,note:'',store:'LIDL'});
+  buildStrip(); renderTable(); buildMetrics(); autosave();
 }
 
 // ═══════════════════════════════════════════════
@@ -928,25 +1036,23 @@ function addRow(){
 function buildEssMetrics(){
   const cur = essTotal(curEssMonth);
   const remain = BUDGET_ESSENCE - cur;
-  const months2026ess = Object.keys(ESS26).filter(m=>ESS26[m]&&ESS26[m].length>0);
-  const ytd = months2026ess.reduce((s,m)=>s+essTotal(parseInt(m)),0);
-  const avg26 = months2026ess.length>0 ? ytd/months2026ess.length : 0;
-  const avg25 = HIST_ESS[2025].data.reduce((a,b)=>a+b,0)/12;
+  const ytd = seriesStats(essSeries(curYear));
+  const prev = seriesStats(essSeries(curYear-1));
   const remainStr = remain < 0 ? '-'+fmt(Math.abs(remain)) : fmt(remain);
   const cards = [
-    {label: MONTHS[curEssMonth].slice(0,3)+'. 2026', val: fmt(cur), cls: cur>BUDGET_ESSENCE?'red':cur>BUDGET_ESSENCE*0.85?'amber':'purple', sub: 'Budget : '+BUDGET_ESSENCE+' €/mois', accent:'#b48aff'},
+    {label: MONTHS_SHORT[curEssMonth]+' '+curYear, val: fmt(cur), cls: cur>BUDGET_ESSENCE?'red':cur>BUDGET_ESSENCE*0.85?'amber':'purple', sub: 'Budget : '+BUDGET_ESSENCE+' €/mois', accent:'#b48aff'},
     {label: 'Reste budget essence', val: remainStr, cls: remain<0?'red':remain<40?'amber':'green', sub: remain<0?'Dépassement ⚠':'Encore disponible', accent:'#4ea8ff'},
-    {label: 'Total carburant 2026', val: fmtR(ytd), cls: 'blue', sub: 'Moy. '+Math.round(avg26)+' €/mois', accent:'#4ea8ff'},
+    {label: 'Total carburant '+curYear, val: fmtR(ytd.tot), cls: 'blue', sub: 'Moy. '+Math.round(ytd.avg)+' €/mois', accent:'#4ea8ff'},
     (() => {
       let val, cls;
-      if (avg25 <= 0)       { val = 'n/a';      cls = 'green'; }
-      else if (avg26 === 0) { val = 'En cours'; cls = 'green'; }
+      if (prev.avg <= 0)     { val = 'n/a';      cls = 'green'; }
+      else if (ytd.avg === 0){ val = 'En cours'; cls = 'green'; }
       else {
-        const diffE = (avg26 - avg25) / avg25 * 100;
+        const diffE = (ytd.avg - prev.avg) / prev.avg * 100;
         val = (diffE > 0 ? '+' : '') + diffE.toFixed(1) + ' %';
         cls = diffE > 0 ? 'red' : 'green';
       }
-      return { label: 'vs Moy. Ess. 2025', val, cls, sub: 'Moy. 2025 : '+Math.round(avg25)+' €/mois', accent: cls==='red'?'#ff4a6e':'#c8f060' };
+      return { label: 'vs Moy. Ess. '+(curYear-1), val, cls, sub: prev.n ? 'Moy. '+(curYear-1)+' : '+Math.round(prev.avg)+' €/mois' : 'Pas de données '+(curYear-1), accent: cls==='red'?'#ff4a6e':'#c8f060' };
     })()
   ];
   document.getElementById('ess-metrics').innerHTML = cards.map(c=>`
@@ -964,7 +1070,7 @@ function buildEssMetrics(){
 // ═══════════════════════════════════════════════
 function buildEssStrip(){
   document.getElementById('ess-month-strip').innerHTML = MONTHS.map((m,i)=>{
-    const has = ESS26[i]&&ESS26[i].length>0;
+    const has = rowsOf(ESS,curYear,i).length>0;
     return `<button class="mpill${i===curEssMonth?' active':''} ${has?'has-data':''}" onclick="selectEssMonth(${i})" style="${i===curEssMonth?'border-color:var(--purple);color:var(--purple);background:rgba(180,138,255,0.1)':''}">${m.slice(0,4)}</button>`;
   }).join('');
 }
@@ -977,92 +1083,94 @@ function selectEssMonth(m){
 //  ESSENCE — TABLE
 // ═══════════════════════════════════════════════
 function renderEssTable(){
-  if(ESS26[curEssMonth]) ESS26[curEssMonth].sort((a,b)=>a.day-b.day);
-  const rows = ESS26[curEssMonth]||[];
-  document.getElementById('ess-panel-title').textContent = 'Essence · '+MONTHS[curEssMonth]+' 2026';
-  const total = rows.reduce((s,r)=>s+(parseFloat(r.amount)||0),0);
+  const rows = rowsOf(ESS,curYear,curEssMonth);
+  rows.sort((a,b)=>a.day-b.day);
+  document.getElementById('ess-panel-title').textContent = 'Essence · '+MONTHS[curEssMonth]+' '+curYear;
+  const total = sumRows(rows);
   const pct = Math.min(100,(total/BUDGET_ESSENCE)*100);
   document.getElementById('ess-prog-fill').style.width = pct+'%';
-  document.getElementById('ess-prog-fill').style.background = pct>100?'var(--red)':pct>85?'var(--gold)':'var(--purple)';
-  document.getElementById('ess-prog-pct').textContent = Math.round(pct)+'%';
+  document.getElementById('ess-prog-fill').style.background = pct>=100?'var(--red)':pct>85?'var(--gold)':'var(--purple)';
+  document.getElementById('ess-prog-pct').textContent = Math.round(total/BUDGET_ESSENCE*100)+'%';
   document.getElementById('ess-prog-label').textContent = fmt(total)+' / '+BUDGET_ESSENCE+' €';
-  document.getElementById('ess-body').innerHTML = rows.map((r,i)=>{
-    const maxDay = new Date(2026,curEssMonth+1,0).getDate();
-    return `
+  const maxDay = daysIn(curEssMonth);
+  document.getElementById('ess-body').innerHTML = rows.map((r,i)=>`
     <tr>
       <td class="day-cell"><input class="day-in" type="number" min="1" max="${maxDay}" value="${r.day}" onchange="upEssDay(${i},this.value);renderEssTable()" aria-label="Jour"></td>
       <td style="text-align:center"><input class="amount-in" type="number" value="${r.amount}" step="0.01" min="0" onchange="upEssAmount(${i},this.value)" aria-label="Montant en euros" style="border-color:rgba(180,138,255,0.3)"></td>
       <td><select class="fuel-sel" onchange="upEssFuel(${i},this.value)" aria-label="Carburant">${FUELS.map(f=>`<option${f===r.fuel?' selected':''}>${f}</option>`).join('')}</select></td>
       <td><select class="fuel-sel" onchange="upEssStation(${i},this.value)" aria-label="Station">${STATIONS.map(s=>`<option${s===r.station?' selected':''}>${s}</option>`).join('')}</select></td>
       <td style="text-align:center"><button onclick="delEssRow(${i})" aria-label="Supprimer le plein" style="background:none;border:none;color:var(--muted2);cursor:pointer;font-size:16px;line-height:1;padding:2px 6px;border-radius:4px;transition:color 0.2s" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--muted2)'">×</button></td>
-    </tr>`;
-  }).join('');
+    </tr>`).join('');
   document.getElementById('ess-total-val').textContent = fmt(total);
   document.getElementById('ess-total-sub').textContent = rows.length+' plein'+(rows.length>1?'s':'');
 }
-function upEssAmount(i,v){ if(!ESS26[curEssMonth])ESS26[curEssMonth]=[]; ESS26[curEssMonth][i].amount=parseFloat(v)||0; renderEssTable(); buildEssMetrics(); autosave(); }
-function upEssFuel(i,v){ ESS26[curEssMonth][i].fuel=v; autosave(); }
-function upEssStation(i,v){ ESS26[curEssMonth][i].station=v; autosave(); }
+function upEssAmount(i,v){ rowsEdit(ESS,curYear,curEssMonth)[i].amount=parseFloat(v)||0; renderEssTable(); buildEssMetrics(); autosave(); }
+function upEssFuel(i,v){ rowsEdit(ESS,curYear,curEssMonth)[i].fuel=v; autosave(); }
+function upEssStation(i,v){ rowsEdit(ESS,curYear,curEssMonth)[i].station=v; autosave(); }
 function upEssDay(i,v){
   const d = parseInt(v)||1;
-  const max = new Date(2026,curEssMonth+1,0).getDate();
-  ESS26[curEssMonth][i].day = Math.min(Math.max(1,d), max);
+  rowsEdit(ESS,curYear,curEssMonth)[i].day = Math.min(Math.max(1,d), daysIn(curEssMonth));
   autosave();
 }
-function delEssRow(i){ ESS26[curEssMonth].splice(i,1); renderEssTable(); buildEssMetrics(); autosave(); }
+function delEssRow(i){ rowsEdit(ESS,curYear,curEssMonth).splice(i,1); buildEssStrip(); renderEssTable(); buildEssMetrics(); autosave(); }
 function addEssRow(){
-  if(!ESS26[curEssMonth])ESS26[curEssMonth]=[];
-  const last = ESS26[curEssMonth].length>0?ESS26[curEssMonth][ESS26[curEssMonth].length-1].day+1:1;
-  const days = new Date(2026,curEssMonth+1,0).getDate();
-  ESS26[curEssMonth].push({day:Math.min(last,days),amount:0,fuel:'Essence 95',station:'Q8'});
-  renderEssTable(); buildEssMetrics(); autosave();
+  const list = rowsEdit(ESS,curYear,curEssMonth);
+  const last = list.length>0 ? Math.max(...list.map(r=>r.day))+1 : 1;
+  list.push({day:Math.min(last,daysIn(curEssMonth)),amount:0,fuel:'Essence 95',station:'Q8'});
+  buildEssStrip(); renderEssTable(); buildEssMetrics(); autosave();
 }
+
+// ═══════════════════════════════════════════════
+//  OPTIONS CHART COMMUNES
+// ═══════════════════════════════════════════════
+const TOOLTIP = {backgroundColor:'rgba(13,17,23,0.9)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0ede8',bodyColor:'rgba(240,237,232,0.6)',padding:12};
 
 // ═══════════════════════════════════════════════
 //  ESSENCE — HISTORIQUE CHART
 // ═══════════════════════════════════════════════
+function essYearColor(y, isLast){
+  if(isLast) return '#b48aff';
+  return HIST_ESS[y] ? HIST_ESS[y].color : '#b48aff99';
+}
 function buildEssHistorique(){
-  const years = [2022,2023,2024,2025];
-  // Year cards
+  const years = historyYears();
+  const lastY = years[years.length-1];
   document.getElementById('ess-year-cards').innerHTML = years.map(y=>{
-    const d = HIST_ESS[y];
-    const tot = d.data.reduce((a,b)=>a+b,0);
-    const avg = tot/12;
-    // Si la couleur a un alpha (8 chars hex après #), on le retire pour l'affichage de la valeur (plus lisible)
-    const solidColor = /^#[0-9a-f]{8}$/i.test(d.color) ? d.color.slice(0,7) : d.color;
+    const st = seriesStats(essSeries(y));
+    const col = essYearColor(y, y===lastY);
+    // Couleur sans alpha (8 chars hex) pour l'affichage de la valeur
+    const solidColor = /^#[0-9a-f]{8}$/i.test(col) ? col.slice(0,7) : col;
     return `<div class="ycard">
-      <div class="ycard-year">${y} — ${d.label}</div>
-      <div class="ycard-val" style="color:${solidColor}">${Math.round(tot).toLocaleString('fr-LU')} €</div>
-      <div class="ycard-avg">${Math.round(avg)} €/mois</div>
+      <div class="ycard-year">${y} — ${essLabel(y)}</div>
+      <div class="ycard-val" style="color:${solidColor}">${Math.round(st.tot).toLocaleString('fr-LU')} €</div>
+      <div class="ycard-avg">${Math.round(st.avg)} €/mois${st.n&&st.n<12?' · '+st.n+' mois':''}</div>
     </div>`;
   }).join('');
 
-  // Données 2026
-  const ess2026 = MONTHS.map((_,i)=>essTotal(i));
   const lCtx = document.getElementById('essLineChart').getContext('2d');
   if(essLineChart) essLineChart.destroy();
   essLineChart = new Chart(lCtx,{
     type:'line',
     data:{
       labels: MONTHS.map(m=>m.slice(0,4)),
-      datasets:[
-        ...years.map(y=>({
-          label: y+' '+HIST_ESS[y].label,
-          data: HIST_ESS[y].data,
-          borderColor: HIST_ESS[y].color,
-          backgroundColor: 'transparent',
-          borderWidth: 1.5, pointRadius: 2, tension: 0.35
-        })),
-        {label:'2026 Essence',data:ess2026,borderColor:'#b48aff',backgroundColor:'rgba(180,138,255,0.08)',fill:true,borderWidth:2.5,pointRadius:4,tension:0.35}
-      ]
+      datasets: years.map(y=>{
+        const isLast = y===lastY;
+        const col = essYearColor(y, isLast);
+        return {
+          label: y+' '+essLabel(y), data: essSeries(y),
+          borderColor: col,
+          backgroundColor: isLast ? 'rgba(180,138,255,0.08)' : 'transparent',
+          fill: isLast,
+          borderWidth: isLast?2.5:1.5, pointRadius: isLast?4:2, tension: 0.35
+        };
+      })
     },
     options:{
       responsive:true, maintainAspectRatio:false,
-      plugins:{legend:{display:true,labels:{color:'rgba(240,237,232,0.5)',font:{size:11},boxWidth:12}},
-        tooltip:{backgroundColor:'rgba(13,17,23,0.9)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0ede8',bodyColor:'rgba(240,237,232,0.6)',padding:12}},
+      plugins:{legend:{display:true,labels:{color:'rgba(240,237,232,0.5)',font:{size:11},boxWidth:12}}, tooltip:TOOLTIP},
       scales:{
         x:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:11,family:'DM Sans'}},grid:{color:'rgba(255,255,255,0.04)'}},
-        y:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:11},callback:v=>v+'€'},grid:{color:'rgba(255,255,255,0.04)'}}
+        y:{beginAtZero:true,ticks:{color:'rgba(240,237,232,0.4)',font:{size:11},callback:v=>v+'€'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
@@ -1072,17 +1180,18 @@ function buildEssHistorique(){
 //  HISTORIQUE COURSES
 // ═══════════════════════════════════════════════
 function buildHistorique(){
-  const years = [2022,2023,2024,2025];
-  const colors = ['#4ea8ff88','#4ea8ffaa','#4ea8ffcc','#c8f060'];
-  document.getElementById('year-cards').innerHTML = years.map(y=>{
-    const tot = HIST[y].reduce((a,b)=>a+b,0);
-    const avg = tot/12;
-    const prev = y>2022?HIST[y-1].reduce((a,b)=>a+b,0)/12:null;
-    const diff = prev?((avg-prev)/prev*100):null;
+  const years = historyYears();
+  const colors = yearColors(years);
+  const lastIdx = years.length-1;
+  const stats = years.map(y=>seriesStats(courseSeries(y)));
+  document.getElementById('year-cards').innerHTML = years.map((y,i)=>{
+    const st = stats[i];
+    const prev = i>0 ? stats[i-1] : null;
+    const diff = prev && prev.avg>0 && st.n>0 ? ((st.avg-prev.avg)/prev.avg*100) : null;
     return `<div class="ycard">
       <div class="ycard-year">${y}</div>
-      <div class="ycard-val" style="color:${y===2025?'var(--accent)':'var(--text)'}">${Math.round(tot).toLocaleString('fr-LU')} €</div>
-      <div class="ycard-avg">${Math.round(avg)} €/mois</div>
+      <div class="ycard-val" style="color:${i===lastIdx?'var(--accent)':'var(--text)'}">${Math.round(st.tot).toLocaleString('fr-LU')} €</div>
+      <div class="ycard-avg">${Math.round(st.avg)} €/mois${st.n&&st.n<12?' · '+st.n+' mois':''}</div>
       ${diff!==null?`<div class="ycard-diff" style="color:${diff>0?'var(--orange)':'var(--accent)'}">${diff>0?'↑+':'↓'}${diff.toFixed(1)}%</div>`:''}
     </div>`;
   }).join('');
@@ -1096,13 +1205,13 @@ function buildHistorique(){
     data:{
       labels:MONTHS.map(m=>m.slice(0,4)),
       datasets: years.map((y,i)=>({
-        label:y+'', data:HIST[y],
+        label:y+'', data:courseSeries(y),
         borderColor:colors[i], backgroundColor:'transparent',
-        borderWidth:i===3?2.5:1.5, pointRadius:i===3?4:2, tension:0.35
+        borderWidth:i===lastIdx?2.5:1.5, pointRadius:i===lastIdx?4:2, tension:0.35
       }))
     },
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,17,23,0.9)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0ede8',bodyColor:'rgba(240,237,232,0.6)',padding:12}},
+      plugins:{legend:{display:false},tooltip:TOOLTIP},
       scales:{
         x:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:11,family:'DM Sans'}},grid:{color:'rgba(255,255,255,0.04)'}},
         y:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:11,family:'DM Sans'},callback:v=>v+'€'},grid:{color:'rgba(255,255,255,0.04)'}}
@@ -1111,15 +1220,15 @@ function buildHistorique(){
   });
   const bCtx = document.getElementById('barChart').getContext('2d');
   if(barChart)barChart.destroy();
-  const annuals = years.map(y=>Math.round(HIST[y].reduce((a,b)=>a+b,0)));
+  const annuals = stats.map(s=>Math.round(s.tot));
   barChart = new Chart(bCtx,{
     type:'bar',
     data:{labels:years,datasets:[{data:annuals,backgroundColor:colors,borderRadius:8,borderSkipped:false}]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,17,23,0.9)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0ede8',bodyColor:'rgba(240,237,232,0.6)',padding:12,callbacks:{label:ctx=>ctx.parsed.y.toLocaleString('fr-LU')+' €'}}},
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP,callbacks:{label:ctx=>ctx.parsed.y.toLocaleString('fr-LU')+' €'}}},
       scales:{
         x:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:12,family:'DM Sans'}},grid:{display:false}},
-        y:{min:4000,ticks:{color:'rgba(240,237,232,0.4)',font:{size:11},callback:v=>v+'€'},grid:{color:'rgba(255,255,255,0.04)'}}
+        y:{beginAtZero:true,ticks:{color:'rgba(240,237,232,0.4)',font:{size:11},callback:v=>v+'€'},grid:{color:'rgba(255,255,255,0.04)'}}
       }
     }
   });
@@ -1132,24 +1241,25 @@ function updateProj(){
   const budget = parseFloat(document.getElementById('s-budget').value);
   const infl   = parseFloat(document.getElementById('s-infl').value)/100;
   const shock  = parseFloat(document.getElementById('s-shock').value)/100;
-  // Base de projection : "budget" cible (slider) ou moyenne réelle 2025
+  // Base de projection : "budget" cible (slider) ou moyenne réelle de l'année précédente
   const baseMode = document.querySelector('input[name="proj-base"]:checked')?.value || 'budget';
-  const avg2025 = HIST[2025].reduce((a,b)=>a+b,0)/12; // 514,92 €
-  const startMonthly = baseMode === 'real' ? avg2025 : budget;
+  const prev = seriesStats(courseSeries(curYear-1));
+  const realAvg = prev.avg > 0 ? prev.avg : budget;
+  const startMonthly = baseMode === 'real' ? realAvg : budget;
 
   document.getElementById('v-budget').textContent = budget+' €';
   document.getElementById('v-infl').textContent = document.getElementById('s-infl').value.replace('.',',')+' %';
   document.getElementById('v-shock').textContent = document.getElementById('s-shock').value.replace('.',',')+' %';
   const baseLabel = document.getElementById('proj-base-label');
   if(baseLabel) baseLabel.textContent = baseMode==='real'
-    ? `Base : moyenne réelle 2025 (${avg2025.toFixed(2).replace('.',',')} €/mois)`
+    ? `Base : moyenne réelle ${curYear-1} (${realAvg.toFixed(2).replace('.',',')} €/mois)`
     : `Base : budget cible (${budget} €/mois)`;
 
   const years=[],normM=[],shockM=[],budgetLine=[];
   let n = startMonthly*12, s = startMonthly*12;
   let html='';
   for(let i=0;i<10;i++){
-    const y=2026+i;
+    const y=curYear+i;
     if(i>0){n*=(1+infl);s*=(1+shock);}
     const nm=n/12, sm=s/12;
     years.push(y); normM.push(Math.round(nm)); shockM.push(Math.round(sm)); budgetLine.push(budget);
@@ -1174,7 +1284,7 @@ function updateProj(){
       {label:'Budget',data:budgetLine,borderColor:'rgba(255,255,255,0.2)',borderWidth:1.5,borderDash:[3,3],pointRadius:0,tension:0}
     ]},
     options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{backgroundColor:'rgba(13,17,23,0.9)',borderColor:'rgba(255,255,255,0.1)',borderWidth:1,titleColor:'#f0ede8',bodyColor:'rgba(240,237,232,0.6)',padding:12,callbacks:{label:ctx=>ctx.dataset.label+' : '+ctx.parsed.y.toLocaleString('fr-LU')+' €/mois'}}},
+      plugins:{legend:{display:false},tooltip:{...TOOLTIP,callbacks:{label:ctx=>ctx.dataset.label+' : '+ctx.parsed.y.toLocaleString('fr-LU')+' €/mois'}}},
       scales:{
         x:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:11,family:'DM Sans'}},grid:{color:'rgba(255,255,255,0.04)'}},
         y:{ticks:{color:'rgba(240,237,232,0.4)',font:{size:11},callback:v=>v+'€'},grid:{color:'rgba(255,255,255,0.04)'}}
@@ -1187,10 +1297,7 @@ function updateProj(){
 //  INIT
 // ═══════════════════════════════════════════════
 loadData();
-buildStrip();
-renderTable();
-buildMetrics();
-buildEssStrip();
+refreshAll();
 </script>
 </body>
 </html>
